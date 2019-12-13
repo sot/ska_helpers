@@ -5,6 +5,7 @@ using pkg_resources if it is installed, and
 """
 
 import re
+import importlib
 from pkg_resources import get_distribution, DistributionNotFound
 
 
@@ -27,10 +28,14 @@ def get_version(package=None):
         version = None
         errors.append(f'No pkg_resources found for {package}')
 
-    if not version:
+    # this appears to be cyclic, but it is not.
+    # When called from within __init__.py, the module is not completely defined yet,
+    # but that is not an issue here.
+    module = importlib.import_module(package)
+    if not version or not module.__file__.lower().startswith(dist_info.location.lower()):
         try:
             from setuptools_scm import get_version
-            version = get_version(root='..', relative_to=__file__)
+            version = get_version(root='..', relative_to=module.__file__)
         except Exception as err:
             errors.append(err)
 
