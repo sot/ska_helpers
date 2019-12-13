@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# aca_helpers documentation build configuration file, created by
+# ska_helpers documentation build configuration file, created by
 # sphinx-quickstart on Fri Dec 13 09:48:53 2019.
 #
 # This file is execfile()d with the current directory set to its
@@ -20,7 +20,7 @@
 import sys
 import os
 sys.path.insert(0, os.path.abspath('..'))
-from aca_helpers import __version__
+from ska_helpers import __version__
 
 
 # -- General configuration ------------------------------------------------
@@ -110,7 +110,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'aca_helpers_doc'
+htmlhelp_basename = 'ska_helpers_doc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -122,7 +122,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'aca_helpers.tex', 'aca\\_helpers Documentation',
+    (master_doc, 'ska_helpers.tex', 'aca\\_helpers Documentation',
      'Javier Gonzalez', 'manual'),
 ]
 
@@ -132,7 +132,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'aca_helpers', 'aca_helpers Documentation',
+    (master_doc, 'ska_helpers', 'ska_helpers Documentation',
      [author], 1)
 ]
 
@@ -143,8 +143,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'aca_helpers', 'aca_helpers Documentation',
-     author, 'aca_helpers', 'One line description of project.',
+    (master_doc, 'ska_helpers', 'ska_helpers Documentation',
+     author, 'ska_helpers', 'One line description of project.',
      'Miscellaneous'),
 ]
 

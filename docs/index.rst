@@ -1,4 +1,4 @@
-.. aca_helpers documentation master file, created by
+.. ska_helpers documentation master file, created by
    sphinx-quickstart on Fri Dec 13 09:48:53 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -6,13 +6,13 @@
 ACA Package Helpers
 ===================
 
-.. automodule:: aca_helpers
+.. automodule:: ska_helpers
    :members:
 
 Get Version
 -----------
 
-.. automodule:: aca_helpers.get_version
+.. automodule:: ska_helpers.get_version
    :members:
 
 

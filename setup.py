@@ -6,12 +6,12 @@ try:
 except ImportError:
     cmdclass = {}
 
-setup(name='aca_helpers',
+setup(name='ska_helpers',
       description='Utilities for SKA packages',
       author='Javier Gonzalez',
       author_email='javier.gonzalez@cfa.harvard.edu',
-      url='http://cxc.harvard.edu/mta/ASPECT/tool_doc/aca_helpers.html',
-      packages=['aca_helpers'],
+      url='http://cxc.harvard.edu/mta/ASPECT/tool_doc/ska_helpers.html',
+      packages=['ska_helpers'],
       tests_require=['pytest'],
 	  use_scm_version=True,
       setup_requires=['setuptools_scm'],
