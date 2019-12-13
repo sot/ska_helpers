@@ -32,6 +32,7 @@ def get_version(package, git_root='..'):
     # but that is not an issue here.
     module = importlib.import_module(package)
     if not version or not module.__file__.lower().startswith(dist_info.location.lower()):
+        version = None
         try:
             from setuptools_scm import get_version
             version = get_version(root=git_root, relative_to=module.__file__)
@@ -42,6 +43,7 @@ def get_version(package, git_root='..'):
         error = f'Failed to find a package version for {package}'
         for err in errors:
             error += f'\n - Error: {err}'
+        raise RuntimeError(error)
 
     return version
 
