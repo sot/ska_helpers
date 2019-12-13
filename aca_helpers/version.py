@@ -9,16 +9,15 @@ import importlib
 from pkg_resources import get_distribution, DistributionNotFound
 
 
-def get_version(package=None):
+def get_version(package, git_root='..'):
     """
     Get version string. If there is no package info, get it from git.
 
+    :param package:
+    :param root: path of git root directory, relative to module file.
     :return: str
         The version string
     """
-    if not package:
-        package = __package__
-
     errors = []
     try:
         dist_info = get_distribution(package)
@@ -35,7 +34,7 @@ def get_version(package=None):
     if not version or not module.__file__.lower().startswith(dist_info.location.lower()):
         try:
             from setuptools_scm import get_version
-            version = get_version(root='..', relative_to=module.__file__)
+            version = get_version(root=git_root, relative_to=module.__file__)
         except Exception as err:
             errors.append(err)
 

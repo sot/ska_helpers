@@ -6,4 +6,4 @@ It currently includes:
 """
 from .version import get_version
 
-__version__ = get_version()
+__version__ = get_version(__package__)
