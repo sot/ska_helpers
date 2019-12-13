@@ -22,7 +22,7 @@ def get_version(package, git_root='..'):
     try:
         dist_info = get_distribution(package)
         version = dist_info.version
-    except DistributionNotFound:
+    except Exception:
         dist_info = None
         version = None
         errors.append(f'No pkg_resources found for {package}')
