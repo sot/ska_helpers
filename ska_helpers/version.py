@@ -1,6 +1,6 @@
 """
-This module provides utilities to handle package versions. The version of a package is determined
-using pkg_resources if it is installed, and
+This module provides utilities to handle package versions. The version of a
+package is determined using pkg_resources if it is installed, and
 `setuptools_scm <https://github.com/pypa/setuptools_scm/>`_ otherwise.
 """
 
@@ -9,41 +9,57 @@ import importlib
 from pkg_resources import get_distribution, DistributionNotFound
 
 
-def get_version(package, git_root='..'):
+def get_version(package, distribution=None):
     """
-    Get version string. If there is no package info, get it from git.
+    Get version string for ``package`` with optional ``distribution`` name.
 
-    :param package:
-    :param root: path of git root directory, relative to module file.
+    If the package is not from an installed distribution then get version from
+    git using setuptools_scm.
+
+    :param package: package name, typically __package__
+    :param distribution: name of distribution if different from ``package``
+
     :return: str
-        The version string
+        Version string
     """
-    errors = []
-    try:
-        dist_info = get_distribution(package)
-        version = dist_info.version
-    except Exception:
-        dist_info = None
-        version = None
-        errors.append(f'No pkg_resources found for {package}')
-
-    # this appears to be cyclic, but it is not.
-    # When called from within __init__.py, the module is not completely defined yet,
-    # but that is not an issue here.
+    # Get module for package.  When called from <package>/__init__.py this is
+    # not circular because that package is already in sys.modules.  If the
+    # package does not import then ImportError is raised as normal.
     module = importlib.import_module(package)
-    if not version or not module.__file__.lower().startswith(dist_info.location.lower()):
-        version = None
-        try:
-            from setuptools_scm import get_version
-            version = get_version(root=git_root, relative_to=module.__file__)
-        except Exception as err:
-            errors.append(err)
 
-    if not version:
-        error = f'Failed to find a package version for {package}'
-        for err in errors:
-            error += f'\n - Error: {err}'
-        raise RuntimeError(error)
+    # From this point guarantee tha a version string is returned.
+    try:
+        try:
+            # See if the distribution is installed.  For some packages, e.g.
+            # cheta or pyyaml, the distribution will be different from the
+            # package.
+            dist_info = get_distribution(distribution or package)
+            version = dist_info.version
+
+            # Check if the package __init__.py file is located within distribution.
+            # If so we are done and ``version`` is set correctly. Windows does not
+            # necessarily respect the case so downcase everything.
+            assert module.__file__.lower().startswith(dist_info.location.lower())
+
+        except (DistributionNotFound, AssertionError):
+            # Get_distribution failed or found a different package from this
+            # file, try getting version from source repo.
+            from setuptools_scm import get_version
+            from pathlib import Path
+
+            # Define root as N directories up from location of __init__.py based
+            # on package name.
+            roots = ['..'] * len(package.split('.'))
+            version = get_version(root=Path(*roots), relative_to=module.__file__)
+
+    except Exception:
+        # Something went wrong. The ``get_version` function should never block
+        # import but generate a lot of output indicating the problem.
+        import warnings
+        import traceback
+        warnings.warn(traceback.format_exc() + '\n\n')
+        warnings.warn('Failed to find a package version, setting to 0.0.0')
+        version = '0.0.0'
 
     return version
 
@@ -56,9 +72,9 @@ def parse_version(version):
     :param version: str
     :return: dict
     """
-    fmt = '(?P<major>[0-9]+)(.(?P<minor>[0-9]+))?(.(?P<patch>[0-9]+))?' \
-          '(.dev(?P<distance>[0-9]+))?'\
-          '(\+(?P<letter>\S)g?(?P<hash>\S+)\.(d(?P<date>[0-9]+))?)?'
+    fmt = r'(?P<major>[0-9]+)(.(?P<minor>[0-9]+))?(.(?P<patch>[0-9]+))?' \
+          r'(.dev(?P<distance>[0-9]+))?'\
+          r'(\+(?P<letter>\S)g?(?P<hash>\S+)\.(d(?P<date>[0-9]+))?)?'
     m = re.match(fmt, version)
     if not m:
         raise RuntimeError(f'version {version} could not be parsed')

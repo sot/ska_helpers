@@ -1,8 +1,10 @@
 """
-ACA Helpers is a collection of utilities for ACA packages.
-It currently includes:
+Ska_helpers is a collection of utilities for the Ska3 runtime environment.
 
-- get_version. A function to get the version from installed package information ot git.
+ska_helpers.version
+-------------------
+- get_version: get the version from installed package information or git.
+- parse_version: parse the version into a dict of components.
 """
 from .version import get_version
 
