@@ -44,7 +44,6 @@ def get_version(package, distribution=None):
             # that does not have a <package>.egg-info directory, get_distribution()
             # will find an installed version.  Windows does not necessarily
             # respect the case so downcase everything.
-            print('** DIST_INFO:', dist_info.location)
             assert module.__file__.lower().startswith(dist_info.location.lower())
 
             # If the dist_info.location appears to be a git repo, then
@@ -55,12 +54,12 @@ def get_version(package, distribution=None):
             git_dir = Path(dist_info.location, '.git')
             if git_dir.exists() and git_dir.is_dir():
                 raise AssertionError
+            print(f'** Using DIST_INFO ({package}, {distribution}):', dist_info.location)
 
         except (DistributionNotFound, AssertionError):
             # Get_distribution failed or found a different package from this
             # file, try getting version from source repo.
             from setuptools_scm import get_version
-            print('** USING setuptools_scm')
 
             # Define root as N directories up from location of __init__.py based
             # on package name.
@@ -68,6 +67,7 @@ def get_version(package, distribution=None):
             if os.path.basename(module.__file__) != '__init__.py':
                 roots = roots[:-1]
             version = get_version(root=Path(*roots), relative_to=module.__file__)
+            print(f'** Using setuptools_scm ({package}, {distribution})')
 
     except Exception:
         # Something went wrong. The ``get_version` function should never block
