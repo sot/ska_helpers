@@ -5,6 +5,7 @@ package is determined using pkg_resources if it is installed, and
 """
 
 import re
+from pathlib import Path
 import importlib
 from pkg_resources import get_distribution, DistributionNotFound
 
@@ -30,22 +31,35 @@ def get_version(package, distribution=None):
     # From this point guarantee tha a version string is returned.
     try:
         try:
-            # See if the distribution is installed.  For some packages, e.g.
+            # Get a distribution, which may or may not correspond to the package
+            # # that gets imported (we check that next).  For some packages, e.g.
             # cheta or pyyaml, the distribution will be different from the
             # package.
             dist_info = get_distribution(distribution or package)
             version = dist_info.version
 
-            # Check if the package __init__.py file is located within distribution.
-            # If so we are done and ``version`` is set correctly. Windows does not
-            # necessarily respect the case so downcase everything.
+            # Check if the imported package __init__.py file has the same location
+            # as the distribution that was found.  If working in a local git repo
+            # that does not have a <package>.egg-info directory, get_distribution()
+            # will find an installed version.  Windows does not necessarily
+            # respect the case so downcase everything.
+            print('** DIST_INFO:', dist_info.location)
             assert module.__file__.lower().startswith(dist_info.location.lower())
+
+            # If the dist_info.location appears to be a git repo, then
+            # get_distribution() has gotten a "local" distribution and the
+            # dist_info.version just corresponds to whatever version was the
+            # last run of "setup.py sdist" or "setup.py bdist_wheel", i.e.
+            # unrelated to current version, so ignore in this case.
+            git_dir = Path(dist_info.location, '.git')
+            if git_dir.exists() and git_dir.is_dir():
+                raise AssertionError
 
         except (DistributionNotFound, AssertionError):
             # Get_distribution failed or found a different package from this
             # file, try getting version from source repo.
             from setuptools_scm import get_version
-            from pathlib import Path
+            print('** USING setuptools_scm')
 
             # Define root as N directories up from location of __init__.py based
             # on package name.
