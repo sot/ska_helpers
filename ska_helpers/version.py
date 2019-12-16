@@ -5,6 +5,7 @@ package is determined using pkg_resources if it is installed, and
 """
 
 import re
+import os
 from pathlib import Path
 import importlib
 from pkg_resources import get_distribution, DistributionNotFound
@@ -64,6 +65,8 @@ def get_version(package, distribution=None):
             # Define root as N directories up from location of __init__.py based
             # on package name.
             roots = ['..'] * len(package.split('.'))
+            if os.path.basename(module.__file__) != '__init__.py':
+                roots = roots[:-1]
             version = get_version(root=Path(*roots), relative_to=module.__file__)
 
     except Exception:
