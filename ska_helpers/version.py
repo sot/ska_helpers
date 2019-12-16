@@ -96,4 +96,6 @@ def parse_version(version):
     if not m:
         raise RuntimeError(f'version {version} could not be parsed')
     result = m.groupdict()
+    for k in ['major', 'minor', 'patch', 'distance']:
+        result[k] = eval(f'{result[k]}')
     return result
