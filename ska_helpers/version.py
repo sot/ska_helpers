@@ -54,7 +54,10 @@ def get_version(package, distribution=None):
             git_dir = Path(dist_info.location, '.git')
             if git_dir.exists() and git_dir.is_dir():
                 raise AssertionError
-            print(f'** Using DIST_INFO ({package}, {distribution}):', dist_info.location)
+            if 'SKA_HELPERS_VERSION_DEBUG' in os.environ:
+                print(f'** Getting version via DIST_INFO: '
+                      f'package={package} distribution={distribution} '
+                      f'dist_info.location={dist_info.location}')
 
         except (DistributionNotFound, AssertionError):
             # Get_distribution failed or found a different package from this
@@ -66,8 +69,11 @@ def get_version(package, distribution=None):
             roots = ['..'] * len(package.split('.'))
             if os.path.basename(module.__file__) != '__init__.py':
                 roots = roots[:-1]
+            if 'SKA_HELPERS_VERSION_DEBUG' in os.environ:
+                print(f'** Getting version via setuptools_scm: '
+                      f'package={package} distribution={distribution} '
+                      f'get_version(root={Path(*roots)}, relative_to={module.__file__})')
             version = get_version(root=Path(*roots), relative_to=module.__file__)
-            print(f'** Using setuptools_scm ({package}, {distribution})')
 
     except Exception:
         # Something went wrong. The ``get_version` function should never block
