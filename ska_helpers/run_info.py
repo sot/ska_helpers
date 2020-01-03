@@ -9,7 +9,7 @@ import os
 from ska_helpers import __version__  # noqa
 
 
-def get_run_info(opt=None, version=None, stack_level=1):
+def get_run_info(opt=None, *, version=None, stack_level=1):
     calling_frame_record = inspect.stack()[stack_level]
     calling_func_file = calling_frame_record[1]
 
@@ -26,8 +26,8 @@ def get_run_info(opt=None, version=None, stack_level=1):
     return info
 
 
-def get_run_info_string(opt=None, version=None):
-    info = get_run_info(opt, version, stack_level=2)
+def get_run_info_lines(opt=None, *, version=None, stack_level=2):
+    info = get_run_info(opt, version, stack_level)
     info_lines = [
         f'******************************************',
         f'Running: {info["filename"]}',
@@ -35,11 +35,14 @@ def get_run_info_string(opt=None, version=None):
         f'Time: {info["time"]}',
         f'User: {info["user"]}',
         f'Machine: {info["machine"]}',
-        f'Processing args:',
-        pprint.pformat(info["args"]),
-        f'******************************************']
-    return os.linesep.join(info_lines)
+        f'Processing args:']
+    info_lines.extend(pprint.pformat(info["args"]).splitlines())
+    info_lines.append('******************************************')
+
+    return info_lines
 
 
-def test_run_info_string():
-    print(get_run_info_string())
+def log_run_info(log_func, opt=None, *, version=None, stack_level=3):
+    info_lines = get_run_info_lines(opt, version, stack_level)
+    for line in info_lines:
+        log_func(line)
