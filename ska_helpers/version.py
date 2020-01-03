@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 This module provides utilities to handle package versions. The version of a
 package is determined using pkg_resources if it is installed, and
