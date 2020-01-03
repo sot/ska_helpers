@@ -28,7 +28,7 @@ def get_run_info(opt=None, *, version=None, stack_level=1):
 
 
 def get_run_info_lines(opt=None, *, version=None, stack_level=2):
-    info = get_run_info(opt, version, stack_level)
+    info = get_run_info(opt, version=version, stack_level=stack_level)
     info_lines = [
         f'******************************************',
         f'Running: {info["filename"]}',
@@ -44,6 +44,6 @@ def get_run_info_lines(opt=None, *, version=None, stack_level=2):
 
 
 def log_run_info(log_func, opt=None, *, version=None, stack_level=3):
-    info_lines = get_run_info_lines(opt, version, stack_level)
+    info_lines = get_run_info_lines(opt, version=version, stack_level=stack_level)
     for line in info_lines:
         log_func(line)

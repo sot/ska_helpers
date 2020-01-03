@@ -30,9 +30,9 @@ def test_run_info():
         assert key in info
 
 
-def test_run_info_string():
+def test_run_info_lines():
     opt = get_opt(['--test', 'test value!'])
-    info_string = run_info.get_run_info_string(opt)
-    assert f'Running: {__file__}' in info_string
-    assert f'Version: {__version__}' in info_string
-    assert 'test value!' in info_string
+    info_lines = run_info.get_run_info_lines(opt)
+    assert f'Running: {__file__}' in info_lines
+    assert f'Version: {__version__}' in info_lines
+    assert "{'test': 'test value!'}" in info_lines
