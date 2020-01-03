@@ -49,7 +49,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'ACA Helpers'
+project = 'Ska Helpers'
 copyright = '2019, Javier Gonzalez'
 author = 'Javier Gonzalez'
 

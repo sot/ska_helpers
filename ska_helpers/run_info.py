@@ -1,5 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-"""Run time information"""
+"""
+The ``ska_helpers.run_info`` module provides convenience functions to get
+and print relevant run time information such as machine name, user name, date,
+program version, and so on.  This is aimed at executable scripts and cron jobs.
+"""
 
 import time
 import platform
