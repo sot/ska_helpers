@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-ACA Package Helpers
+Ska Package Helpers
 ===================
 
 .. automodule:: ska_helpers
@@ -12,14 +12,15 @@ ACA Package Helpers
 Get Version
 -----------
 
-.. automodule:: ska_helpers.get_version
+.. automodule:: ska_helpers.version
    :members:
 
 
 Default versioning scheme
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-What follows is the scheme as described in `setuptools_scm's documentation <https://github.com/pypa/setuptools_scm/>`.
+What follows is the scheme as described in `setuptools_scm's documentation
+<https://github.com/pypa/setuptools_scm/>`_.
 
 In the standard configuration ``setuptools_scm`` takes a look at three things:
 
@@ -54,6 +55,13 @@ accordingly.
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
+Run time information
+--------------------
+
+.. automodule:: ska_helpers.run_info
+   :members:
+
 
 
 
