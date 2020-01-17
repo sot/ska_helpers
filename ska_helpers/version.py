@@ -20,7 +20,7 @@ def get_version(package, distribution=None):
     If the package is not from an installed distribution then get version from
     git using setuptools_scm.
 
-    :param package: package name, typically __package__
+    :param package: package name, typically __name__ (or __package__)
     :param distribution: name of distribution if different from ``package``
 
     :return: str
