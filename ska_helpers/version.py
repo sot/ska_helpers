@@ -82,8 +82,12 @@ def get_version(package, distribution=None):
         # import but generate a lot of output indicating the problem.
         import warnings
         import traceback
-        warnings.warn(traceback.format_exc() + '\n\n')
-        warnings.warn('Failed to find a package version, setting to 0.0.0')
+        if 'TESTR_FILE' not in os.environ:
+            # this avoids a test failure when checking log files with this warning.
+            # Pytest will import packages such as Ska.Shell first as Shell and then as Ska.Shell.
+            # https://docs.pytest.org/en/latest/pythonpath.html
+            warnings.warn(traceback.format_exc() + '\n\n')
+            warnings.warn('Failed to find a package version, setting to 0.0.0')
         version = '0.0.0'
 
     return version
