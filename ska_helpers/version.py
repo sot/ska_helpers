@@ -27,7 +27,7 @@ def get_version(package, distribution=None):
         Version string
     """
     # Get module file for package.
-    module_file = str(importlib.util.find_spec(package, distribution).origin)
+    module_file = importlib.util.find_spec(package, distribution).origin
 
     # From this point guarantee tha a version string is returned.
     try:
