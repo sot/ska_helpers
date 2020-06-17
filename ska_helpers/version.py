@@ -26,10 +26,8 @@ def get_version(package, distribution=None):
     :return: str
         Version string
     """
-    # Get module for package.  When called from <package>/__init__.py this is
-    # not circular because that package is already in sys.modules.  If the
-    # package does not import then ImportError is raised as normal.
-    module = importlib.import_module(package)
+    # Get module file for package.
+    module_file = str(importlib.util.find_spec(package, distribution).origin)
 
     # From this point guarantee tha a version string is returned.
     try:
@@ -46,7 +44,7 @@ def get_version(package, distribution=None):
             # that does not have a <package>.egg-info directory, get_distribution()
             # will find an installed version.  Windows does not necessarily
             # respect the case so downcase everything.
-            assert module.__file__.lower().startswith(dist_info.location.lower())
+            assert module_file.lower().startswith(dist_info.location.lower())
 
             # If the dist_info.location appears to be a git repo, then
             # get_distribution() has gotten a "local" distribution and the
@@ -69,13 +67,13 @@ def get_version(package, distribution=None):
             # Define root as N directories up from location of __init__.py based
             # on package name.
             roots = ['..'] * len(package.split('.'))
-            if os.path.basename(module.__file__) != '__init__.py':
+            if os.path.basename(module_file) != '__init__.py':
                 roots = roots[:-1]
             if 'SKA_HELPERS_VERSION_DEBUG' in os.environ:
                 print(f'** Getting version via setuptools_scm: '
                       f'package={package} distribution={distribution} '
-                      f'get_version(root={Path(*roots)}, relative_to={module.__file__})')
-            version = get_version(root=Path(*roots), relative_to=module.__file__)
+                      f'get_version(root={Path(*roots)}, relative_to={module_file})')
+            version = get_version(root=Path(*roots), relative_to=module_file)
 
     except Exception:
         # Something went wrong. The ``get_version` function should never block
