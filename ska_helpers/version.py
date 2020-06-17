@@ -11,9 +11,11 @@ import os
 from pathlib import Path
 import importlib
 from pkg_resources import get_distribution, DistributionNotFound
+import types
+from multiprocessing import Process, Queue
 
 
-def get_version(package, distribution=None):
+def _get_version(package, distribution=None):
     """
     Get version string for ``package`` with optional ``distribution`` name.
 
@@ -90,6 +92,29 @@ def get_version(package, distribution=None):
             warnings.warn('Failed to find a package version, setting to 0.0.0')
         version = '0.0.0'
 
+    return version
+
+
+def get_version(package, distribution=None):
+    if type(package) is types.ModuleType:
+        # no need to avoid import in this case
+        return _get_version(package, distribution)
+
+    def do(p, d, q):
+        try:
+            version = _get_version(p, d)
+        except Exception as e:
+            version = f'Exception: {e}'
+        q.put(version)
+
+    q = Queue()
+    p = Process(target=do, args=(package, distribution, q))
+    p.start()
+    version = q.get()
+    if re.match('Exception:', version):
+        msg = version[10:]
+        raise Exception(f'Exception trying to get version for {package}: {msg}')
+    p.join()
     return version
 
 
