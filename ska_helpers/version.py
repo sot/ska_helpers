@@ -10,7 +10,12 @@ import re
 import os
 from pathlib import Path
 import importlib
-from pkg_resources import get_distribution, DistributionNotFound
+import warnings
+
+with warnings.catch_warnings():
+    warnings.filterwarnings('ignore', message=r'Module \w+ was already imported',
+                            category=UserWarning)
+    from pkg_resources import get_distribution, DistributionNotFound
 
 
 def get_version(package, distribution=None):
