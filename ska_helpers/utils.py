@@ -1,5 +1,7 @@
 import functools
 
+__all__ = ['LazyDict']
+
 
 def _lazy_load_wrap(unbound_method):
     @functools.wraps(unbound_method)
@@ -20,9 +22,9 @@ class LazyDict(dict):
     ----------
     load_func : function
         Reference to a function that returns a dict to init this dict object
-    *args : tuple
+    *args
         Arguments list for ``load_func``
-    **kwargs : dict
+    **kwargs
         Keyword arguments for ``load_func``
     """
     def __init__(self, load_func, *args, **kwargs):
