@@ -10,6 +10,7 @@ Ska Package Helpers
    :members:
 
 Utilities
+---------
 
 .. automodule:: ska_helpers.utils
    :members:
