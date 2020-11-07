@@ -11,6 +11,44 @@ def _lazy_load_wrap(unbound_method):
     return wrapper
 
 
+class LazyVal:
+    """Value which is lazy-initialized using supplied function ``load_func``.
+
+    This class allows defining a module-level value that is expensive to
+    initialize, where the initialization is done lazily (only when actually
+    needed).
+
+    The lazy value is accessed using the ``get`` method.
+
+    Parameters
+    ----------
+    load_func : function
+        Reference to a function that returns a dict to init this dict object
+    *args
+        Arguments list for ``load_func``
+    **kwargs
+        Keyword arguments for ``load_func``
+    """
+    def __init__(self, load_func, *args, **kwargs):
+        self._load_func = load_func
+        self._args = args
+        self._kwargs = kwargs
+        self._loaded = False
+        super().__init__()
+
+    def get(self):
+        if not self._loaded:
+            self.val = self._load_func(*self._args, **self._kwargs)
+            self._loaded = True
+
+            # Delete these so pickling always works (pickling a func can fail)
+            del self._load_func
+            del self._args
+            del self._kwargs
+
+        return self.val
+
+
 class LazyDict(dict):
     """Dict which is lazy-initialized using supplied function ``load_func``.
 

@@ -1,6 +1,6 @@
 import pickle
 
-from ska_helpers.utils import LazyDict
+from ska_helpers.utils import LazyDict, LazyVal
 
 
 def load_func(a, b, c=None):
@@ -26,7 +26,19 @@ def test_lazy_dict_basic():
     assert list(x.values()) == [1, 2, 3]
 
 
-def test_lazy_pickle():
+def test_lazy_dict_pickle():
     x = LazyDict(load_func, 1, 2, c=3)
     xpp = pickle.loads(pickle.dumps(x))
     assert xpp == x
+
+
+def test_lazy_val():
+    x = LazyVal(load_func, 1, 2, c=3)
+    xd = x.get()
+    assert xd == {'a': 1, 'b': 2, 'c': 3}
+
+
+def test_lazy_val_pickle():
+    x = LazyVal(load_func, 1, 2, c=3)
+    xpp = pickle.loads(pickle.dumps(x))
+    assert xpp.get() == {'a': 1, 'b': 2, 'c': 3}
