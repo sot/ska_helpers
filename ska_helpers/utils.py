@@ -1,6 +1,6 @@
 import functools
 
-__all__ = ['LazyDict']
+__all__ = ['LazyDict', 'LazyVal']
 
 
 def _lazy_load_wrap(unbound_method):
@@ -18,7 +18,23 @@ class LazyVal:
     initialize, where the initialization is done lazily (only when actually
     needed).
 
-    The lazy value is accessed using the ``get`` method.
+    The lazy value is accessed using the ``val`` property.
+
+    Examples
+    --------
+    ::
+
+      from ska_helpers.utils import LazyVal
+
+      def load_func(a):
+          # Some expensive function in practice
+          print('Here in load_func')
+          return a
+
+      ONE = LazyVal(load_func, 1)
+
+      print('ONE is defined but not yet loaded')
+      print(ONE.val)
 
     Parameters
     ----------
@@ -33,20 +49,19 @@ class LazyVal:
         self._load_func = load_func
         self._args = args
         self._kwargs = kwargs
-        self._loaded = False
         super().__init__()
 
-    def get(self):
-        if not self._loaded:
-            self.val = self._load_func(*self._args, **self._kwargs)
-            self._loaded = True
+    @property
+    def val(self):
+        if not hasattr(self, '_val'):
+            self._val = self._load_func(*self._args, **self._kwargs)
 
-            # Delete these so pickling always works (pickling a func can fail)
+            # Delete these so serialization always works (pickling a func can fail)
             del self._load_func
             del self._args
             del self._kwargs
 
-        return self.val
+        return self._val
 
 
 class LazyDict(dict):
@@ -55,6 +70,22 @@ class LazyDict(dict):
     This class allows defining a module-level dict that is expensive to
     initialize, where the initialization is done lazily (only when actually
     needed).
+
+    Examples
+    --------
+    ::
+
+      from ska_helpers.utils import LazyDict
+
+      def load_func(a, b):
+          # Some expensive function in practice
+          print('Here in load_func')
+          return {'a': a, 'b': b}
+
+      ONE = LazyDict(load_func, 1, 2)
+
+      print('ONE is defined but not yet loaded')
+      print(ONE['a'])
 
     Parameters
     ----------
@@ -77,7 +108,7 @@ class LazyDict(dict):
             self.update(self._load_func(*self._args, **self._kwargs))
             self._loaded = True
 
-            # Delete these so pickling always works (pickling a func can fail)
+            # Delete these so serialization always works (pickling a func can fail)
             del self._load_func
             del self._args
             del self._kwargs

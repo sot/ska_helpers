@@ -34,11 +34,11 @@ def test_lazy_dict_pickle():
 
 def test_lazy_val():
     x = LazyVal(load_func, 1, 2, c=3)
-    xd = x.get()
+    xd = x.val
     assert xd == {'a': 1, 'b': 2, 'c': 3}
 
 
 def test_lazy_val_pickle():
     x = LazyVal(load_func, 1, 2, c=3)
     xpp = pickle.loads(pickle.dumps(x))
-    assert xpp.get() == {'a': 1, 'b': 2, 'c': 3}
+    assert xpp.val == {'a': 1, 'b': 2, 'c': 3}
