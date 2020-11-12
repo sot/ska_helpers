@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ska Package Helpers &#8212; Ska Helpers 0.2.1.dev7+g95f25d0 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <script type="text/javascript" src="_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="#"><span id="logotext1">Ska! </span><span id="logotext2">ska_helpers</span><span id="logotext3"></span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="https://sot.github.io/">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="genindex.html">Index</a></li>
+    <li><a title="Module Index" href="py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="#">Ska Helpers 0.2.1.dev7+g95f25d0 documentation</a>
+	 &#187;
+      </li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ska_helpers">
+<span id="ska-package-helpers"></span><h1>Ska Package Helpers<a class="headerlink" href="#module-ska_helpers" title="Permalink to this headline">¶</a></h1>
+<p>Ska_helpers is a collection of utilities for the Ska3 runtime environment.</p>
+<div class="section" id="module-ska_helpers.utils">
+<span id="utilities"></span><h2>Utilities<a class="headerlink" href="#module-ska_helpers.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="ska_helpers.utils.LazyDict">
+<em class="property">class </em><code class="sig-prename descclassname">ska_helpers.utils.</code><code class="sig-name descname">LazyDict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">load_func</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#LazyDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ska_helpers.utils.LazyDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict which is lazy-initialized using supplied function <code class="docutils literal notranslate"><span class="pre">load_func</span></code>.</p>
+<p>This class allows defining a module-level dict that is expensive to
+initialize, where the initialization is done lazily (only when actually
+needed).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>load_func</strong><span class="classifier">function</span></dt><dd><p>Reference to a function that returns a dict to init this dict object</p>
+</dd>
+<dt><strong>*args</strong></dt><dd><p>Arguments list for <code class="docutils literal notranslate"><span class="pre">load_func</span></code></p>
+</dd>
+<dt><strong>**kwargs</strong></dt><dd><p>Keyword arguments for <code class="docutils literal notranslate"><span class="pre">load_func</span></code></p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ska_helpers.utils</span> <span class="kn">import</span> <span class="n">LazyDict</span>
+
+<span class="k">def</span> <span class="nf">load_func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="c1"># Some expensive function in practice</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Here in load_func&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="n">b</span><span class="p">}</span>
+
+<span class="n">ONE</span> <span class="o">=</span> <span class="n">LazyDict</span><span class="p">(</span><span class="n">load_func</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ONE is defined but not yet loaded&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ONE</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt id="ska_helpers.utils.LazyDict.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; a shallow copy of D<a class="headerlink" href="#ska_helpers.utils.LazyDict.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ska_helpers.utils.LazyDict.get">
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">/</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ska_helpers.utils.LazyDict.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the value for key if key is in the dictionary, else default.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ska_helpers.utils.LazyDict.items">
+<code class="sig-name descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; a set-like object providing a view on D’s items<a class="headerlink" href="#ska_helpers.utils.LazyDict.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ska_helpers.utils.LazyDict.keys">
+<code class="sig-name descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; a set-like object providing a view on D’s keys<a class="headerlink" href="#ska_helpers.utils.LazyDict.keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ska_helpers.utils.LazyDict.pop">
+<code class="sig-name descname">pop</code><span class="sig-paren">(</span><em class="sig-param">k</em><span class="optional">[</span>, <em class="sig-param">d</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; v, remove specified key and return the corresponding value.<a class="headerlink" href="#ska_helpers.utils.LazyDict.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>If key is not found, d is returned if given, otherwise KeyError is raised</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ska_helpers.utils.LazyDict.popitem">
+<code class="sig-name descname">popitem</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ska_helpers.utils.LazyDict.popitem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove and return a (key, value) pair as a 2-tuple.</p>
+<p>Pairs are returned in LIFO (last-in, first-out) order.
+Raises KeyError if the dict is empty.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ska_helpers.utils.LazyDict.setdefault">
+<code class="sig-name descname">setdefault</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">/</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ska_helpers.utils.LazyDict.setdefault" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert key with a value of default if key is not in the dictionary.</p>
+<p>Return the value for key if key is in the dictionary, else default.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ska_helpers.utils.LazyDict.values">
+<code class="sig-name descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; an object providing a view on D’s values<a class="headerlink" href="#ska_helpers.utils.LazyDict.values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ska_helpers.utils.LazyVal">
+<em class="property">class </em><code class="sig-prename descclassname">ska_helpers.utils.</code><code class="sig-name descname">LazyVal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">load_func</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#LazyVal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ska_helpers.utils.LazyVal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Value which is lazy-initialized using supplied function <code class="docutils literal notranslate"><span class="pre">load_func</span></code>.</p>
+<p>This class allows defining a module-level value that is expensive to
+initialize, where the initialization is done lazily (only when actually
+needed).</p>
+<p>The lazy value is accessed using the <code class="docutils literal notranslate"><span class="pre">val</span></code> property.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>load_func</strong><span class="classifier">function</span></dt><dd><p>Reference to a function that returns a dict to init this dict object</p>
+</dd>
+<dt><strong>*args</strong></dt><dd><p>Arguments list for <code class="docutils literal notranslate"><span class="pre">load_func</span></code></p>
+</dd>
+<dt><strong>**kwargs</strong></dt><dd><p>Keyword arguments for <code class="docutils literal notranslate"><span class="pre">load_func</span></code></p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ska_helpers.utils</span> <span class="kn">import</span> <span class="n">LazyVal</span>
+
+<span class="k">def</span> <span class="nf">load_func</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="c1"># Some expensive function in practice</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Here in load_func&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">a</span>
+
+<span class="n">ONE</span> <span class="o">=</span> <span class="n">LazyVal</span><span class="p">(</span><span class="n">load_func</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ONE is defined but not yet loaded&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ONE</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ska_helpers.version">
+<span id="get-version"></span><h2>Get Version<a class="headerlink" href="#module-ska_helpers.version" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ska_helpers.version</span></code> module provides utilities to handle package
+versions. The version of a package is determined using pkg_resources if it is
+installed, and <a class="reference external" href="https://github.com/pypa/setuptools_scm/">setuptools_scm</a>
+otherwise.</p>
+<dl class="py function">
+<dt id="ska_helpers.version.get_version">
+<code class="sig-prename descclassname">ska_helpers.version.</code><code class="sig-name descname">get_version</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">package</span></em>, <em class="sig-param"><span class="n">distribution</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/version.html#get_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ska_helpers.version.get_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get version string for <code class="docutils literal notranslate"><span class="pre">package</span></code> with optional <code class="docutils literal notranslate"><span class="pre">distribution</span></code> name.</p>
+<p>If the package is not from an installed distribution then get version from
+git using setuptools_scm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>package :</strong></dt><dd><p>package name, typically __package__</p>
+</dd>
+<dt><strong>distribution :</strong></dt><dd><p>name of distribution if different from <code class="docutils literal notranslate"><span class="pre">package</span></code> (Default value = None)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>Version string</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ska_helpers.version.parse_version">
+<code class="sig-prename descclassname">ska_helpers.version.</code><code class="sig-name descname">parse_version</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">version</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/version.html#parse_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ska_helpers.version.parse_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse version string and return a dictionary with version information.
+This only handles the default scheme.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>version :</strong></dt><dd><p>str</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>version information</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="section" id="default-versioning-scheme">
+<h3>Default versioning scheme<a class="headerlink" href="#default-versioning-scheme" title="Permalink to this headline">¶</a></h3>
+<p>What follows is the scheme as described in <a class="reference external" href="https://github.com/pypa/setuptools_scm/">setuptools_scm’s documentation</a>.</p>
+<p>In the standard configuration <code class="docutils literal notranslate"><span class="pre">setuptools_scm</span></code> takes a look at three things:</p>
+<ol class="arabic simple">
+<li><p>latest tag (with a version number)</p></li>
+<li><p>the distance to this tag (e.g. number of revisions since latest tag)</p></li>
+<li><p>workdir state (e.g. uncommitted changes since latest tag)</p></li>
+</ol>
+<p>and uses roughly the following logic to render the version:</p>
+<dl class="simple">
+<dt>no distance and clean:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">{tag}</span></code></p>
+</dd>
+<dt>distance and clean:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">{next_version}.dev{distance}+{scm</span> <span class="pre">letter}{revision</span> <span class="pre">hash}</span></code></p>
+</dd>
+<dt>no distance and not clean:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">{tag}+dYYYMMMDD</span></code></p>
+</dd>
+<dt>distance and not clean:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">{next_version}.dev{distance}+{scm</span> <span class="pre">letter}{revision</span> <span class="pre">hash}.dYYYMMMDD</span></code></p>
+</dd>
+</dl>
+<p>The next version is calculated by adding <code class="docutils literal notranslate"><span class="pre">1</span></code> to the last numeric component of
+the tag.</p>
+<p>For Git projects, the version relies on <a class="reference external" href="https://git-scm.com/docs/git-describe">git describe</a>,
+so you will see an additional <code class="docutils literal notranslate"><span class="pre">g</span></code> prepended to the <code class="docutils literal notranslate"><span class="pre">{revision</span> <span class="pre">hash}</span></code>.</p>
+<p>Due to the default behavior it’s necessary to always include a
+patch version (the <code class="docutils literal notranslate"><span class="pre">3</span></code> in <code class="docutils literal notranslate"><span class="pre">1.2.3</span></code>), or else the automatic guessing
+will increment the wrong part of the SemVer (e.g. tag <code class="docutils literal notranslate"><span class="pre">2.0</span></code> results in
+<code class="docutils literal notranslate"><span class="pre">2.1.devX</span></code> instead of <code class="docutils literal notranslate"><span class="pre">2.0.1.devX</span></code>). So please make sure to tag
+accordingly.</p>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+</div>
+<div class="section" id="module-ska_helpers.run_info">
+<span id="run-time-information"></span><h2>Run time information<a class="headerlink" href="#module-ska_helpers.run_info" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ska_helpers.run_info</span></code> module provides convenience functions to get
+and print relevant run time information such as machine name, user name, date,
+program version, and so on.  This is aimed at executable scripts and cron jobs.</p>
+<dl class="py function">
+<dt id="ska_helpers.run_info.get_run_info">
+<code class="sig-prename descclassname">ska_helpers.run_info.</code><code class="sig-name descname">get_run_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">opt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stack_level</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/run_info.html#get_run_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ska_helpers.run_info.get_run_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get run time information as dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>opt :</strong></dt><dd><p>argparse options (Default value = None)</p>
+</dd>
+<dt><strong>version :</strong></dt><dd><p>program version (default=__version__ in calling module)</p>
+</dd>
+<dt><strong>stack_level :</strong></dt><dd><p>stack level for getting calling module (Default value = 1)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>dcit</dt><dd><p>run information</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ska_helpers.run_info.get_run_info_lines">
+<code class="sig-prename descclassname">ska_helpers.run_info.</code><code class="sig-name descname">get_run_info_lines</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">opt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stack_level</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/run_info.html#get_run_info_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ska_helpers.run_info.get_run_info_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get run time information as formatted lines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>opt :</strong></dt><dd><p>argparse options (Default value = None)</p>
+</dd>
+<dt><strong>version :</strong></dt><dd><p>program version (default=__version__ in calling module)</p>
+</dd>
+<dt><strong>stack_level :</strong></dt><dd><p>stack level for getting calling module (Default value = 2)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>list</dt><dd><p>formatted information lines</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ska_helpers.run_info.log_run_info">
+<code class="sig-prename descclassname">ska_helpers.run_info.</code><code class="sig-name descname">log_run_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">log_func</span></em>, <em class="sig-param"><span class="n">opt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stack_level</span><span class="o">=</span><span class="default_value">3</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/run_info.html#log_run_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ska_helpers.run_info.log_run_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output run time information as formatted lines via <code class="docutils literal notranslate"><span class="pre">log_func</span></code>.</p>
+<p>Each formatted line is passed to <code class="docutils literal notranslate"><span class="pre">log_func</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>log_func :</strong></dt><dd><p>logger output function (e.g. logger.info)</p>
+</dd>
+<dt><strong>opt :</strong></dt><dd><p>argparse options (Default value = None)</p>
+</dd>
+<dt><strong>version :</strong></dt><dd><p>program version (default=__version__ in calling module)</p>
+</dd>
+<dt><strong>stack_level :</strong></dt><dd><p>stack level for getting calling module (Default value = 3)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Ska Package Helpers</a><ul>
+<li><a class="reference internal" href="#module-ska_helpers.utils">Utilities</a></li>
+<li><a class="reference internal" href="#module-ska_helpers.version">Get Version</a><ul>
+<li><a class="reference internal" href="#default-versioning-scheme">Default versioning scheme</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-ska_helpers.run_info">Run time information</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="_sources/index.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2019, Javier Gonzalez.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>

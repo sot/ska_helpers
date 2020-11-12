@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ska_helpers.version &#8212; Ska Helpers 0.2.1.dev7+g95f25d0 documentation</title>
+    <link rel="stylesheet" href="../../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../index.html"><span id="logotext1">Ska! </span><span id="logotext2">ska_helpers</span><span id="logotext3"></span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="https://sot.github.io/">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../index.html">Ska Helpers 0.2.1.dev7+g95f25d0 documentation</a>
+	 &#187;
+      </li>
+      <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for ska_helpers.version</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The ``ska_helpers.version`` module provides utilities to handle package</span>
+<span class="sd">versions. The version of a package is determined using pkg_resources if it is</span>
+<span class="sd">installed, and `setuptools_scm &lt;https://github.com/pypa/setuptools_scm/&gt;`_</span>
+<span class="sd">otherwise.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;Module \w+ was already imported&#39;</span><span class="p">,</span>
+                            <span class="n">category</span><span class="o">=</span><span class="ne">UserWarning</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">pkg_resources</span> <span class="kn">import</span> <span class="n">get_distribution</span><span class="p">,</span> <span class="n">DistributionNotFound</span>
+
+
+<div class="viewcode-block" id="get_version"><a class="viewcode-back" href="../../index.html#ska_helpers.version.get_version">[docs]</a><span class="k">def</span> <span class="nf">get_version</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get version string for ``package`` with optional ``distribution`` name.</span>
+
+<span class="sd">    If the package is not from an installed distribution then get version from</span>
+<span class="sd">    git using setuptools_scm.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    package :</span>
+<span class="sd">        package name, typically __package__</span>
+<span class="sd">    distribution :</span>
+<span class="sd">        name of distribution if different from ``package`` (Default value = None)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Version string</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get module file for package.</span>
+    <span class="n">module_file</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">distribution</span><span class="p">)</span><span class="o">.</span><span class="n">origin</span>
+
+    <span class="c1"># From this point guarantee tha a version string is returned.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Get a distribution, which may or may not correspond to the package</span>
+            <span class="c1"># # that gets imported (we check that next).  For some packages, e.g.</span>
+            <span class="c1"># cheta or pyyaml, the distribution will be different from the</span>
+            <span class="c1"># package.</span>
+            <span class="n">dist_info</span> <span class="o">=</span> <span class="n">get_distribution</span><span class="p">(</span><span class="n">distribution</span> <span class="ow">or</span> <span class="n">package</span><span class="p">)</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="n">dist_info</span><span class="o">.</span><span class="n">version</span>
+
+            <span class="c1"># Check if the imported package __init__.py file has the same location</span>
+            <span class="c1"># as the distribution that was found.  If working in a local git repo</span>
+            <span class="c1"># that does not have a &lt;package&gt;.egg-info directory, get_distribution()</span>
+            <span class="c1"># will find an installed version.  Windows does not necessarily</span>
+            <span class="c1"># respect the case so downcase everything.</span>
+            <span class="k">assert</span> <span class="n">module_file</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">dist_info</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+
+            <span class="c1"># If the dist_info.location appears to be a git repo, then</span>
+            <span class="c1"># get_distribution() has gotten a &quot;local&quot; distribution and the</span>
+            <span class="c1"># dist_info.version just corresponds to whatever version was the</span>
+            <span class="c1"># last run of &quot;setup.py sdist&quot; or &quot;setup.py bdist_wheel&quot;, i.e.</span>
+            <span class="c1"># unrelated to current version, so ignore in this case.</span>
+            <span class="n">git_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dist_info</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;.git&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">git_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">git_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">AssertionError</span>
+            <span class="k">if</span> <span class="s1">&#39;SKA_HELPERS_VERSION_DEBUG&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;** Getting version via DIST_INFO: &#39;</span>
+                      <span class="sa">f</span><span class="s1">&#39;package=</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s1"> distribution=</span><span class="si">{</span><span class="n">distribution</span><span class="si">}</span><span class="s1"> &#39;</span>
+                      <span class="sa">f</span><span class="s1">&#39;dist_info.location=</span><span class="si">{</span><span class="n">dist_info</span><span class="o">.</span><span class="n">location</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="p">(</span><span class="n">DistributionNotFound</span><span class="p">,</span> <span class="ne">AssertionError</span><span class="p">):</span>
+            <span class="c1"># Get_distribution failed or found a different package from this</span>
+            <span class="c1"># file, try getting version from source repo.</span>
+            <span class="kn">from</span> <span class="nn">setuptools_scm</span> <span class="kn">import</span> <span class="n">get_version</span>
+
+            <span class="c1"># Define root as N directories up from location of __init__.py based</span>
+            <span class="c1"># on package name.</span>
+            <span class="n">roots</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;..&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">module_file</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">&#39;__init__.py&#39;</span><span class="p">:</span>
+                <span class="n">roots</span> <span class="o">=</span> <span class="n">roots</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;SKA_HELPERS_VERSION_DEBUG&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;** Getting version via setuptools_scm: &#39;</span>
+                      <span class="sa">f</span><span class="s1">&#39;package=</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s1"> distribution=</span><span class="si">{</span><span class="n">distribution</span><span class="si">}</span><span class="s1"> &#39;</span>
+                      <span class="sa">f</span><span class="s1">&#39;get_version(root=</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="o">*</span><span class="n">roots</span><span class="p">)</span><span class="si">}</span><span class="s1">, relative_to=</span><span class="si">{</span><span class="n">module_file</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="n">get_version</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="o">*</span><span class="n">roots</span><span class="p">),</span> <span class="n">relative_to</span><span class="o">=</span><span class="n">module_file</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="c1"># Something went wrong. The ``get_version` function should never block</span>
+        <span class="c1"># import but generate a lot of output indicating the problem.</span>
+        <span class="kn">import</span> <span class="nn">warnings</span>
+        <span class="kn">import</span> <span class="nn">traceback</span>
+        <span class="k">if</span> <span class="s1">&#39;TESTR_FILE&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+            <span class="c1"># this avoids a test failure when checking log files with this warning.</span>
+            <span class="c1"># Pytest will import packages such as Ska.Shell first as Shell and then as Ska.Shell.</span>
+            <span class="c1"># https://docs.pytest.org/en/latest/pythonpath.html</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Failed to find a package version, setting to 0.0.0&#39;</span><span class="p">)</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="s1">&#39;0.0.0&#39;</span>
+
+    <span class="k">return</span> <span class="n">version</span></div>
+
+
+<div class="viewcode-block" id="parse_version"><a class="viewcode-back" href="../../index.html#ska_helpers.version.parse_version">[docs]</a><span class="k">def</span> <span class="nf">parse_version</span><span class="p">(</span><span class="n">version</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parse version string and return a dictionary with version information.</span>
+<span class="sd">    This only handles the default scheme.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    version :</span>
+<span class="sd">        str</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        version information</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fmt</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(?P&lt;major&gt;[0-9]+)(.(?P&lt;minor&gt;[0-9]+))?(.(?P&lt;patch&gt;[0-9]+))?&#39;</span> \
+          <span class="sa">r</span><span class="s1">&#39;(.dev(?P&lt;distance&gt;[0-9]+))?&#39;</span>\
+          <span class="sa">r</span><span class="s1">&#39;(\+(?P&lt;letter&gt;\S)g?(?P&lt;hash&gt;\S+)\.(d(?P&lt;date&gt;[0-9]+))?)?&#39;</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;version </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s1"> could not be parsed&#39;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="s1">&#39;minor&#39;</span><span class="p">,</span> <span class="s1">&#39;patch&#39;</span><span class="p">,</span> <span class="s1">&#39;distance&#39;</span><span class="p">]:</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+<form action="../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2019, Javier Gonzalez.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>

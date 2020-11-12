@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ska_helpers.utils &#8212; Ska Helpers 0.2.1.dev7+g95f25d0 documentation</title>
+    <link rel="stylesheet" href="../../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../index.html"><span id="logotext1">Ska! </span><span id="logotext2">ska_helpers</span><span id="logotext3"></span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="https://sot.github.io/">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../index.html">Ska Helpers 0.2.1.dev7+g95f25d0 documentation</a>
+	 &#187;
+      </li>
+      <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for ska_helpers.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">functools</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;LazyDict&#39;</span><span class="p">,</span> <span class="s1">&#39;LazyVal&#39;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_lazy_load_wrap</span><span class="p">(</span><span class="n">unbound_method</span><span class="p">):</span>
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">unbound_method</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">unbound_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+
+<div class="viewcode-block" id="LazyVal"><a class="viewcode-back" href="../../index.html#ska_helpers.utils.LazyVal">[docs]</a><span class="k">class</span> <span class="nc">LazyVal</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Value which is lazy-initialized using supplied function ``load_func``.</span>
+
+<span class="sd">    This class allows defining a module-level value that is expensive to</span>
+<span class="sd">    initialize, where the initialization is done lazily (only when actually</span>
+<span class="sd">    needed).</span>
+
+<span class="sd">    The lazy value is accessed using the ``val`` property.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ::</span>
+
+<span class="sd">      from ska_helpers.utils import LazyVal</span>
+
+<span class="sd">      def load_func(a):</span>
+<span class="sd">          # Some expensive function in practice</span>
+<span class="sd">          print(&#39;Here in load_func&#39;)</span>
+<span class="sd">          return a</span>
+
+<span class="sd">      ONE = LazyVal(load_func, 1)</span>
+
+<span class="sd">      print(&#39;ONE is defined but not yet loaded&#39;)</span>
+<span class="sd">      print(ONE.val)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    load_func : function</span>
+<span class="sd">        Reference to a function that returns a dict to init this dict object</span>
+<span class="sd">    *args</span>
+<span class="sd">        Arguments list for ``load_func``</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword arguments for ``load_func``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">load_func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_func</span> <span class="o">=</span> <span class="n">load_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">val</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_val&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_func</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="p">)</span>
+
+            <span class="c1"># Delete these so serialization always works (pickling a func can fail)</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_func</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_val</span></div>
+
+
+<div class="viewcode-block" id="LazyDict"><a class="viewcode-back" href="../../index.html#ska_helpers.utils.LazyDict">[docs]</a><span class="k">class</span> <span class="nc">LazyDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Dict which is lazy-initialized using supplied function ``load_func``.</span>
+
+<span class="sd">    This class allows defining a module-level dict that is expensive to</span>
+<span class="sd">    initialize, where the initialization is done lazily (only when actually</span>
+<span class="sd">    needed).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ::</span>
+
+<span class="sd">      from ska_helpers.utils import LazyDict</span>
+
+<span class="sd">      def load_func(a, b):</span>
+<span class="sd">          # Some expensive function in practice</span>
+<span class="sd">          print(&#39;Here in load_func&#39;)</span>
+<span class="sd">          return {&#39;a&#39;: a, &#39;b&#39;: b}</span>
+
+<span class="sd">      ONE = LazyDict(load_func, 1, 2)</span>
+
+<span class="sd">      print(&#39;ONE is defined but not yet loaded&#39;)</span>
+<span class="sd">      print(ONE[&#39;a&#39;])</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    load_func : function</span>
+<span class="sd">        Reference to a function that returns a dict to init this dict object</span>
+<span class="sd">    *args</span>
+<span class="sd">        Arguments list for ``load_func``</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword arguments for ``load_func``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">load_func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_func</span> <span class="o">=</span> <span class="n">load_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loaded</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loaded</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_load_func</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loaded</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="c1"># Delete these so serialization always works (pickling a func can fail)</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_func</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+    <span class="fm">__contains__</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">)</span>
+    <span class="fm">__eq__</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">)</span>
+    <span class="fm">__ge__</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="fm">__ge__</span><span class="p">)</span>
+    <span class="fm">__gt__</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="fm">__gt__</span><span class="p">)</span>
+    <span class="fm">__iter__</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">)</span>
+    <span class="fm">__le__</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="fm">__le__</span><span class="p">)</span>
+    <span class="fm">__len__</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="fm">__len__</span><span class="p">)</span>
+    <span class="fm">__lt__</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="fm">__lt__</span><span class="p">)</span>
+    <span class="fm">__ne__</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="fm">__ne__</span><span class="p">)</span>
+    <span class="fm">__repr__</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">)</span>
+    <span class="fm">__reversed__</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="fm">__reversed__</span><span class="p">)</span>
+    <span class="n">__sizeof__</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">__sizeof__</span><span class="p">)</span>
+    <span class="fm">__str__</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="fm">__str__</span><span class="p">)</span>
+    <span class="n">copy</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">copy</span><span class="p">)</span>
+    <span class="n">get</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">items</span><span class="p">)</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">keys</span><span class="p">)</span>
+    <span class="n">pop</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">pop</span><span class="p">)</span>
+    <span class="n">popitem</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">popitem</span><span class="p">)</span>
+    <span class="n">setdefault</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">values</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+<form action="../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2019, Javier Gonzalez.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>

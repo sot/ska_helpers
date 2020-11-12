@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ska_helpers.run_info &#8212; Ska Helpers 0.2.1.dev7+g95f25d0 documentation</title>
+    <link rel="stylesheet" href="../../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../index.html"><span id="logotext1">Ska! </span><span id="logotext2">ska_helpers</span><span id="logotext3"></span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="https://sot.github.io/">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../index.html">Ska Helpers 0.2.1.dev7+g95f25d0 documentation</a>
+	 &#187;
+      </li>
+      <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for ska_helpers.run_info</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The ``ska_helpers.run_info`` module provides convenience functions to get</span>
+<span class="sd">and print relevant run time information such as machine name, user name, date,</span>
+<span class="sd">program version, and so on.  This is aimed at executable scripts and cron jobs.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">ska_helpers</span> <span class="kn">import</span> <span class="n">__version__</span>  <span class="c1"># noqa</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;get_run_info&#39;</span><span class="p">,</span> <span class="s1">&#39;get_run_info_lines&#39;</span><span class="p">,</span> <span class="s1">&#39;log_run_info&#39;</span><span class="p">,</span> <span class="s1">&#39;__version__&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="get_run_info"><a class="viewcode-back" href="../../index.html#ska_helpers.run_info.get_run_info">[docs]</a><span class="k">def</span> <span class="nf">get_run_info</span><span class="p">(</span><span class="n">opt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get run time information as dict.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    opt :</span>
+<span class="sd">        argparse options (Default value = None)</span>
+<span class="sd">    version :</span>
+<span class="sd">        program version (default=__version__ in calling module)</span>
+<span class="sd">    stack_level :</span>
+<span class="sd">        stack level for getting calling module (Default value = 1)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dcit</span>
+<span class="sd">        run information</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">calling_frame_record</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()[</span><span class="n">stack_level</span><span class="p">]</span>
+    <span class="n">calling_func_file</span> <span class="o">=</span> <span class="n">calling_frame_record</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">calling_frame</span> <span class="o">=</span> <span class="n">calling_frame_record</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="n">calling_frame</span><span class="o">.</span><span class="n">f_globals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__version__&#39;</span><span class="p">,</span> <span class="s1">&#39;undefined&#39;</span><span class="p">)</span>
+
+    <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="n">calling_func_file</span><span class="p">,</span>
+            <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="n">version</span><span class="p">,</span>
+            <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">ctime</span><span class="p">(),</span>
+            <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getlogin</span><span class="p">(),</span>
+            <span class="s1">&#39;machine&#39;</span><span class="p">:</span> <span class="n">platform</span><span class="o">.</span><span class="n">node</span><span class="p">(),</span>
+            <span class="s1">&#39;args&#39;</span><span class="p">:</span> <span class="nb">vars</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="s1">&#39;__dict__&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">opt</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">info</span></div>
+
+
+<div class="viewcode-block" id="get_run_info_lines"><a class="viewcode-back" href="../../index.html#ska_helpers.run_info.get_run_info_lines">[docs]</a><span class="k">def</span> <span class="nf">get_run_info_lines</span><span class="p">(</span><span class="n">opt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stack_level</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get run time information as formatted lines.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    opt :</span>
+<span class="sd">        argparse options (Default value = None)</span>
+<span class="sd">    version :</span>
+<span class="sd">        program version (default=__version__ in calling module)</span>
+<span class="sd">    stack_level :</span>
+<span class="sd">        stack level for getting calling module (Default value = 2)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        formatted information lines</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">get_run_info</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span> <span class="n">stack_level</span><span class="o">=</span><span class="n">stack_level</span><span class="p">)</span>
+    <span class="n">info_lines</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s1">&#39;******************************************&#39;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">&#39;Running: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">&#39;Version: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">&#39;Time: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">&#39;User: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">&#39;Machine: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;machine&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">&#39;Processing args:&#39;</span><span class="p">]</span>
+    <span class="n">info_lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">splitlines</span><span class="p">())</span>
+    <span class="n">info_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;******************************************&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">info_lines</span></div>
+
+
+<div class="viewcode-block" id="log_run_info"><a class="viewcode-back" href="../../index.html#ska_helpers.run_info.log_run_info">[docs]</a><span class="k">def</span> <span class="nf">log_run_info</span><span class="p">(</span><span class="n">log_func</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stack_level</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Output run time information as formatted lines via ``log_func``.</span>
+
+<span class="sd">    Each formatted line is passed to ``log_func``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    log_func :</span>
+<span class="sd">        logger output function (e.g. logger.info)</span>
+<span class="sd">    opt :</span>
+<span class="sd">        argparse options (Default value = None)</span>
+<span class="sd">    version :</span>
+<span class="sd">        program version (default=__version__ in calling module)</span>
+<span class="sd">    stack_level :</span>
+<span class="sd">        stack level for getting calling module (Default value = 3)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">info_lines</span> <span class="o">=</span> <span class="n">get_run_info_lines</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span> <span class="n">stack_level</span><span class="o">=</span><span class="n">stack_level</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">info_lines</span><span class="p">:</span>
+        <span class="n">log_func</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+<form action="../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2019, Javier Gonzalez.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>
