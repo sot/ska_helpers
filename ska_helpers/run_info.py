@@ -19,10 +19,20 @@ __all__ = ['get_run_info', 'get_run_info_lines', 'log_run_info', '__version__']
 def get_run_info(opt=None, *, version=None, stack_level=1):
     """Get run time information as dict.
 
-    :param opt: argparse options
-    :param version: program version (default=__version__ in calling module)
-    :param stack_level: stack level for getting calling module
-    :returns: dict of information
+    Parameters
+    ----------
+    opt :
+        argparse options (Default value = None)
+    version :
+        program version (default=__version__ in calling module)
+    stack_level :
+        stack level for getting calling module (Default value = 1)
+
+    Returns
+    -------
+    dcit
+        run information
+
     """
     calling_frame_record = inspect.stack()[stack_level]
     calling_func_file = calling_frame_record[1]
@@ -43,10 +53,20 @@ def get_run_info(opt=None, *, version=None, stack_level=1):
 def get_run_info_lines(opt=None, *, version=None, stack_level=2):
     """Get run time information as formatted lines.
 
-    :param opt: argparse options
-    :param version: program version (default=__version__ in calling module)
-    :param stack_level: stack level for getting calling module
-    :returns: list of formatted information lines
+    Parameters
+    ----------
+    opt :
+        argparse options (Default value = None)
+    version :
+        program version (default=__version__ in calling module)
+    stack_level :
+        stack level for getting calling module (Default value = 2)
+
+    Returns
+    -------
+    list
+        formatted information lines
+
     """
     info = get_run_info(opt, version=version, stack_level=stack_level)
     info_lines = [
@@ -68,10 +88,16 @@ def log_run_info(log_func, opt=None, *, version=None, stack_level=3):
 
     Each formatted line is passed to ``log_func``.
 
-    :param log_func: logger output function (e.g. logger.info)
-    :param opt: argparse options
-    :param version: program version (default=__version__ in calling module)
-    :param stack_level: stack level for getting calling module
+    Parameters
+    ----------
+    log_func :
+        logger output function (e.g. logger.info)
+    opt :
+        argparse options (Default value = None)
+    version :
+        program version (default=__version__ in calling module)
+    stack_level :
+        stack level for getting calling module (Default value = 3)
     """
     info_lines = get_run_info_lines(opt, version=version, stack_level=stack_level)
     for line in info_lines:

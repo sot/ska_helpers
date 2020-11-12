@@ -9,6 +9,13 @@ Ska Package Helpers
 .. automodule:: ska_helpers
    :members:
 
+Utilities
+---------
+
+.. automodule:: ska_helpers.utils
+   :members:
+
+
 Get Version
 -----------
 

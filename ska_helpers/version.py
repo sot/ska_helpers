@@ -19,17 +19,23 @@ with warnings.catch_warnings():
 
 
 def get_version(package, distribution=None):
-    """
-    Get version string for ``package`` with optional ``distribution`` name.
+    """Get version string for ``package`` with optional ``distribution`` name.
 
     If the package is not from an installed distribution then get version from
     git using setuptools_scm.
 
-    :param package: package name, typically __package__
-    :param distribution: name of distribution if different from ``package``
+    Parameters
+    ----------
+    package :
+        package name, typically __package__
+    distribution :
+        name of distribution if different from ``package`` (Default value = None)
 
-    :return: str
+    Returns
+    -------
+    str
         Version string
+
     """
     # Get module file for package.
     module_file = importlib.util.find_spec(package, distribution).origin
@@ -97,12 +103,19 @@ def get_version(package, distribution=None):
 
 
 def parse_version(version):
-    """
-    Parse version string and return a dictionary with version information.
+    """Parse version string and return a dictionary with version information.
     This only handles the default scheme.
 
-    :param version: str
-    :return: dict
+    Parameters
+    ----------
+    version :
+        str
+
+    Returns
+    -------
+    dict
+        version information
+
     """
     fmt = r'(?P<major>[0-9]+)(.(?P<minor>[0-9]+))?(.(?P<patch>[0-9]+))?' \
           r'(.dev(?P<distance>[0-9]+))?'\
