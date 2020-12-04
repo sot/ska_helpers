@@ -19,21 +19,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-__all__ = ['retry']
+__all__ = ['retry', 'retry_call']
 
 import logging
+from logging import StreamHandler
 
-from .api import retry
-
-
-# Set default logging handler to avoid "No handler found" warnings.
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-
-        def emit(self, record):
-            pass
+from .api import retry, retry_call
 
 log = logging.getLogger(__name__)
-log.addHandler(NullHandler())
+log.addHandler(StreamHandler())

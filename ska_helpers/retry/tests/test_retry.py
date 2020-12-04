@@ -1,7 +1,7 @@
 try:
     from unittest.mock import create_autospec
 except ImportError:
-    from mock import create_autospec
+    from mock import create_autospec  # noqa
 
 try:
     from unittest.mock import MagicMock
@@ -12,8 +12,8 @@ import time
 
 import pytest
 
-from retry.api import retry_call
-from retry.api import retry
+from ska_helpers.retry.api import retry_call
+from ska_helpers.retry import retry
 
 
 def test_retry(monkeypatch):
@@ -157,7 +157,7 @@ def test_retry_call_with_args():
     result = None
     f_mock = MagicMock(spec=f, return_value=return_value)
     try:
-        result = retry_call(f_mock, fargs=[return_value])
+        result = retry_call(f_mock, args=[return_value])
     except RuntimeError:
         pass
 
@@ -177,7 +177,7 @@ def test_retry_call_with_kwargs():
     result = None
     f_mock = MagicMock(spec=f, return_value=kwargs['value'])
     try:
-        result = retry_call(f_mock, fkwargs=kwargs)
+        result = retry_call(f_mock, kwargs=kwargs)
     except RuntimeError:
         pass
 
