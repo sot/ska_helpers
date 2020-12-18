@@ -141,3 +141,56 @@ class LazyDict(dict):
     popitem = _lazy_load_wrap(dict.popitem)
     setdefault = _lazy_load_wrap(dict.setdefault)
     values = _lazy_load_wrap(dict.values)
+
+
+def lru_cache_timed(maxsize=128, typed=False, timeout=3600):
+    """LRU cache decorator where the cache expires after ``timeout`` seconds.
+
+    This wraps the functools.lru_cache decorator so that the entire cache gets
+    cleared if the cache is older than ``timeout`` seconds.
+
+    This is mostly copied from this gist, with no license specified:
+    https://gist.github.com/helix84/05ee246d6c80bc7bacdfa6a62fbff3fa
+
+    The cachetools package provides a way to apply the timeout per-item, if that
+    is required.
+
+    Parameters
+    ----------
+    maxsize : int
+        functools.lru_cache maxsize parameter
+    typed : bool
+        functools.lru_cache typed parameter
+    timeout : int, float
+        Clear cache after ``timeout`` seconds from last clear
+    """
+    import time
+
+    def _wrapper(func):
+        next_update = time.time() - 1  # Force cache reset first time
+        # Apply @lru_cache to f
+        func = functools.lru_cache(maxsize=maxsize, typed=typed)(func)
+
+        @functools.wraps(func)
+        def _wrapped(*args, **kwargs):
+            clear_cache_if_expired()
+            return func(*args, **kwargs)
+
+        def clear_cache_if_expired():
+            nonlocal next_update
+            now = time.time()
+            if now >= next_update:
+                func.cache_clear()
+                next_update = now + timeout
+
+        def cache_info():
+            """Report cache statistics"""
+            clear_cache_if_expired()
+            return func.cache_info()
+
+        _wrapped.cache_info = cache_info
+        _wrapped.cache_clear = func.cache_clear
+        return _wrapped
+    return _wrapper
+
+
