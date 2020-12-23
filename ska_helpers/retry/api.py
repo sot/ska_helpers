@@ -2,9 +2,20 @@ import functools
 import logging
 import random
 import time
+import sys
+import traceback
 
 
 logging_logger = logging.getLogger(__name__)
+
+class RetryError(Exception):
+    """
+    Keep track of the stack of exceptions when trying multiple times.
+
+    :param exceptions: list of dict, each with keys 'type', 'value', 'trace'.
+    """
+    def __init__(self, failures):
+        self.failures = failures
 
 
 def __retry_internal(f, exceptions=Exception, tries=-1, delay=0, max_delay=None, backoff=1,
@@ -27,13 +38,23 @@ def __retry_internal(f, exceptions=Exception, tries=-1, delay=0, max_delay=None,
     :returns: the result of the f function.
     """
     _tries, _delay = tries, delay
+    failures = []
     while _tries:
         try:
             return f(*args, **kwargs)
         except exceptions as e:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            trace = traceback.extract_tb(exc_traceback)
+            failures.append({'type': exc_type, 'value': exc_value, 'trace': trace})
+
             _tries -= 1
             if not _tries:
-                raise
+                exc_types = set([e['type'] for e in failures])
+                exc_values = set([str(e['value']) for e in failures])
+                if len(exc_types) > 1 or len(exc_values) > 1:
+                    raise RetryError(failures=failures)
+                else:
+                    raise
 
             if logger is not None:
                 call_args = list(args)

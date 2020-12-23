@@ -13,7 +13,7 @@ import time
 import pytest
 
 from ska_helpers.retry.api import retry_call
-from ska_helpers.retry import retry
+from ska_helpers.retry import retry, RetryError
 
 
 def test_retry(monkeypatch):
@@ -183,3 +183,34 @@ def test_retry_call_with_kwargs():
 
     assert result == kwargs['value']
     assert f_mock.call_count == 1
+
+
+def test_retry_exception():
+
+    def f(value=0):
+        if value < 0:
+            return value
+        else:
+            raise RuntimeError
+
+    # if only one kind of exception is raised, then it is re-raised
+    f_mock = MagicMock(side_effect=RuntimeError('runtime'))
+    try:
+        retry_call(f_mock, tries=2)
+    except RuntimeError as e:
+        assert str(e) == 'runtime'
+
+    # otherwise, a RetryError is raised
+    f_mock = MagicMock(side_effect=[RuntimeError('runtime'), OSError('os')])
+    try:
+        retry_call(f_mock, tries=2)
+    except RetryError as e:
+        assert len(e.failures) == 2
+        for failure in e.failures:
+            assert sorted(failure.keys()) == ['trace', 'type', 'value']
+
+    f_mock = MagicMock(side_effect=[RuntimeError('runtime'), RuntimeError('runtime 2')])
+    try:
+        retry_call(f_mock, tries=2)
+    except RetryError as e:
+        assert len(e.failures) == 2

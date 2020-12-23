@@ -19,12 +19,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-__all__ = ['retry', 'retry_call']
+__all__ = ['retry', 'retry_call', 'RetryError']
 
 import logging
 from logging import StreamHandler
 
-from .api import retry, retry_call
+from .api import retry, retry_call, RetryError
 
 log = logging.getLogger(__name__)
 log.addHandler(StreamHandler())
