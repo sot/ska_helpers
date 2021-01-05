@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ska_helpers.utils &#8212; Ska Helpers 0.3.0 documentation</title>
+    <title>ska_helpers.utils &#8212; Ska Helpers 0.4.0 documentation</title>
     <link rel="stylesheet" href="../../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
@@ -47,10 +47,11 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Ska Helpers 0.3.0 documentation</a>
+	<a href="../../index.html">Ska Helpers 0.4.0 documentation</a>
 	 &#187;
       </li>
-      <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+      <li><a href="../index.html" >Module code</a> &#187;</li>
+      <li><a href="../ska_helpers.html" accesskey="U">ska_helpers</a> &#187;</li>
       
        
     </ul>
@@ -206,6 +207,59 @@
     <span class="n">popitem</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">popitem</span><span class="p">)</span>
     <span class="n">setdefault</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">)</span>
     <span class="n">values</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">values</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">lru_cache_timed</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">typed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">3600</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;LRU cache decorator where the cache expires after ``timeout`` seconds.</span>
+
+<span class="sd">    This wraps the functools.lru_cache decorator so that the entire cache gets</span>
+<span class="sd">    cleared if the cache is older than ``timeout`` seconds.</span>
+
+<span class="sd">    This is mostly copied from this gist, with no license specified:</span>
+<span class="sd">    https://gist.github.com/helix84/05ee246d6c80bc7bacdfa6a62fbff3fa</span>
+
+<span class="sd">    The cachetools package provides a way to apply the timeout per-item, if that</span>
+<span class="sd">    is required.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    maxsize : int</span>
+<span class="sd">        functools.lru_cache maxsize parameter</span>
+<span class="sd">    typed : bool</span>
+<span class="sd">        functools.lru_cache typed parameter</span>
+<span class="sd">    timeout : int, float</span>
+<span class="sd">        Clear cache after ``timeout`` seconds from last clear</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">time</span>
+
+    <span class="k">def</span> <span class="nf">_wrapper</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="n">next_update</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># Force cache reset first time</span>
+        <span class="c1"># Apply @lru_cache to f</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="n">maxsize</span><span class="p">,</span> <span class="n">typed</span><span class="o">=</span><span class="n">typed</span><span class="p">)(</span><span class="n">func</span><span class="p">)</span>
+
+        <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">_wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">clear_cache_if_expired</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">clear_cache_if_expired</span><span class="p">():</span>
+            <span class="k">nonlocal</span> <span class="n">next_update</span>
+            <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">now</span> <span class="o">&gt;=</span> <span class="n">next_update</span><span class="p">:</span>
+                <span class="n">func</span><span class="o">.</span><span class="n">cache_clear</span><span class="p">()</span>
+                <span class="n">next_update</span> <span class="o">=</span> <span class="n">now</span> <span class="o">+</span> <span class="n">timeout</span>
+
+        <span class="k">def</span> <span class="nf">cache_info</span><span class="p">():</span>
+            <span class="sd">&quot;&quot;&quot;Report cache statistics&quot;&quot;&quot;</span>
+            <span class="n">clear_cache_if_expired</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">func</span><span class="o">.</span><span class="n">cache_info</span><span class="p">()</span>
+
+        <span class="n">_wrapped</span><span class="o">.</span><span class="n">cache_info</span> <span class="o">=</span> <span class="n">cache_info</span>
+        <span class="n">_wrapped</span><span class="o">.</span><span class="n">cache_clear</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">cache_clear</span>
+        <span class="k">return</span> <span class="n">_wrapped</span>
+    <span class="k">return</span> <span class="n">_wrapper</span>
+
+
 </pre></div>
 
             <div class="clearer"></div>

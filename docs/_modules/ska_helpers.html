@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overview: module code &#8212; Ska Helpers 0.4.0 documentation</title>
+    <title>ska_helpers &#8212; Ska Helpers 0.4.0 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
@@ -50,6 +50,7 @@
 	<a href="../index.html">Ska Helpers 0.4.0 documentation</a>
 	 &#187;
       </li>
+      <li><a href="index.html" accesskey="U">Module code</a> &#187;</li>
       
        
     </ul>
@@ -61,12 +62,24 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="ska_helpers.html">ska_helpers</a></li>
-<ul><li><a href="ska_helpers/run_info.html">ska_helpers.run_info</a></li>
-<li><a href="ska_helpers/utils.html">ska_helpers.utils</a></li>
-<li><a href="ska_helpers/version.html">ska_helpers.version</a></li>
-</ul></ul>
+  <h1>Source code for ska_helpers</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Ska_helpers is a collection of utilities for the Ska3 runtime environment.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">.version</span> <span class="kn">import</span> <span class="n">get_version</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="n">get_version</span><span class="p">(</span><span class="n">__package__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="test"><a class="viewcode-back" href="../index.html#ska_helpers.test">[docs]</a><span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Run py.test unit tests.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="kn">import</span> <span class="nn">testr</span>
+    <span class="k">return</span> <span class="n">testr</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+</pre></div>
 
             <div class="clearer"></div>
           </div>
