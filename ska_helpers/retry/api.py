@@ -8,6 +8,7 @@ import traceback
 
 logging_logger = logging.getLogger(__name__)
 
+
 class RetryError(Exception):
     """
     Keep track of the stack of exceptions when trying multiple times.
@@ -131,3 +132,24 @@ def retry_call(f, args=None, kwargs=None, exceptions=Exception, tries=-1, delay=
 
     return __retry_internal(f, exceptions, tries, delay, max_delay,
                             backoff, jitter, logger, args=args, kwargs=kwargs)
+
+
+def tables_open_file(*args, **kwargs):
+    """Call tables.open_file(*args, **kwargs) with retry up to 3 times.
+
+    This only catches tables.exceptions.HDF5ExtError. After an initial failure
+    it will try again after 2 seconds and once more after 4 seconds.
+
+    :param *args: args passed through to tables.open_file()
+    :param **kwargs: kwargs passed through to tables.open_file()
+    :returns: tables file handle
+    """
+    import ska_helpers.retry
+    import tables
+    import tables.exceptions
+
+    h5 = ska_helpers.retry.retry_call(
+        tables.open_file, args=args, kwargs=kwargs,
+        exceptions=tables.exceptions.HDF5ExtError,
+        delay=2, tries=3, backoff=2)
+    return h5
