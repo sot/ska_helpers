@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ska Package Helpers &#8212; Ska Helpers 0.5.0 documentation</title>
-    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Ska Package Helpers &#8212; Ska Helpers 0.6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -47,7 +47,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="#">Ska Helpers 0.5.0 documentation</a>
+	<a href="#">Ska Helpers 0.6.0 documentation</a>
 	 &#187;
       </li>
       
@@ -61,20 +61,20 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-ska_helpers">
+  <section id="module-ska_helpers">
 <span id="ska-package-helpers"></span><h1>Ska Package Helpers<a class="headerlink" href="#module-ska_helpers" title="Permalink to this headline">¶</a></h1>
 <p>Ska_helpers is a collection of utilities for the Ska3 runtime environment.</p>
 <dl class="py function">
-<dt id="ska_helpers.test">
-<code class="sig-prename descclassname">ska_helpers.</code><code class="sig-name descname">test</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers.html#test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ska_helpers.test" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_helpers.test">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.</span></span><span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers.html#test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.test" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run py.test unit tests.</p>
 </dd></dl>
 
-<div class="section" id="module-ska_helpers.utils">
+<section id="module-ska_helpers.utils">
 <span id="utilities"></span><h2>Utilities<a class="headerlink" href="#module-ska_helpers.utils" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt id="ska_helpers.utils.LazyDict">
-<em class="property">class </em><code class="sig-prename descclassname">ska_helpers.utils.</code><code class="sig-name descname">LazyDict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">load_func</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#LazyDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ska_helpers.utils.LazyDict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_helpers.utils.LazyDict">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ska_helpers.utils.</span></span><span class="sig-name descname"><span class="pre">LazyDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load_func</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#LazyDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.utils.LazyDict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dict which is lazy-initialized using supplied function <code class="docutils literal notranslate"><span class="pre">load_func</span></code>.</p>
 <p>This class allows defining a module-level dict that is expensive to
 initialize, where the initialization is done lazily (only when actually
@@ -106,57 +106,57 @@ needed).</p>
 </pre></div>
 </div>
 <dl class="py method">
-<dt id="ska_helpers.utils.LazyDict.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; a shallow copy of D<a class="headerlink" href="#ska_helpers.utils.LazyDict.copy" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_helpers.utils.LazyDict.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">shallow</span> <span class="pre">copy</span> <span class="pre">of</span> <span class="pre">D</span></span></span><a class="headerlink" href="#ska_helpers.utils.LazyDict.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="ska_helpers.utils.LazyDict.get">
-<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">/</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ska_helpers.utils.LazyDict.get" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_helpers.utils.LazyDict.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ska_helpers.utils.LazyDict.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the value for key if key is in the dictionary, else default.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="ska_helpers.utils.LazyDict.items">
-<code class="sig-name descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; a set-like object providing a view on D’s items<a class="headerlink" href="#ska_helpers.utils.LazyDict.items" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_helpers.utils.LazyDict.items">
+<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">items</span></span></span><a class="headerlink" href="#ska_helpers.utils.LazyDict.items" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="ska_helpers.utils.LazyDict.keys">
-<code class="sig-name descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; a set-like object providing a view on D’s keys<a class="headerlink" href="#ska_helpers.utils.LazyDict.keys" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_helpers.utils.LazyDict.keys">
+<span class="sig-name descname"><span class="pre">keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">keys</span></span></span><a class="headerlink" href="#ska_helpers.utils.LazyDict.keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="ska_helpers.utils.LazyDict.pop">
-<code class="sig-name descname">pop</code><span class="sig-paren">(</span><em class="sig-param">k</em><span class="optional">[</span>, <em class="sig-param">d</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; v, remove specified key and return the corresponding value.<a class="headerlink" href="#ska_helpers.utils.LazyDict.pop" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_helpers.utils.LazyDict.pop">
+<span class="sig-name descname"><span class="pre">pop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">k</span></em><span class="optional">[</span>, <em class="sig-param"><span class="pre">d</span></em><span class="optional">]</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">v,</span> <span class="pre">remove</span> <span class="pre">specified</span> <span class="pre">key</span> <span class="pre">and</span> <span class="pre">return</span> <span class="pre">the</span> <span class="pre">corresponding</span> <span class="pre">value.</span></span></span><a class="headerlink" href="#ska_helpers.utils.LazyDict.pop" title="Permalink to this definition">¶</a></dt>
 <dd><p>If key is not found, d is returned if given, otherwise KeyError is raised</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="ska_helpers.utils.LazyDict.popitem">
-<code class="sig-name descname">popitem</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ska_helpers.utils.LazyDict.popitem" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_helpers.utils.LazyDict.popitem">
+<span class="sig-name descname"><span class="pre">popitem</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ska_helpers.utils.LazyDict.popitem" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove and return a (key, value) pair as a 2-tuple.</p>
 <p>Pairs are returned in LIFO (last-in, first-out) order.
 Raises KeyError if the dict is empty.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="ska_helpers.utils.LazyDict.setdefault">
-<code class="sig-name descname">setdefault</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">/</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ska_helpers.utils.LazyDict.setdefault" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_helpers.utils.LazyDict.setdefault">
+<span class="sig-name descname"><span class="pre">setdefault</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ska_helpers.utils.LazyDict.setdefault" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert key with a value of default if key is not in the dictionary.</p>
 <p>Return the value for key if key is in the dictionary, else default.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="ska_helpers.utils.LazyDict.values">
-<code class="sig-name descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; an object providing a view on D’s values<a class="headerlink" href="#ska_helpers.utils.LazyDict.values" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_helpers.utils.LazyDict.values">
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">an</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">values</span></span></span><a class="headerlink" href="#ska_helpers.utils.LazyDict.values" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="ska_helpers.utils.LazyVal">
-<em class="property">class </em><code class="sig-prename descclassname">ska_helpers.utils.</code><code class="sig-name descname">LazyVal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">load_func</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#LazyVal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ska_helpers.utils.LazyVal" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_helpers.utils.LazyVal">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ska_helpers.utils.</span></span><span class="sig-name descname"><span class="pre">LazyVal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load_func</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#LazyVal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.utils.LazyVal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Value which is lazy-initialized using supplied function <code class="docutils literal notranslate"><span class="pre">load_func</span></code>.</p>
 <p>This class allows defining a module-level value that is expensive to
 initialize, where the initialization is done lazily (only when actually
@@ -190,16 +190,16 @@ needed).</p>
 </div>
 </dd></dl>
 
-</div>
-<div class="section" id="module-ska_helpers.version">
+</section>
+<section id="module-ska_helpers.version">
 <span id="get-version"></span><h2>Get Version<a class="headerlink" href="#module-ska_helpers.version" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ska_helpers.version</span></code> module provides utilities to handle package
 versions. The version of a package is determined using pkg_resources if it is
 installed, and <a class="reference external" href="https://github.com/pypa/setuptools_scm/">setuptools_scm</a>
 otherwise.</p>
 <dl class="py function">
-<dt id="ska_helpers.version.get_version">
-<code class="sig-prename descclassname">ska_helpers.version.</code><code class="sig-name descname">get_version</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">package</span></em>, <em class="sig-param"><span class="n">distribution</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/version.html#get_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ska_helpers.version.get_version" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_helpers.version.get_version">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.version.</span></span><span class="sig-name descname"><span class="pre">get_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/version.html#get_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.version.get_version" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get version string for <code class="docutils literal notranslate"><span class="pre">package</span></code> with optional <code class="docutils literal notranslate"><span class="pre">distribution</span></code> name.</p>
 <p>If the package is not from an installed distribution then get version from
 git using setuptools_scm.</p>
@@ -222,8 +222,8 @@ git using setuptools_scm.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="ska_helpers.version.parse_version">
-<code class="sig-prename descclassname">ska_helpers.version.</code><code class="sig-name descname">parse_version</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">version</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/version.html#parse_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ska_helpers.version.parse_version" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_helpers.version.parse_version">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.version.</span></span><span class="sig-name descname"><span class="pre">parse_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/version.html#parse_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.version.parse_version" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse version string and return a dictionary with version information.
 This only handles the default scheme.</p>
 <dl class="field-list simple">
@@ -242,7 +242,7 @@ This only handles the default scheme.</p>
 </dl>
 </dd></dl>
 
-<div class="section" id="default-versioning-scheme">
+<section id="default-versioning-scheme">
 <h3>Default versioning scheme<a class="headerlink" href="#default-versioning-scheme" title="Permalink to this headline">¶</a></h3>
 <p>What follows is the scheme as described in <a class="reference external" href="https://github.com/pypa/setuptools_scm/">setuptools_scm’s documentation</a>.</p>
 <p>In the standard configuration <code class="docutils literal notranslate"><span class="pre">setuptools_scm</span></code> takes a look at three things:</p>
@@ -273,16 +273,16 @@ will increment the wrong part of the SemVer (e.g. tag <code class="docutils lite
 accordingly.</p>
 <div class="toctree-wrapper compound">
 </div>
-</div>
-</div>
-<div class="section" id="module-ska_helpers.run_info">
+</section>
+</section>
+<section id="module-ska_helpers.run_info">
 <span id="run-time-information"></span><h2>Run time information<a class="headerlink" href="#module-ska_helpers.run_info" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ska_helpers.run_info</span></code> module provides convenience functions to get
 and print relevant run time information such as machine name, user name, date,
 program version, and so on.  This is aimed at executable scripts and cron jobs.</p>
 <dl class="py function">
-<dt id="ska_helpers.run_info.get_run_info">
-<code class="sig-prename descclassname">ska_helpers.run_info.</code><code class="sig-name descname">get_run_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">opt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stack_level</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/run_info.html#get_run_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ska_helpers.run_info.get_run_info" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_helpers.run_info.get_run_info">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.run_info.</span></span><span class="sig-name descname"><span class="pre">get_run_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stack_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/run_info.html#get_run_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.run_info.get_run_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get run time information as dict.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -305,8 +305,8 @@ program version, and so on.  This is aimed at executable scripts and cron jobs.<
 </dd></dl>
 
 <dl class="py function">
-<dt id="ska_helpers.run_info.get_run_info_lines">
-<code class="sig-prename descclassname">ska_helpers.run_info.</code><code class="sig-name descname">get_run_info_lines</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">opt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stack_level</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/run_info.html#get_run_info_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ska_helpers.run_info.get_run_info_lines" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_helpers.run_info.get_run_info_lines">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.run_info.</span></span><span class="sig-name descname"><span class="pre">get_run_info_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stack_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/run_info.html#get_run_info_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.run_info.get_run_info_lines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get run time information as formatted lines.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -329,8 +329,8 @@ program version, and so on.  This is aimed at executable scripts and cron jobs.<
 </dd></dl>
 
 <dl class="py function">
-<dt id="ska_helpers.run_info.log_run_info">
-<code class="sig-prename descclassname">ska_helpers.run_info.</code><code class="sig-name descname">log_run_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">log_func</span></em>, <em class="sig-param"><span class="n">opt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stack_level</span><span class="o">=</span><span class="default_value">3</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/run_info.html#log_run_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ska_helpers.run_info.log_run_info" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_helpers.run_info.log_run_info">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.run_info.</span></span><span class="sig-name descname"><span class="pre">log_run_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stack_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/run_info.html#log_run_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.run_info.log_run_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Output run time information as formatted lines via <code class="docutils literal notranslate"><span class="pre">log_func</span></code>.</p>
 <p>Each formatted line is passed to <code class="docutils literal notranslate"><span class="pre">log_func</span></code>.</p>
 <dl class="field-list simple">
@@ -349,16 +349,16 @@ program version, and so on.  This is aimed at executable scripts and cron jobs.<
 </dl>
 </dd></dl>
 
-</div>
-</div>
-<div class="section" id="indices-and-tables">
+</section>
+</section>
+<section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
-</div>
+</section>
 
 
             <div class="clearer"></div>
@@ -404,7 +404,7 @@ program version, and so on.  This is aimed at executable scripts and cron jobs.<
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2019, Javier Gonzalez.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
   </p>
 </footer>
   </body>
