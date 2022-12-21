@@ -1,0 +1,249 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ska_helpers.retry.api &#8212; Ska Helpers 0.7.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css" />
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">Ska! </span><span id="logotext2">ska_helpers</span><span id="logotext3"></span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="https://sot.github.io/">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">Ska Helpers 0.7.0 documentation</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" >Module code</a> &#187;</li>
+      <li><a href="../../ska_helpers.html" accesskey="U">ska_helpers</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for ska_helpers.retry.api</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+
+
+<span class="n">logging_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="RetryError"><a class="viewcode-back" href="../../../index.html#ska_helpers.retry.RetryError">[docs]</a><span class="k">class</span> <span class="nc">RetryError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Keep track of the stack of exceptions when trying multiple times.</span>
+
+<span class="sd">    :param exceptions: list of dict, each with keys &#39;type&#39;, &#39;value&#39;, &#39;trace&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">failures</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failures</span> <span class="o">=</span> <span class="n">failures</span></div>
+
+
+<span class="k">def</span> <span class="nf">__retry_internal</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">=</span><span class="ne">Exception</span><span class="p">,</span> <span class="n">tries</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_delay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                     <span class="n">jitter</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logging_logger</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Executes a function and retries it if it failed.</span>
+
+<span class="sd">    :param f: the function to execute.</span>
+<span class="sd">    :param exceptions: an exception or a tuple of exceptions to catch. default: Exception.</span>
+<span class="sd">    :param tries: the maximum number of attempts. default: -1 (infinite).</span>
+<span class="sd">    :param delay: initial delay between attempts. default: 0.</span>
+<span class="sd">    :param max_delay: the maximum value of delay. default: None (no limit).</span>
+<span class="sd">    :param backoff: multiplier applied to delay between attempts. default: 1 (no backoff).</span>
+<span class="sd">    :param jitter: extra seconds added to delay between attempts. default: 0.</span>
+<span class="sd">                   fixed if a number, random if a range tuple (min, max)</span>
+<span class="sd">    :param logger: logger.warning(fmt, error, delay) will be called on failed attempts.</span>
+<span class="sd">                   default: retry.logging_logger. if None, logging is disabled.</span>
+<span class="sd">    :param args: tuple, function args</span>
+<span class="sd">    :param kwargs: dict, function kwargs</span>
+<span class="sd">    :returns: the result of the f function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_tries</span><span class="p">,</span> <span class="n">_delay</span> <span class="o">=</span> <span class="n">tries</span><span class="p">,</span> <span class="n">delay</span>
+    <span class="n">failures</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="n">_tries</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">exceptions</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+            <span class="n">trace</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">extract_tb</span><span class="p">(</span><span class="n">exc_traceback</span><span class="p">)</span>
+            <span class="n">failures</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">exc_type</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">exc_value</span><span class="p">,</span> <span class="s1">&#39;trace&#39;</span><span class="p">:</span> <span class="n">trace</span><span class="p">})</span>
+
+            <span class="n">_tries</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">_tries</span><span class="p">:</span>
+                <span class="n">exc_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">failures</span><span class="p">])</span>
+                <span class="n">exc_values</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">failures</span><span class="p">])</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">exc_types</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">exc_values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">RetryError</span><span class="p">(</span><span class="n">failures</span><span class="o">=</span><span class="n">failures</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span>
+
+            <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">call_args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">call_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">call_args_str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">call_args</span><span class="p">)</span>
+                <span class="n">func_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s1">&#39;__name__&#39;</span><span class="p">,</span> <span class="s1">&#39;func&#39;</span><span class="p">)</span>
+                <span class="n">func_call</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">func_name</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="n">call_args_str</span><span class="si">}</span><span class="s1">)&#39;</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;WARNING: </span><span class="si">{</span><span class="n">func_call</span><span class="si">}</span><span class="s1"> exception: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">, retrying &#39;</span>
+                               <span class="sa">f</span><span class="s1">&#39;in </span><span class="si">{</span><span class="n">_delay</span><span class="si">}</span><span class="s1"> seconds...&#39;</span><span class="p">)</span>
+
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">_delay</span><span class="p">)</span>
+            <span class="n">_delay</span> <span class="o">*=</span> <span class="n">backoff</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">jitter</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="n">_delay</span> <span class="o">+=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">*</span><span class="n">jitter</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_delay</span> <span class="o">+=</span> <span class="n">jitter</span>
+
+            <span class="k">if</span> <span class="n">max_delay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">_delay</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">_delay</span><span class="p">,</span> <span class="n">max_delay</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="retry"><a class="viewcode-back" href="../../../index.html#ska_helpers.retry.retry">[docs]</a><span class="k">def</span> <span class="nf">retry</span><span class="p">(</span><span class="n">exceptions</span><span class="o">=</span><span class="ne">Exception</span><span class="p">,</span> <span class="n">tries</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_delay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">jitter</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+          <span class="n">logger</span><span class="o">=</span><span class="n">logging_logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a retry decorator.</span>
+
+<span class="sd">    :param exceptions: an exception or a tuple of exceptions to catch. default: Exception.</span>
+<span class="sd">    :param tries: the maximum number of attempts. default: -1 (infinite).</span>
+<span class="sd">    :param delay: initial delay between attempts. default: 0.</span>
+<span class="sd">    :param max_delay: the maximum value of delay. default: None (no limit).</span>
+<span class="sd">    :param backoff: multiplier applied to delay between attempts. default: 1 (no backoff).</span>
+<span class="sd">    :param jitter: extra seconds added to delay between attempts. default: 0.</span>
+<span class="sd">                   fixed if a number, random if a range tuple (min, max)</span>
+<span class="sd">    :param logger: logger.warning(fmt, error, delay) will be called on failed attempts.</span>
+<span class="sd">                   default: retry.logging_logger. if None, logging is disabled.</span>
+<span class="sd">    :returns: a retry decorator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+        <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">__retry_internal</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">exceptions</span><span class="p">,</span> <span class="n">tries</span><span class="p">,</span> <span class="n">delay</span><span class="p">,</span> <span class="n">max_delay</span><span class="p">,</span>
+                                    <span class="n">backoff</span><span class="p">,</span> <span class="n">jitter</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">return</span> <span class="n">decorator</span></div>
+
+
+<div class="viewcode-block" id="retry_call"><a class="viewcode-back" href="../../../index.html#ska_helpers.retry.retry_call">[docs]</a><span class="k">def</span> <span class="nf">retry_call</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">=</span><span class="ne">Exception</span><span class="p">,</span> <span class="n">tries</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+               <span class="n">max_delay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">jitter</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+               <span class="n">logger</span><span class="o">=</span><span class="n">logging_logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calls a function and re-executes it if it failed.</span>
+
+<span class="sd">    :param f: the function to execute.</span>
+<span class="sd">    :param args: the positional arguments of the function to execute.</span>
+<span class="sd">    :param kwargs: the named arguments of the function to execute.</span>
+<span class="sd">    :param exceptions: an exception or a tuple of exceptions to catch. default: Exception.</span>
+<span class="sd">    :param tries: the maximum number of attempts. default: -1 (infinite).</span>
+<span class="sd">    :param delay: initial delay between attempts. default: 0.</span>
+<span class="sd">    :param max_delay: the maximum value of delay. default: None (no limit).</span>
+<span class="sd">    :param backoff: multiplier applied to delay between attempts. default: 1 (no backoff).</span>
+<span class="sd">    :param jitter: extra seconds added to delay between attempts. default: 0.</span>
+<span class="sd">                   fixed if a number, random if a range tuple (min, max)</span>
+<span class="sd">    :param logger: logger.warning(fmt, error, delay) will be called on failed attempts.</span>
+<span class="sd">                   default: retry.logging_logger. if None, logging is disabled.</span>
+<span class="sd">    :returns: the result of the f function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">return</span> <span class="n">__retry_internal</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">exceptions</span><span class="p">,</span> <span class="n">tries</span><span class="p">,</span> <span class="n">delay</span><span class="p">,</span> <span class="n">max_delay</span><span class="p">,</span>
+                            <span class="n">backoff</span><span class="p">,</span> <span class="n">jitter</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="tables_open_file"><a class="viewcode-back" href="../../../index.html#ska_helpers.retry.tables_open_file">[docs]</a><span class="k">def</span> <span class="nf">tables_open_file</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Call tables.open_file(*args, **kwargs) with retry up to 3 times.</span>
+
+<span class="sd">    This only catches tables.exceptions.HDF5ExtError. After an initial failure</span>
+<span class="sd">    it will try again after 2 seconds and once more after 4 seconds.</span>
+
+<span class="sd">    :param *args: args passed through to tables.open_file()</span>
+<span class="sd">    :param **kwargs: kwargs passed through to tables.open_file()</span>
+<span class="sd">    :returns: tables file handle</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">ska_helpers.retry</span>
+    <span class="kn">import</span> <span class="nn">tables</span>
+    <span class="kn">import</span> <span class="nn">tables.exceptions</span>
+
+    <span class="n">h5</span> <span class="o">=</span> <span class="n">ska_helpers</span><span class="o">.</span><span class="n">retry</span><span class="o">.</span><span class="n">retry_call</span><span class="p">(</span>
+        <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="n">exceptions</span><span class="o">=</span><span class="n">tables</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HDF5ExtError</span><span class="p">,</span>
+        <span class="n">delay</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">h5</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2019, Javier Gonzalez.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>
