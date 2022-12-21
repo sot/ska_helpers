@@ -9,6 +9,27 @@ Ska Package Helpers
 .. automodule:: ska_helpers
    :members:
 
+Logging
+-------
+
+.. automodule:: ska_helpers.logging
+   :members:
+
+
+Retry
+-----
+
+.. automodule:: ska_helpers.retry
+   :members:
+
+
+Setup Helpers
+-------------
+
+.. automodule:: ska_helpers.setup_helper
+   :members:
+
+
 Utilities
 ---------
 
