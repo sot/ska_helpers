@@ -13,8 +13,9 @@ import warnings
 from pathlib import Path
 
 with warnings.catch_warnings():
-    warnings.filterwarnings('ignore', message=r'Module \w+ was already imported',
-                            category=UserWarning)
+    warnings.filterwarnings(
+        'ignore', message=r'Module \w+ was already imported', category=UserWarning
+    )
     from pkg_resources import DistributionNotFound, get_distribution
 
 
@@ -66,9 +67,11 @@ def get_version(package, distribution=None):
             if git_dir.exists() and git_dir.is_dir():
                 raise AssertionError
             if 'SKA_HELPERS_VERSION_DEBUG' in os.environ:
-                print(f'** Getting version via DIST_INFO: '
-                      f'package={package} distribution={distribution} '
-                      f'dist_info.location={dist_info.location}')
+                print(
+                    '** Getting version via DIST_INFO: '
+                    f'package={package} distribution={distribution} '
+                    f'dist_info.location={dist_info.location}'
+                )
 
         except (DistributionNotFound, AssertionError):
             # Get_distribution failed or found a different package from this
@@ -81,9 +84,11 @@ def get_version(package, distribution=None):
             if os.path.basename(module_file) != '__init__.py':
                 roots = roots[:-1]
             if 'SKA_HELPERS_VERSION_DEBUG' in os.environ:
-                print(f'** Getting version via setuptools_scm: '
-                      f'package={package} distribution={distribution} '
-                      f'get_version(root={Path(*roots)}, relative_to={module_file})')
+                print(
+                    '** Getting version via setuptools_scm: '
+                    f'package={package} distribution={distribution} '
+                    f'get_version(root={Path(*roots)}, relative_to={module_file})'
+                )
             version = get_version(root=Path(*roots), relative_to=module_file)
 
     except Exception:
@@ -91,6 +96,7 @@ def get_version(package, distribution=None):
         # import but generate a lot of output indicating the problem.
         import traceback
         import warnings
+
         if 'TESTR_FILE' not in os.environ:
             # this avoids a test failure when checking log files with this warning.
             # Pytest will import packages such as Ska.Shell first as Shell and then as Ska.Shell.
@@ -117,9 +123,11 @@ def parse_version(version):
         version information
 
     """
-    fmt = r'(?P<major>[0-9]+)(.(?P<minor>[0-9]+))?(.(?P<patch>[0-9]+))?' \
-          r'(.dev(?P<distance>[0-9]+))?'\
-          r'(\+(?P<letter>\S)g?(?P<hash>\S+)\.(d(?P<date>[0-9]+))?)?'
+    fmt = (
+        r'(?P<major>[0-9]+)(.(?P<minor>[0-9]+))?(.(?P<patch>[0-9]+))?'
+        r'(.dev(?P<distance>[0-9]+))?'
+        r'(\+(?P<letter>\S)g?(?P<hash>\S+)\.(d(?P<date>[0-9]+))?)?'
+    )
     m = re.match(fmt, version)
     if not m:
         raise RuntimeError(f'version {version} could not be parsed')

@@ -10,6 +10,7 @@ def _lazy_load_wrap(unbound_method):
     def wrapper(self, *args, **kwargs):
         self._load()
         return unbound_method(self, *args, **kwargs)
+
     return wrapper
 
 
@@ -47,6 +48,7 @@ class LazyVal:
     **kwargs
         Keyword arguments for ``load_func``
     """
+
     def __init__(self, load_func, *args, **kwargs):
         self._load_func = load_func
         self._args = args
@@ -98,6 +100,7 @@ class LazyDict(dict):
     **kwargs
         Keyword arguments for ``load_func``
     """
+
     def __init__(self, load_func, *args, **kwargs):
         self._load_func = load_func
         self._args = args
@@ -193,4 +196,5 @@ def lru_cache_timed(maxsize=128, typed=False, timeout=3600):
         _wrapped.cache_info = cache_info
         _wrapped.cache_clear = func.cache_clear
         return _wrapped
+
     return _wrapper

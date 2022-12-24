@@ -14,12 +14,23 @@ class RetryError(Exception):
 
     :param exceptions: list of dict, each with keys 'type', 'value', 'trace'.
     """
+
     def __init__(self, failures):
         self.failures = failures
 
 
-def __retry_internal(f, exceptions=Exception, tries=-1, delay=0, max_delay=None, backoff=1,
-                     jitter=0, logger=logging_logger, args=None, kwargs=None):
+def __retry_internal(
+    f,
+    exceptions=Exception,
+    tries=-1,
+    delay=0,
+    max_delay=None,
+    backoff=1,
+    jitter=0,
+    logger=logging_logger,
+    args=None,
+    kwargs=None,
+):
     """
     Executes a function and retries it if it failed.
 
@@ -63,8 +74,10 @@ def __retry_internal(f, exceptions=Exception, tries=-1, delay=0, max_delay=None,
                 call_args_str = ', '.join(str(arg) for arg in call_args)
                 func_name = getattr(f, '__name__', 'func')
                 func_call = f'{func_name}({call_args_str})'
-                logger.warning(f'WARNING: {func_call} exception: {e}, retrying '
-                               f'in {_delay} seconds...')
+                logger.warning(
+                    f'WARNING: {func_call} exception: {e}, retrying '
+                    f'in {_delay} seconds...'
+                )
 
             time.sleep(_delay)
             _delay *= backoff
@@ -78,8 +91,15 @@ def __retry_internal(f, exceptions=Exception, tries=-1, delay=0, max_delay=None,
                 _delay = min(_delay, max_delay)
 
 
-def retry(exceptions=Exception, tries=-1, delay=0, max_delay=None, backoff=1, jitter=0,
-          logger=logging_logger):
+def retry(
+    exceptions=Exception,
+    tries=-1,
+    delay=0,
+    max_delay=None,
+    backoff=1,
+    jitter=0,
+    logger=logging_logger,
+):
     """Returns a retry decorator.
 
     :param exceptions: an exception or a tuple of exceptions to catch. default: Exception.
@@ -97,16 +117,36 @@ def retry(exceptions=Exception, tries=-1, delay=0, max_delay=None, backoff=1, ji
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
-            return __retry_internal(f, exceptions, tries, delay, max_delay,
-                                    backoff, jitter, logger, args=args, kwargs=kwargs)
+            return __retry_internal(
+                f,
+                exceptions,
+                tries,
+                delay,
+                max_delay,
+                backoff,
+                jitter,
+                logger,
+                args=args,
+                kwargs=kwargs,
+            )
+
         return wrapper
 
     return decorator
 
 
-def retry_call(f, args=None, kwargs=None, exceptions=Exception, tries=-1, delay=0,
-               max_delay=None, backoff=1, jitter=0,
-               logger=logging_logger):
+def retry_call(
+    f,
+    args=None,
+    kwargs=None,
+    exceptions=Exception,
+    tries=-1,
+    delay=0,
+    max_delay=None,
+    backoff=1,
+    jitter=0,
+    logger=logging_logger,
+):
     """
     Calls a function and re-executes it if it failed.
 
@@ -129,8 +169,18 @@ def retry_call(f, args=None, kwargs=None, exceptions=Exception, tries=-1, delay=
     if kwargs is None:
         kwargs = {}
 
-    return __retry_internal(f, exceptions, tries, delay, max_delay,
-                            backoff, jitter, logger, args=args, kwargs=kwargs)
+    return __retry_internal(
+        f,
+        exceptions,
+        tries,
+        delay,
+        max_delay,
+        backoff,
+        jitter,
+        logger,
+        args=args,
+        kwargs=kwargs,
+    )
 
 
 def tables_open_file(*args, **kwargs):
@@ -149,7 +199,12 @@ def tables_open_file(*args, **kwargs):
     import ska_helpers.retry
 
     h5 = ska_helpers.retry.retry_call(
-        tables.open_file, args=args, kwargs=kwargs,
+        tables.open_file,
+        args=args,
+        kwargs=kwargs,
         exceptions=tables.exceptions.HDF5ExtError,
-        delay=2, tries=3, backoff=2)
+        delay=2,
+        tries=3,
+        backoff=2,
+    )
     return h5

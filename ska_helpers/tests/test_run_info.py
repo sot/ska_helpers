@@ -17,12 +17,14 @@ def get_opt(args=None):
 def test_run_info():
     opt = get_opt(['--test', 'value'])
     info = run_info.get_run_info(opt)
-    exp = {'filename': __file__,
-           'version': __version__,
-           # 'time': 'Sun Dec 29 14:15:06 2019',
-           # 'user': 'aldcroft',
-           # 'machine': 'daze.local',
-           'args': {'test': 'value'}}
+    exp = {
+        'filename': __file__,
+        'version': __version__,
+        # 'time': 'Sun Dec 29 14:15:06 2019',
+        # 'user': 'aldcroft',
+        # 'machine': 'daze.local',
+        'args': {'test': 'value'},
+    }
 
     for key in exp:
         assert info[key] == exp[key]

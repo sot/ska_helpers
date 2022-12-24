@@ -81,8 +81,10 @@ def basic_logger(name, format="%(asctime)s %(funcName)s: %(message)s", **kwargs)
         kwargs['format'] = format
     logger = logging.getLogger(name)
 
-    if not kwargs.get('force', False) and (logger.hasHandlers() or logger.level != logging.NOTSET):
-      return logger
+    if not kwargs.get('force', False) and (
+        logger.hasHandlers() or logger.level != logging.NOTSET
+    ):
+        return logger
 
     # Monkeypatch logging temporarily and configure our logger
     root = logging.root

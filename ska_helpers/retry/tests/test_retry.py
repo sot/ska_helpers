@@ -38,8 +38,7 @@ def test_retry(monkeypatch):
     with pytest.raises(ZeroDivisionError):
         f()
     assert hit[0] == tries
-    assert mock_sleep_time[0] == sum(
-        delay * backoff ** i for i in range(tries - 1))
+    assert mock_sleep_time[0] == sum(delay * backoff**i for i in range(tries - 1))
 
 
 def test_tries_inf():
@@ -53,6 +52,7 @@ def test_tries_inf():
             return target
         else:
             raise ValueError
+
     assert f() == target
 
 
@@ -67,6 +67,7 @@ def test_tries_minus1():
             return target
         else:
             raise ValueError
+
     assert f() == target
 
 
@@ -146,7 +147,6 @@ def test_retry_call_2():
 
 
 def test_retry_call_with_args():
-
     def f(value=0):
         if value < 0:
             return value
@@ -166,7 +166,6 @@ def test_retry_call_with_args():
 
 
 def test_retry_call_with_kwargs():
-
     def f(value=0):
         if value < 0:
             return value
@@ -186,7 +185,6 @@ def test_retry_call_with_kwargs():
 
 
 def test_retry_exception():
-
     def f(value=0):
         if value < 0:
             return value
