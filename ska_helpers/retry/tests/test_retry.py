@@ -12,8 +12,8 @@ import time
 
 import pytest
 
+from ska_helpers.retry import RetryError, retry
 from ska_helpers.retry.api import retry_call
-from ska_helpers.retry import retry, RetryError
 
 
 def test_retry(monkeypatch):
@@ -22,7 +22,7 @@ def test_retry(monkeypatch):
     def mock_sleep(seconds):
         mock_sleep_time[0] += seconds
 
-    monkeypatch.setattr(time, 'sleep', mock_sleep)
+    monkeypatch.setattr(time, "sleep", mock_sleep)
 
     hit = [0]
 
@@ -38,21 +38,21 @@ def test_retry(monkeypatch):
     with pytest.raises(ZeroDivisionError):
         f()
     assert hit[0] == tries
-    assert mock_sleep_time[0] == sum(
-        delay * backoff ** i for i in range(tries - 1))
+    assert mock_sleep_time[0] == sum(delay * backoff**i for i in range(tries - 1))
 
 
 def test_tries_inf():
     hit = [0]
     target = 10
 
-    @retry(tries=float('inf'))
+    @retry(tries=float("inf"))
     def f():
         hit[0] += 1
         if hit[0] == target:
             return target
         else:
             raise ValueError
+
     assert f() == target
 
 
@@ -67,6 +67,7 @@ def test_tries_minus1():
             return target
         else:
             raise ValueError
+
     assert f() == target
 
 
@@ -76,7 +77,7 @@ def test_max_delay(monkeypatch):
     def mock_sleep(seconds):
         mock_sleep_time[0] += seconds
 
-    monkeypatch.setattr(time, 'sleep', mock_sleep)
+    monkeypatch.setattr(time, "sleep", mock_sleep)
 
     hit = [0]
 
@@ -102,7 +103,7 @@ def test_fixed_jitter(monkeypatch):
     def mock_sleep(seconds):
         mock_sleep_time[0] += seconds
 
-    monkeypatch.setattr(time, 'sleep', mock_sleep)
+    monkeypatch.setattr(time, "sleep", mock_sleep)
 
     hit = [0]
 
@@ -146,7 +147,6 @@ def test_retry_call_2():
 
 
 def test_retry_call_with_args():
-
     def f(value=0):
         if value < 0:
             return value
@@ -166,27 +166,25 @@ def test_retry_call_with_args():
 
 
 def test_retry_call_with_kwargs():
-
     def f(value=0):
         if value < 0:
             return value
         else:
             raise RuntimeError
 
-    kwargs = {'value': -1}
+    kwargs = {"value": -1}
     result = None
-    f_mock = MagicMock(spec=f, return_value=kwargs['value'])
+    f_mock = MagicMock(spec=f, return_value=kwargs["value"])
     try:
         result = retry_call(f_mock, kwargs=kwargs)
     except RuntimeError:
         pass
 
-    assert result == kwargs['value']
+    assert result == kwargs["value"]
     assert f_mock.call_count == 1
 
 
 def test_retry_exception():
-
     def f(value=0):
         if value < 0:
             return value
@@ -194,22 +192,22 @@ def test_retry_exception():
             raise RuntimeError
 
     # if only one kind of exception is raised, then it is re-raised
-    f_mock = MagicMock(side_effect=RuntimeError('runtime'))
+    f_mock = MagicMock(side_effect=RuntimeError("runtime"))
     try:
         retry_call(f_mock, tries=2)
     except RuntimeError as e:
-        assert str(e) == 'runtime'
+        assert str(e) == "runtime"
 
     # otherwise, a RetryError is raised
-    f_mock = MagicMock(side_effect=[RuntimeError('runtime'), OSError('os')])
+    f_mock = MagicMock(side_effect=[RuntimeError("runtime"), OSError("os")])
     try:
         retry_call(f_mock, tries=2)
     except RetryError as e:
         assert len(e.failures) == 2
         for failure in e.failures:
-            assert sorted(failure.keys()) == ['trace', 'type', 'value']
+            assert sorted(failure.keys()) == ["trace", "type", "value"]
 
-    f_mock = MagicMock(side_effect=[RuntimeError('runtime'), RuntimeError('runtime 2')])
+    f_mock = MagicMock(side_effect=[RuntimeError("runtime"), RuntimeError("runtime 2")])
     try:
         retry_call(f_mock, tries=2)
     except RetryError as e:

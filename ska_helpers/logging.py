@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-__all__ = ['basic_logger']
+__all__ = ["basic_logger"]
 
 
 def basic_logger(name, format="%(asctime)s %(funcName)s: %(message)s", **kwargs):
@@ -78,11 +78,13 @@ def basic_logger(name, format="%(asctime)s %(funcName)s: %(message)s", **kwargs)
     import logging
 
     if format is not None:
-        kwargs['format'] = format
+        kwargs["format"] = format
     logger = logging.getLogger(name)
 
-    if not kwargs.get('force', False) and (logger.hasHandlers() or logger.level != logging.NOTSET):
-      return logger
+    if not kwargs.get("force", False) and (
+        logger.hasHandlers() or logger.level != logging.NOTSET
+    ):
+        return logger
 
     # Monkeypatch logging temporarily and configure our logger
     root = logging.root

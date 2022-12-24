@@ -1,10 +1,9 @@
 import functools
 import logging
 import random
-import time
 import sys
+import time
 import traceback
-
 
 logging_logger = logging.getLogger(__name__)
 
@@ -15,12 +14,23 @@ class RetryError(Exception):
 
     :param exceptions: list of dict, each with keys 'type', 'value', 'trace'.
     """
+
     def __init__(self, failures):
         self.failures = failures
 
 
-def __retry_internal(f, exceptions=Exception, tries=-1, delay=0, max_delay=None, backoff=1,
-                     jitter=0, logger=logging_logger, args=None, kwargs=None):
+def __retry_internal(
+    f,
+    exceptions=Exception,
+    tries=-1,
+    delay=0,
+    max_delay=None,
+    backoff=1,
+    jitter=0,
+    logger=logging_logger,
+    args=None,
+    kwargs=None,
+):
     """
     Executes a function and retries it if it failed.
 
@@ -46,12 +56,12 @@ def __retry_internal(f, exceptions=Exception, tries=-1, delay=0, max_delay=None,
         except exceptions as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             trace = traceback.extract_tb(exc_traceback)
-            failures.append({'type': exc_type, 'value': exc_value, 'trace': trace})
+            failures.append({"type": exc_type, "value": exc_value, "trace": trace})
 
             _tries -= 1
             if not _tries:
-                exc_types = set([e['type'] for e in failures])
-                exc_values = set([str(e['value']) for e in failures])
+                exc_types = set([e["type"] for e in failures])
+                exc_values = set([str(e["value"]) for e in failures])
                 if len(exc_types) > 1 or len(exc_values) > 1:
                     raise RetryError(failures=failures)
                 else:
@@ -60,12 +70,14 @@ def __retry_internal(f, exceptions=Exception, tries=-1, delay=0, max_delay=None,
             if logger is not None:
                 call_args = list(args)
                 for key, val in kwargs.items():
-                    call_args.append(f'{key}={val}')
-                call_args_str = ', '.join(str(arg) for arg in call_args)
-                func_name = getattr(f, '__name__', 'func')
-                func_call = f'{func_name}({call_args_str})'
-                logger.warning(f'WARNING: {func_call} exception: {e}, retrying '
-                               f'in {_delay} seconds...')
+                    call_args.append(f"{key}={val}")
+                call_args_str = ", ".join(str(arg) for arg in call_args)
+                func_name = getattr(f, "__name__", "func")
+                func_call = f"{func_name}({call_args_str})"
+                logger.warning(
+                    f"WARNING: {func_call} exception: {e}, retrying "
+                    f"in {_delay} seconds..."
+                )
 
             time.sleep(_delay)
             _delay *= backoff
@@ -79,8 +91,15 @@ def __retry_internal(f, exceptions=Exception, tries=-1, delay=0, max_delay=None,
                 _delay = min(_delay, max_delay)
 
 
-def retry(exceptions=Exception, tries=-1, delay=0, max_delay=None, backoff=1, jitter=0,
-          logger=logging_logger):
+def retry(
+    exceptions=Exception,
+    tries=-1,
+    delay=0,
+    max_delay=None,
+    backoff=1,
+    jitter=0,
+    logger=logging_logger,
+):
     """Returns a retry decorator.
 
     :param exceptions: an exception or a tuple of exceptions to catch. default: Exception.
@@ -98,16 +117,36 @@ def retry(exceptions=Exception, tries=-1, delay=0, max_delay=None, backoff=1, ji
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
-            return __retry_internal(f, exceptions, tries, delay, max_delay,
-                                    backoff, jitter, logger, args=args, kwargs=kwargs)
+            return __retry_internal(
+                f,
+                exceptions,
+                tries,
+                delay,
+                max_delay,
+                backoff,
+                jitter,
+                logger,
+                args=args,
+                kwargs=kwargs,
+            )
+
         return wrapper
 
     return decorator
 
 
-def retry_call(f, args=None, kwargs=None, exceptions=Exception, tries=-1, delay=0,
-               max_delay=None, backoff=1, jitter=0,
-               logger=logging_logger):
+def retry_call(
+    f,
+    args=None,
+    kwargs=None,
+    exceptions=Exception,
+    tries=-1,
+    delay=0,
+    max_delay=None,
+    backoff=1,
+    jitter=0,
+    logger=logging_logger,
+):
     """
     Calls a function and re-executes it if it failed.
 
@@ -130,8 +169,18 @@ def retry_call(f, args=None, kwargs=None, exceptions=Exception, tries=-1, delay=
     if kwargs is None:
         kwargs = {}
 
-    return __retry_internal(f, exceptions, tries, delay, max_delay,
-                            backoff, jitter, logger, args=args, kwargs=kwargs)
+    return __retry_internal(
+        f,
+        exceptions,
+        tries,
+        delay,
+        max_delay,
+        backoff,
+        jitter,
+        logger,
+        args=args,
+        kwargs=kwargs,
+    )
 
 
 def tables_open_file(*args, **kwargs):
@@ -144,12 +193,18 @@ def tables_open_file(*args, **kwargs):
     :param **kwargs: kwargs passed through to tables.open_file()
     :returns: tables file handle
     """
-    import ska_helpers.retry
     import tables
     import tables.exceptions
 
+    import ska_helpers.retry
+
     h5 = ska_helpers.retry.retry_call(
-        tables.open_file, args=args, kwargs=kwargs,
+        tables.open_file,
+        args=args,
+        kwargs=kwargs,
         exceptions=tables.exceptions.HDF5ExtError,
-        delay=2, tries=3, backoff=2)
+        delay=2,
+        tries=3,
+        backoff=2,
+    )
     return h5

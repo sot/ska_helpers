@@ -6,16 +6,17 @@ installed, and `setuptools_scm <https://github.com/pypa/setuptools_scm/>`_
 otherwise.
 """
 
-import re
-import os
-from pathlib import Path
 import importlib
+import os
+import re
 import warnings
+from pathlib import Path
 
 with warnings.catch_warnings():
-    warnings.filterwarnings('ignore', message=r'Module \w+ was already imported',
-                            category=UserWarning)
-    from pkg_resources import get_distribution, DistributionNotFound
+    warnings.filterwarnings(
+        "ignore", message=r"Module \w+ was already imported", category=UserWarning
+    )
+    from pkg_resources import DistributionNotFound, get_distribution
 
 
 def get_version(package, distribution=None):
@@ -62,13 +63,15 @@ def get_version(package, distribution=None):
             # dist_info.version just corresponds to whatever version was the
             # last run of "setup.py sdist" or "setup.py bdist_wheel", i.e.
             # unrelated to current version, so ignore in this case.
-            git_dir = Path(dist_info.location, '.git')
+            git_dir = Path(dist_info.location, ".git")
             if git_dir.exists() and git_dir.is_dir():
                 raise AssertionError
-            if 'SKA_HELPERS_VERSION_DEBUG' in os.environ:
-                print(f'** Getting version via DIST_INFO: '
-                      f'package={package} distribution={distribution} '
-                      f'dist_info.location={dist_info.location}')
+            if "SKA_HELPERS_VERSION_DEBUG" in os.environ:
+                print(
+                    "** Getting version via DIST_INFO: "
+                    f"package={package} distribution={distribution} "
+                    f"dist_info.location={dist_info.location}"
+                )
 
         except (DistributionNotFound, AssertionError):
             # Get_distribution failed or found a different package from this
@@ -77,27 +80,30 @@ def get_version(package, distribution=None):
 
             # Define root as N directories up from location of __init__.py based
             # on package name.
-            roots = ['..'] * len(package.split('.'))
-            if os.path.basename(module_file) != '__init__.py':
+            roots = [".."] * len(package.split("."))
+            if os.path.basename(module_file) != "__init__.py":
                 roots = roots[:-1]
-            if 'SKA_HELPERS_VERSION_DEBUG' in os.environ:
-                print(f'** Getting version via setuptools_scm: '
-                      f'package={package} distribution={distribution} '
-                      f'get_version(root={Path(*roots)}, relative_to={module_file})')
+            if "SKA_HELPERS_VERSION_DEBUG" in os.environ:
+                print(
+                    "** Getting version via setuptools_scm: "
+                    f"package={package} distribution={distribution} "
+                    f"get_version(root={Path(*roots)}, relative_to={module_file})"
+                )
             version = get_version(root=Path(*roots), relative_to=module_file)
 
     except Exception:
         # Something went wrong. The ``get_version` function should never block
         # import but generate a lot of output indicating the problem.
-        import warnings
         import traceback
-        if 'TESTR_FILE' not in os.environ:
+        import warnings
+
+        if "TESTR_FILE" not in os.environ:
             # this avoids a test failure when checking log files with this warning.
             # Pytest will import packages such as Ska.Shell first as Shell and then as Ska.Shell.
             # https://docs.pytest.org/en/latest/pythonpath.html
-            warnings.warn(traceback.format_exc() + '\n\n')
-            warnings.warn('Failed to find a package version, setting to 0.0.0')
-        version = '0.0.0'
+            warnings.warn(traceback.format_exc() + "\n\n")
+            warnings.warn("Failed to find a package version, setting to 0.0.0")
+        version = "0.0.0"
 
     return version
 
@@ -117,13 +123,15 @@ def parse_version(version):
         version information
 
     """
-    fmt = r'(?P<major>[0-9]+)(.(?P<minor>[0-9]+))?(.(?P<patch>[0-9]+))?' \
-          r'(.dev(?P<distance>[0-9]+))?'\
-          r'(\+(?P<letter>\S)g?(?P<hash>\S+)\.(d(?P<date>[0-9]+))?)?'
+    fmt = (
+        r"(?P<major>[0-9]+)(.(?P<minor>[0-9]+))?(.(?P<patch>[0-9]+))?"
+        r"(.dev(?P<distance>[0-9]+))?"
+        r"(\+(?P<letter>\S)g?(?P<hash>\S+)\.(d(?P<date>[0-9]+))?)?"
+    )
     m = re.match(fmt, version)
     if not m:
-        raise RuntimeError(f'version {version} could not be parsed')
+        raise RuntimeError(f"version {version} could not be parsed")
     result = m.groupdict()
-    for k in ['major', 'minor', 'patch', 'distance']:
-        result[k] = eval(f'{result[k]}')
+    for k in ["major", "minor", "patch", "distance"]:
+        result[k] = eval(f"{result[k]}")
     return result

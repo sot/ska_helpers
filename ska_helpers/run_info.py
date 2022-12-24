@@ -5,15 +5,15 @@ and print relevant run time information such as machine name, user name, date,
 program version, and so on.  This is aimed at executable scripts and cron jobs.
 """
 
-import time
-import platform
-import pprint
 import inspect
 import os
+import platform
+import pprint
+import time
 
 from ska_helpers import __version__  # noqa
 
-__all__ = ['get_run_info', 'get_run_info_lines', 'log_run_info', '__version__']
+__all__ = ["get_run_info", "get_run_info_lines", "log_run_info", "__version__"]
 
 
 def get_run_info(opt=None, *, version=None, stack_level=1):
@@ -39,14 +39,16 @@ def get_run_info(opt=None, *, version=None, stack_level=1):
 
     if version is None:
         calling_frame = calling_frame_record[0]
-        version = calling_frame.f_globals.get('__version__', 'undefined')
+        version = calling_frame.f_globals.get("__version__", "undefined")
 
-    info = {'filename': calling_func_file,
-            'version': version,
-            'time': time.ctime(),
-            'user': os.getlogin(),
-            'machine': platform.node(),
-            'args': vars(opt) if hasattr(opt, '__dict__') else opt}
+    info = {
+        "filename": calling_func_file,
+        "version": version,
+        "time": time.ctime(),
+        "user": os.getlogin(),
+        "machine": platform.node(),
+        "args": vars(opt) if hasattr(opt, "__dict__") else opt,
+    }
     return info
 
 
@@ -70,15 +72,16 @@ def get_run_info_lines(opt=None, *, version=None, stack_level=2):
     """
     info = get_run_info(opt, version=version, stack_level=stack_level)
     info_lines = [
-        f'******************************************',
+        f"******************************************",
         f'Running: {info["filename"]}',
         f'Version: {info["version"]}',
         f'Time: {info["time"]}',
         f'User: {info["user"]}',
         f'Machine: {info["machine"]}',
-        f'Processing args:']
+        f"Processing args:",
+    ]
     info_lines.extend(pprint.pformat(info["args"]).splitlines())
-    info_lines.append('******************************************')
+    info_lines.append("******************************************")
 
     return info_lines
 

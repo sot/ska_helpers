@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+
 def duplicate_package_info(vals, name_in, name_out):
     """
     Duplicate a list or dict of values inplace, replacing ``name_in`` with ``name_out``.
@@ -19,5 +20,3 @@ def duplicate_package_info(vals, name_in, name_out):
             vals[new_name] = vals[name]
         else:
             vals.append(new_name)
-
-
