@@ -56,12 +56,12 @@ def __retry_internal(
         except exceptions as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             trace = traceback.extract_tb(exc_traceback)
-            failures.append({'type': exc_type, 'value': exc_value, 'trace': trace})
+            failures.append({"type": exc_type, "value": exc_value, "trace": trace})
 
             _tries -= 1
             if not _tries:
-                exc_types = set([e['type'] for e in failures])
-                exc_values = set([str(e['value']) for e in failures])
+                exc_types = set([e["type"] for e in failures])
+                exc_values = set([str(e["value"]) for e in failures])
                 if len(exc_types) > 1 or len(exc_values) > 1:
                     raise RetryError(failures=failures)
                 else:
@@ -70,13 +70,13 @@ def __retry_internal(
             if logger is not None:
                 call_args = list(args)
                 for key, val in kwargs.items():
-                    call_args.append(f'{key}={val}')
-                call_args_str = ', '.join(str(arg) for arg in call_args)
-                func_name = getattr(f, '__name__', 'func')
-                func_call = f'{func_name}({call_args_str})'
+                    call_args.append(f"{key}={val}")
+                call_args_str = ", ".join(str(arg) for arg in call_args)
+                func_name = getattr(f, "__name__", "func")
+                func_call = f"{func_name}({call_args_str})"
                 logger.warning(
-                    f'WARNING: {func_call} exception: {e}, retrying '
-                    f'in {_delay} seconds...'
+                    f"WARNING: {func_call} exception: {e}, retrying "
+                    f"in {_delay} seconds..."
                 )
 
             time.sleep(_delay)

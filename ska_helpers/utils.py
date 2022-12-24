@@ -2,7 +2,7 @@
 
 import functools
 
-__all__ = ['LazyDict', 'LazyVal']
+__all__ = ["LazyDict", "LazyVal"]
 
 
 def _lazy_load_wrap(unbound_method):
@@ -57,7 +57,7 @@ class LazyVal:
 
     @property
     def val(self):
-        if not hasattr(self, '_val'):
+        if not hasattr(self, "_val"):
             self._val = self._load_func(*self._args, **self._kwargs)
 
             # Delete these so serialization always works (pickling a func can fail)

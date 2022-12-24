@@ -7,14 +7,14 @@ except ImportError:
     cmdclass = {}
 
 setup(
-    name='ska_helpers',
-    description='Utilities for ska packages',
-    author='Javier Gonzalez',
-    author_email='javier.gonzalez@cfa.harvard.edu',
-    url='http://cxc.harvard.edu/mta/ASPECT/tool_doc/ska_helpers.html',
-    packages=['ska_helpers', 'ska_helpers.retry', 'ska_helpers.tests'],
-    tests_require=['pytest'],
+    name="ska_helpers",
+    description="Utilities for ska packages",
+    author="Javier Gonzalez",
+    author_email="javier.gonzalez@cfa.harvard.edu",
+    url="http://cxc.harvard.edu/mta/ASPECT/tool_doc/ska_helpers.html",
+    packages=["ska_helpers", "ska_helpers.retry", "ska_helpers.tests"],
+    tests_require=["pytest"],
     use_scm_version=True,
-    setup_requires=['setuptools_scm', 'setuptools_scm_git_archive'],
+    setup_requires=["setuptools_scm", "setuptools_scm_git_archive"],
     cmdclass=cmdclass,
 )
