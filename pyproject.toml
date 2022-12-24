@@ -3,10 +3,11 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
   | \.mypy_cache
   | \.tox
   | \.venv
+  | \.vscode
+  | \.eggs
   | _build
   | buck-out
   | build
