@@ -5,11 +5,11 @@ and print relevant run time information such as machine name, user name, date,
 program version, and so on.  This is aimed at executable scripts and cron jobs.
 """
 
-import time
-import platform
-import pprint
 import inspect
 import os
+import platform
+import pprint
+import time
 
 from ska_helpers import __version__  # noqa
 

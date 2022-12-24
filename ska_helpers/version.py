@@ -6,16 +6,16 @@ installed, and `setuptools_scm <https://github.com/pypa/setuptools_scm/>`_
 otherwise.
 """
 
-import re
-import os
-from pathlib import Path
 import importlib
+import os
+import re
 import warnings
+from pathlib import Path
 
 with warnings.catch_warnings():
     warnings.filterwarnings('ignore', message=r'Module \w+ was already imported',
                             category=UserWarning)
-    from pkg_resources import get_distribution, DistributionNotFound
+    from pkg_resources import DistributionNotFound, get_distribution
 
 
 def get_version(package, distribution=None):
@@ -89,8 +89,8 @@ def get_version(package, distribution=None):
     except Exception:
         # Something went wrong. The ``get_version` function should never block
         # import but generate a lot of output indicating the problem.
-        import warnings
         import traceback
+        import warnings
         if 'TESTR_FILE' not in os.environ:
             # this avoids a test failure when checking log files with this warning.
             # Pytest will import packages such as Ska.Shell first as Shell and then as Ska.Shell.

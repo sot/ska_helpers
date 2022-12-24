@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import argparse
-from ska_helpers import __version__, run_info   # noqa
+
+from ska_helpers import __version__, run_info  # noqa
 
 
 def get_opt(args=None):

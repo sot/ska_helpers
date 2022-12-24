@@ -24,7 +24,7 @@ __all__ = ['retry', 'retry_call', 'RetryError', 'tables_open_file']
 import logging
 from logging import StreamHandler
 
-from .api import retry, retry_call, RetryError, tables_open_file
+from .api import RetryError, retry, retry_call, tables_open_file
 
 log = logging.getLogger(__name__)
 log.addHandler(StreamHandler())

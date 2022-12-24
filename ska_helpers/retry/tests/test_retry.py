@@ -12,8 +12,8 @@ import time
 
 import pytest
 
+from ska_helpers.retry import RetryError, retry
 from ska_helpers.retry.api import retry_call
-from ska_helpers.retry import retry, RetryError
 
 
 def test_retry(monkeypatch):

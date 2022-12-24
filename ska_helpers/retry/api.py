@@ -1,10 +1,9 @@
 import functools
 import logging
 import random
-import time
 import sys
+import time
 import traceback
-
 
 logging_logger = logging.getLogger(__name__)
 
@@ -144,9 +143,10 @@ def tables_open_file(*args, **kwargs):
     :param **kwargs: kwargs passed through to tables.open_file()
     :returns: tables file handle
     """
-    import ska_helpers.retry
     import tables
     import tables.exceptions
+
+    import ska_helpers.retry
 
     h5 = ska_helpers.retry.retry_call(
         tables.open_file, args=args, kwargs=kwargs,
