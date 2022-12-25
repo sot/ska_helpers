@@ -7,16 +7,37 @@ otherwise.
 """
 
 import importlib
+import io
+import logging
 import os
 import re
 import warnings
 from pathlib import Path
+
+from ska_helpers.logging import basic_logger
 
 with warnings.catch_warnings():
     warnings.filterwarnings(
         "ignore", message=r"Module \w+ was already imported", category=UserWarning
     )
     from pkg_resources import DistributionNotFound, get_distribution
+
+
+def get_version_logger(level_stdout, level_string):
+    logger_string = io.StringIO()
+    hdlr_stdout = logging.StreamHandler()
+    hdlr_stdout.setLevel(level_stdout)
+    hdlr_string = logging.StreamHandler(logger_string)
+    hdlr_string.setLevel(level_string)
+
+    logger = basic_logger(
+        __name__,
+        level="DEBUG",
+        format="%(message)s",
+        handlers=[hdlr_stdout, hdlr_string],
+        force=True,
+    )
+    return logger, logger_string
 
 
 def get_version(package, distribution=None):
@@ -40,17 +61,19 @@ def get_version(package, distribution=None):
     """
     import sys
 
-    debug = "SKA_HELPERS_VERSION_DEBUG" in os.environ
-    if debug:
-        print("*" * 80)
-        print(f"Getting version for package={package} distribution={distribution} ")
-        print(f"  Current directory: {Path.cwd()}")
-        print(f"  {sys.path=}")
+    level_stdout = "DEBUG" if "SKA_HELPERS_VERSION_DEBUG" in os.environ else "INFO"
+    level_string = "DEBUG"
+    logger, logger_string = get_version_logger(level_stdout, level_string)
+    log = logger.debug
+
+    log("*" * 80)
+    log(f"Getting version for package={package} distribution={distribution} ")
+    log(f"  Current directory: {Path.cwd()}")
+    log(f"  {sys.path=}")
 
     # Get module file for package.
     module_file = importlib.util.find_spec(package, distribution).origin
-    if debug:
-        print(f"  {module_file=}")
+    log(f"  {module_file=}")
 
     # From this point guarantee tha a version string is returned.
     try:
@@ -59,16 +82,14 @@ def get_version(package, distribution=None):
             # # that gets imported (we check that next).  For some packages, e.g.
             # cheta or pyyaml, the distribution will be different from the
             # package.
-            if debug:
-                print(
-                    "  Getting distribution "
-                    f"dist_info=get_distribution({distribution or package})"
-                )
+            log(
+                "  Getting distribution "
+                f"dist_info=get_distribution({distribution or package})"
+            )
             dist_info = get_distribution(distribution or package)
             version = dist_info.version
-            if debug:
-                print(f"    {dist_info.location=}")
-                print(f"    {dist_info.version=}")
+            log(f"    {dist_info.location=}")
+            log(f"    {dist_info.version=}")
 
             # Check if the imported package __init__.py file has the same location
             # as the distribution that was found.  If working in a local git repo
@@ -76,14 +97,13 @@ def get_version(package, distribution=None):
             # will find an installed version.  Windows does not necessarily
             # respect the case so downcase everything.
             ok = module_file.lower().startswith(dist_info.location.lower())
-            if debug:
-                if ok:
-                    print("    distinfo.location matches module_file")
-                else:
-                    print(
-                        "    FAIL: distinfo.location does not match module_file, "
-                        "falling through to setuptools_scm"
-                    )
+            if ok:
+                log("    distinfo.location matches module_file")
+            else:
+                log(
+                    "    FAIL: distinfo.location does not match module_file, "
+                    "falling through to setuptools_scm"
+                )
             assert ok
 
             # If the dist_info.location appears to be a git repo, then
@@ -93,14 +113,13 @@ def get_version(package, distribution=None):
             # unrelated to current version, so ignore in this case.
             git_dir = Path(dist_info.location, ".git")
             bad = git_dir.exists() and git_dir.is_dir()
-            if debug:
-                if bad:
-                    print(
-                        "    FAIL: distinfo.location is git repo (version likely wrong), "
-                        "falling through to setuptools_scm"
-                    )
-                else:
-                    print("    distinfo.location looks OK (not a git repo)")
+            if bad:
+                log(
+                    "    FAIL: distinfo.location is git repo (version likely wrong), "
+                    "falling through to setuptools_scm"
+                )
+            else:
+                log("    distinfo.location looks OK (not a git repo)")
             assert not bad
 
         except (DistributionNotFound, AssertionError):
@@ -108,19 +127,17 @@ def get_version(package, distribution=None):
             # file, try getting version from source repo.
             from setuptools_scm import get_version
 
-            if debug:
-                print("  Getting version via setuptools_scm for git repo")
+            log("  Getting version via setuptools_scm for git repo")
 
             # Define root as N directories up from location of __init__.py based
             # on package name.
             roots = [".."] * len(package.split("."))
             if os.path.basename(module_file) != "__init__.py":
                 roots = roots[:-1]
-            if debug:
-                print(f"    Running get_version(")
-                print(f"        root={Path(*roots)},")
-                print(f"        relative_to={module_file}")
-                print(f"    )")
+            log(f"    Running get_version(")
+            log(f"        root={Path(*roots)},")
+            log(f"        relative_to={module_file}")
+            log(f"    )")
             version = get_version(root=Path(*roots), relative_to=module_file)
 
     except Exception:
@@ -129,25 +146,31 @@ def get_version(package, distribution=None):
         import traceback
         import warnings
 
+        version = "0.0.0"
+        log(f"FAIL: got {version=}")
+        log("*" * 80)
+
         if "TESTR_FILE" not in os.environ:
             # this avoids a test failure when checking log files with this warning.
             # Pytest will import packages such as Ska.Shell first as Shell and then as Ska.Shell.
             # https://docs.pytest.org/en/latest/pythonpath.html
+
+            # Monkeypatch to not show the source line along with the warning. See
+            # https://stackoverflow.com/questions/2187269.
+            def custom_formatwarning(msg, *args, **kwargs):
+                # ignore everything except the message
+                return str(msg) + "\n"
+
+            warnings.formatwarning = custom_formatwarning
+
             warnings.warn(traceback.format_exc() + "\n\n")
             warnings.warn("Failed to find a package version, setting to 0.0.0")
-
-        version = "0.0.0"
-
-        if debug:
-            print(f"FAIL: got {version=}")
+            warnings.warn(logger_string.getvalue())
 
     else:
         # No exception, so we got a valid version string.
-        if debug:
-            print(f"SUCCESS: got {version=}")
-
-    if debug:
-        print("*" * 80)
+        log(f"SUCCESS: got {version=}")
+        log("*" * 80)
 
     return version
 
