@@ -15,6 +15,7 @@ import warnings
 from pathlib import Path
 
 from ska_helpers.logging import basic_logger
+from .environment import configure_ska_environment
 
 with warnings.catch_warnings():
     warnings.filterwarnings(
@@ -61,6 +62,11 @@ def get_version(package, distribution=None):
     """
     import sys
 
+    # Configure environment for Ska3 runtime. This is a bit of a hack but get_version()
+    # is a convenient place to do this because it is called by every Ska3 package
+    # on import.
+    configure_ska_environment()
+
     level_stdout = "DEBUG" if "SKA_HELPERS_VERSION_DEBUG" in os.environ else "INFO"
     level_string = "DEBUG"
     logger, logger_string = get_version_logger(level_stdout, level_string)
@@ -70,7 +76,7 @@ def get_version(package, distribution=None):
     log(f"Getting version for package={package} distribution={distribution} ")
     log(f"  Current directory: {Path.cwd()}")
     log(f"  {sys.path=}")
-
+    
     # Get module file for package.
     module_file = importlib.util.find_spec(package, distribution).origin
     log(f"  {module_file=}")
