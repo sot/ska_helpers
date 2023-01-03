@@ -15,6 +15,13 @@ Chandra Models Data
 .. automodule:: ska_helpers.chandra_models
    :members:
 
+Environment
+-----------
+
+.. automodule:: ska_helpers.environment
+   :members:
+
+
 Logging
 -------
 
