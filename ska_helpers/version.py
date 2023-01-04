@@ -7,16 +7,37 @@ otherwise.
 """
 
 import importlib
+import io
+import logging
 import os
 import re
 import warnings
 from pathlib import Path
+
+from ska_helpers.logging import basic_logger
 
 with warnings.catch_warnings():
     warnings.filterwarnings(
         "ignore", message=r"Module \w+ was already imported", category=UserWarning
     )
     from pkg_resources import DistributionNotFound, get_distribution
+
+
+def get_version_logger(level_stdout, level_string):
+    logger_string = io.StringIO()
+    hdlr_stdout = logging.StreamHandler()
+    hdlr_stdout.setLevel(level_stdout)
+    hdlr_string = logging.StreamHandler(logger_string)
+    hdlr_string.setLevel(level_string)
+
+    logger = basic_logger(
+        __name__,
+        level="DEBUG",
+        format="%(message)s",
+        handlers=[hdlr_stdout, hdlr_string],
+        force=True,
+    )
+    return logger, logger_string
 
 
 def get_version(package, distribution=None):
@@ -38,8 +59,21 @@ def get_version(package, distribution=None):
         Version string
 
     """
+    import sys
+
+    level_stdout = "DEBUG" if "SKA_HELPERS_VERSION_DEBUG" in os.environ else "INFO"
+    level_string = "DEBUG"
+    logger, logger_string = get_version_logger(level_stdout, level_string)
+    log = logger.debug
+
+    log("*" * 80)
+    log(f"Getting version for package={package} distribution={distribution} ")
+    log(f"  Current directory: {Path.cwd()}")
+    log(f"  {sys.path=}")
+
     # Get module file for package.
     module_file = importlib.util.find_spec(package, distribution).origin
+    log(f"  {module_file=}")
 
     # From this point guarantee tha a version string is returned.
     try:
@@ -48,15 +82,29 @@ def get_version(package, distribution=None):
             # # that gets imported (we check that next).  For some packages, e.g.
             # cheta or pyyaml, the distribution will be different from the
             # package.
+            log(
+                "  Getting distribution "
+                f"dist_info=get_distribution({distribution or package})"
+            )
             dist_info = get_distribution(distribution or package)
             version = dist_info.version
+            log(f"    {dist_info.location=}")
+            log(f"    {dist_info.version=}")
 
             # Check if the imported package __init__.py file has the same location
             # as the distribution that was found.  If working in a local git repo
             # that does not have a <package>.egg-info directory, get_distribution()
             # will find an installed version.  Windows does not necessarily
             # respect the case so downcase everything.
-            assert module_file.lower().startswith(dist_info.location.lower())
+            ok = module_file.lower().startswith(dist_info.location.lower())
+            if ok:
+                log("    distinfo.location matches module_file")
+            else:
+                log(
+                    "    WARNING: distinfo.location does not match module_file, "
+                    "falling through to setuptools_scm"
+                )
+            assert ok
 
             # If the dist_info.location appears to be a git repo, then
             # get_distribution() has gotten a "local" distribution and the
@@ -64,31 +112,32 @@ def get_version(package, distribution=None):
             # last run of "setup.py sdist" or "setup.py bdist_wheel", i.e.
             # unrelated to current version, so ignore in this case.
             git_dir = Path(dist_info.location, ".git")
-            if git_dir.exists() and git_dir.is_dir():
-                raise AssertionError
-            if "SKA_HELPERS_VERSION_DEBUG" in os.environ:
-                print(
-                    "** Getting version via DIST_INFO: "
-                    f"package={package} distribution={distribution} "
-                    f"dist_info.location={dist_info.location}"
+            bad = git_dir.exists() and git_dir.is_dir()
+            if bad:
+                log(
+                    "    WARNING: distinfo.location is git repo (version likely wrong), "
+                    "falling through to setuptools_scm"
                 )
+            else:
+                log("    distinfo.location looks OK (not a git repo)")
+            assert not bad
 
         except (DistributionNotFound, AssertionError):
             # Get_distribution failed or found a different package from this
             # file, try getting version from source repo.
             from setuptools_scm import get_version
 
+            log("  Getting version via setuptools_scm for git repo")
+
             # Define root as N directories up from location of __init__.py based
             # on package name.
             roots = [".."] * len(package.split("."))
             if os.path.basename(module_file) != "__init__.py":
                 roots = roots[:-1]
-            if "SKA_HELPERS_VERSION_DEBUG" in os.environ:
-                print(
-                    "** Getting version via setuptools_scm: "
-                    f"package={package} distribution={distribution} "
-                    f"get_version(root={Path(*roots)}, relative_to={module_file})"
-                )
+            log(f"    Running get_version(")
+            log(f"        root={Path(*roots)},")
+            log(f"        relative_to={module_file}")
+            log(f"    )")
             version = get_version(root=Path(*roots), relative_to=module_file)
 
     except Exception:
@@ -97,13 +146,31 @@ def get_version(package, distribution=None):
         import traceback
         import warnings
 
+        version = "0.0.0"
+        log(f"WARNING: got {version=}")
+        log("*" * 80)
+
         if "TESTR_FILE" not in os.environ:
             # this avoids a test failure when checking log files with this warning.
             # Pytest will import packages such as Ska.Shell first as Shell and then as Ska.Shell.
             # https://docs.pytest.org/en/latest/pythonpath.html
+
+            # Monkeypatch to not show the source line along with the warning. See
+            # https://stackoverflow.com/questions/2187269.
+            def custom_formatwarning(msg, *args, **kwargs):
+                # ignore everything except the message
+                return str(msg) + "\n"
+
+            warnings.formatwarning = custom_formatwarning
+
             warnings.warn(traceback.format_exc() + "\n\n")
             warnings.warn("Failed to find a package version, setting to 0.0.0")
-        version = "0.0.0"
+            warnings.warn(logger_string.getvalue())
+
+    else:
+        # No exception, so we got a valid version string.
+        log(f"SUCCESS: got {version=}")
+        log("*" * 80)
 
     return version
 
