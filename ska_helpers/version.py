@@ -101,7 +101,7 @@ def get_version(package, distribution=None):
                 log("    distinfo.location matches module_file")
             else:
                 log(
-                    "    FAIL: distinfo.location does not match module_file, "
+                    "    WARNING: distinfo.location does not match module_file, "
                     "falling through to setuptools_scm"
                 )
             assert ok
@@ -115,7 +115,7 @@ def get_version(package, distribution=None):
             bad = git_dir.exists() and git_dir.is_dir()
             if bad:
                 log(
-                    "    FAIL: distinfo.location is git repo (version likely wrong), "
+                    "    WARNING: distinfo.location is git repo (version likely wrong), "
                     "falling through to setuptools_scm"
                 )
             else:
@@ -147,7 +147,7 @@ def get_version(package, distribution=None):
         import warnings
 
         version = "0.0.0"
-        log(f"FAIL: got {version=}")
+        log(f"WARNING: got {version=}")
         log("*" * 80)
 
         if "TESTR_FILE" not in os.environ:
