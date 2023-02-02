@@ -5,8 +5,10 @@ runtime environment at the point of import of every Ska3 package.
 """
 
 import os
+from functools import cache
 
 
+@cache
 def configure_ska_environment():
     """Configure environment for Ska3 runtime.
 
