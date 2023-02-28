@@ -40,28 +40,37 @@ def basic_logger(name, format="%(asctime)s %(funcName)s: %(message)s", **kwargs)
 
     filename  Specifies that a FileHandler be created, using the specified
               filename, rather than a StreamHandler.
+
     filemode  Specifies the mode to open the file, if filename is specified
               (if filemode is unspecified, it defaults to 'a').
+
     format    Use the specified format string for the handler.
+
     datefmt   Use the specified date/time format.
+
     style     If a format string is specified, use this to specify the
               type of format string (possible values '%', '{', '$', for
               %-formatting, :meth:`str.format` and :class:`string.Template`
               - defaults to '%').
+
     level     Set the ``name`` logger level to the specified level. This can be
               a number (10, 20, ...) or a string ('NOTSET', 'DEBUG', 'INFO',
               'WARNING', 'ERROR', 'CRITICAL') or ``logging.DEBUG``, etc.
+
     stream    Use the specified stream to initialize the StreamHandler. Note
               that this argument is incompatible with 'filename' - if both
               are present, 'stream' is ignored.
+
     handlers  If specified, this should be an iterable of already created
               handlers, which will be added to the ``name`` handler. Any handler
               in the list which does not have a formatter assigned will be
               assigned the formatter created in this function.
+
     force     If this keyword  is specified as true, any existing handlers
               attached to the ``name`` logger are removed and closed, before
               carrying out the configuration as specified by the other
               arguments.
+
     Note that you could specify a stream created using open(filename, mode)
     rather than passing the filename and mode in. However, it should be
     remembered that StreamHandler does not close its stream (since it may be
@@ -70,10 +79,18 @@ def basic_logger(name, format="%(asctime)s %(funcName)s: %(message)s", **kwargs)
 
     Note this function is probably not thread-safe.
 
-    :param name: str, logger name
-    :param format: str, format string for handler
-    :param **kwargs: other keyword arguments for logging.basicConfig
-    :returns: Logger object
+    Parameters
+    ----------
+    name : str
+        logger name
+    format : str
+        format string for handler
+    **kwargs : dict
+        other keyword arguments for logging.basicConfig
+
+    Returns
+    -------
+    logger : Logger object
     """
     import logging
 
