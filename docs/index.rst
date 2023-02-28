@@ -9,6 +9,12 @@ Ska Package Helpers
 .. automodule:: ska_helpers
    :members:
 
+Chandra Models Data
+-------------------
+
+.. automodule:: ska_helpers.chandra_models
+   :members:
+
 Logging
 -------
 
@@ -37,8 +43,8 @@ Utilities
    :members:
 
 
-Get Version
------------
+Version Info
+------------
 
 .. automodule:: ska_helpers.version
    :members:
