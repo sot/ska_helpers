@@ -12,7 +12,9 @@ class RetryError(Exception):
     """
     Keep track of the stack of exceptions when trying multiple times.
 
-    :param exceptions: list of dict, each with keys 'type', 'value', 'trace'.
+    Parameters
+    ----------
+    failures : list of dict, each with keys 'type', 'value', 'trace'.
     """
 
     def __init__(self, failures):
