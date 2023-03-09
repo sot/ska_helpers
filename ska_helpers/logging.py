@@ -109,7 +109,7 @@ def basic_logger(
     logger = logging.getLogger(name)
 
     if not kwargs.get("force", False) and (
-        logger.hasHandlers() or logger.level != logging.NOTSET
+        logger.handlers or logger.level != logging.NOTSET
     ):
         return logger
 
