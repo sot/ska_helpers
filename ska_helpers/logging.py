@@ -3,7 +3,9 @@
 __all__ = ["basic_logger"]
 
 
-def basic_logger(name, format="%(asctime)s %(funcName)s: %(message)s", **kwargs):
+def basic_logger(
+    name, format="%(asctime)s %(funcName)s: %(message)s", propagate=False, **kwargs
+):
     """Create logger ``name`` using logging.basicConfig.
 
     This is a thin wrapper around logging.basicConfig, except:
@@ -16,13 +18,19 @@ def basic_logger(name, format="%(asctime)s %(funcName)s: %(message)s", **kwargs)
       It will probably work but it is not guaranteed.
 
     This function does nothing if the ``name`` logger already has handlers
-    configured, unless the keyword argument *force* is set to ``True``.
+    configured, unless the keyword argument ``force`` is set to ``True``.
     It is a convenience method intended to do one-shot creation of a logger.
 
     The default behaviour is to create a StreamHandler which writes to
     ``sys.stderr``, set a formatter using the format string ``"%(asctime)s
     %(funcName)s: %(message)s"``, and add the handler to the ``name`` logger
     with a level of WARNING.
+
+    By default the created logger will not propagate to parent loggers. This
+    is to prevent unexpected logging from other packages that set up a root
+    logger. To propagate to parent loggers, set ``propagate=True``. See
+    https://docs.python.org/3/howto/logging.html#logging-flow, in particular
+    how the log level of parent loggers is ignored in message handling.
 
     Example::
 
@@ -85,6 +93,8 @@ def basic_logger(name, format="%(asctime)s %(funcName)s: %(message)s", **kwargs)
         logger name
     format : str
         format string for handler
+    propagate: bool
+        propagate to parent loggers (default=False)
     **kwargs : dict
         other keyword arguments for logging.basicConfig
 
@@ -99,7 +109,7 @@ def basic_logger(name, format="%(asctime)s %(funcName)s: %(message)s", **kwargs)
     logger = logging.getLogger(name)
 
     if not kwargs.get("force", False) and (
-        logger.hasHandlers() or logger.level != logging.NOTSET
+        logger.handlers or logger.level != logging.NOTSET
     ):
         return logger
 
@@ -110,5 +120,7 @@ def basic_logger(name, format="%(asctime)s %(funcName)s: %(message)s", **kwargs)
         logging.basicConfig(**kwargs)
     finally:
         logging.root = root
+
+    logger.propagate = propagate
 
     return logger
