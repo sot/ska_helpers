@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ska_helpers.logging &#8212; Ska Helpers 0.7.1 documentation</title>
+    <title>ska_helpers.logging &#8212; Ska Helpers 0.8.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css" />
     
@@ -46,7 +46,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Ska Helpers 0.7.1 documentation</a>
+	<a href="../../index.html">Ska Helpers 0.8.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" >Module code</a> &#187;</li>
@@ -68,7 +68,9 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;basic_logger&quot;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="basic_logger"><a class="viewcode-back" href="../../index.html#ska_helpers.logging.basic_logger">[docs]</a><span class="k">def</span> <span class="nf">basic_logger</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> </span><span class="si">%(funcName)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="basic_logger"><a class="viewcode-back" href="../../index.html#ska_helpers.logging.basic_logger">[docs]</a><span class="k">def</span> <span class="nf">basic_logger</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> </span><span class="si">%(funcName)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">propagate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Create logger ``name`` using logging.basicConfig.</span>
 
 <span class="sd">    This is a thin wrapper around logging.basicConfig, except:</span>
@@ -81,13 +83,19 @@
 <span class="sd">      It will probably work but it is not guaranteed.</span>
 
 <span class="sd">    This function does nothing if the ``name`` logger already has handlers</span>
-<span class="sd">    configured, unless the keyword argument *force* is set to ``True``.</span>
+<span class="sd">    configured, unless the keyword argument ``force`` is set to ``True``.</span>
 <span class="sd">    It is a convenience method intended to do one-shot creation of a logger.</span>
 
 <span class="sd">    The default behaviour is to create a StreamHandler which writes to</span>
 <span class="sd">    ``sys.stderr``, set a formatter using the format string ``&quot;%(asctime)s</span>
 <span class="sd">    %(funcName)s: %(message)s&quot;``, and add the handler to the ``name`` logger</span>
 <span class="sd">    with a level of WARNING.</span>
+
+<span class="sd">    By default the created logger will not propagate to parent loggers. This</span>
+<span class="sd">    is to prevent unexpected logging from other packages that set up a root</span>
+<span class="sd">    logger. To propagate to parent loggers, set ``propagate=True``. See</span>
+<span class="sd">    https://docs.python.org/3/howto/logging.html#logging-flow, in particular</span>
+<span class="sd">    how the log level of parent loggers is ignored in message handling.</span>
 
 <span class="sd">    Example::</span>
 
@@ -105,28 +113,37 @@
 
 <span class="sd">    filename  Specifies that a FileHandler be created, using the specified</span>
 <span class="sd">              filename, rather than a StreamHandler.</span>
+
 <span class="sd">    filemode  Specifies the mode to open the file, if filename is specified</span>
 <span class="sd">              (if filemode is unspecified, it defaults to &#39;a&#39;).</span>
+
 <span class="sd">    format    Use the specified format string for the handler.</span>
+
 <span class="sd">    datefmt   Use the specified date/time format.</span>
+
 <span class="sd">    style     If a format string is specified, use this to specify the</span>
 <span class="sd">              type of format string (possible values &#39;%&#39;, &#39;{&#39;, &#39;$&#39;, for</span>
 <span class="sd">              %-formatting, :meth:`str.format` and :class:`string.Template`</span>
 <span class="sd">              - defaults to &#39;%&#39;).</span>
+
 <span class="sd">    level     Set the ``name`` logger level to the specified level. This can be</span>
 <span class="sd">              a number (10, 20, ...) or a string (&#39;NOTSET&#39;, &#39;DEBUG&#39;, &#39;INFO&#39;,</span>
 <span class="sd">              &#39;WARNING&#39;, &#39;ERROR&#39;, &#39;CRITICAL&#39;) or ``logging.DEBUG``, etc.</span>
+
 <span class="sd">    stream    Use the specified stream to initialize the StreamHandler. Note</span>
 <span class="sd">              that this argument is incompatible with &#39;filename&#39; - if both</span>
 <span class="sd">              are present, &#39;stream&#39; is ignored.</span>
+
 <span class="sd">    handlers  If specified, this should be an iterable of already created</span>
 <span class="sd">              handlers, which will be added to the ``name`` handler. Any handler</span>
 <span class="sd">              in the list which does not have a formatter assigned will be</span>
 <span class="sd">              assigned the formatter created in this function.</span>
+
 <span class="sd">    force     If this keyword  is specified as true, any existing handlers</span>
 <span class="sd">              attached to the ``name`` logger are removed and closed, before</span>
 <span class="sd">              carrying out the configuration as specified by the other</span>
 <span class="sd">              arguments.</span>
+
 <span class="sd">    Note that you could specify a stream created using open(filename, mode)</span>
 <span class="sd">    rather than passing the filename and mode in. However, it should be</span>
 <span class="sd">    remembered that StreamHandler does not close its stream (since it may be</span>
@@ -135,10 +152,20 @@
 
 <span class="sd">    Note this function is probably not thread-safe.</span>
 
-<span class="sd">    :param name: str, logger name</span>
-<span class="sd">    :param format: str, format string for handler</span>
-<span class="sd">    :param **kwargs: other keyword arguments for logging.basicConfig</span>
-<span class="sd">    :returns: Logger object</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        logger name</span>
+<span class="sd">    format : str</span>
+<span class="sd">        format string for handler</span>
+<span class="sd">    propagate: bool</span>
+<span class="sd">        propagate to parent loggers (default=False)</span>
+<span class="sd">    **kwargs : dict</span>
+<span class="sd">        other keyword arguments for logging.basicConfig</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    logger : Logger object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">logging</span>
 
@@ -147,7 +174,7 @@
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;force&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">hasHandlers</span><span class="p">()</span> <span class="ow">or</span> <span class="n">logger</span><span class="o">.</span><span class="n">level</span> <span class="o">!=</span> <span class="n">logging</span><span class="o">.</span><span class="n">NOTSET</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">handlers</span> <span class="ow">or</span> <span class="n">logger</span><span class="o">.</span><span class="n">level</span> <span class="o">!=</span> <span class="n">logging</span><span class="o">.</span><span class="n">NOTSET</span>
     <span class="p">):</span>
         <span class="k">return</span> <span class="n">logger</span>
 
@@ -158,6 +185,8 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">root</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="n">propagate</span>
 
     <span class="k">return</span> <span class="n">logger</span></div>
 </pre></div>

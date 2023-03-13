@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Ska Package Helpers &#8212; Ska Helpers 0.7.1 documentation</title>
+    <title>Ska Package Helpers &#8212; Ska Helpers 0.8.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     
@@ -47,7 +47,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="#">Ska Helpers 0.7.1 documentation</a>
+	<a href="#">Ska Helpers 0.8.0 documentation</a>
 	 &#187;
       </li>
       
@@ -70,11 +70,14 @@
 <dd><p>Run py.test unit tests.</p>
 </dd></dl>
 
+<section id="chandra-models-data">
+<h2>Chandra Models Data<a class="headerlink" href="#chandra-models-data" title="Permalink to this headline">¶</a></h2>
+</section>
 <section id="module-ska_helpers.logging">
 <span id="logging"></span><h2>Logging<a class="headerlink" href="#module-ska_helpers.logging" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_helpers.logging.basic_logger">
-<span class="sig-prename descclassname"><span class="pre">ska_helpers.logging.</span></span><span class="sig-name descname"><span class="pre">basic_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%(asctime)s</span> <span class="pre">%(funcName)s:</span> <span class="pre">%(message)s'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/logging.html#basic_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.logging.basic_logger" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.logging.</span></span><span class="sig-name descname"><span class="pre">basic_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%(asctime)s</span> <span class="pre">%(funcName)s:</span> <span class="pre">%(message)s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">propagate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/logging.html#basic_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.logging.basic_logger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create logger <code class="docutils literal notranslate"><span class="pre">name</span></code> using logging.basicConfig.</p>
 <p>This is a thin wrapper around logging.basicConfig, except:</p>
 <ul class="simple">
@@ -86,12 +89,17 @@ using a temporary monkey-patch of a global variable to create the logger.
 It will probably work but it is not guaranteed.</p></li>
 </ul>
 <p>This function does nothing if the <code class="docutils literal notranslate"><span class="pre">name</span></code> logger already has handlers
-configured, unless the keyword argument <em>force</em> is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>.
+configured, unless the keyword argument <code class="docutils literal notranslate"><span class="pre">force</span></code> is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>.
 It is a convenience method intended to do one-shot creation of a logger.</p>
 <p>The default behaviour is to create a StreamHandler which writes to
 <code class="docutils literal notranslate"><span class="pre">sys.stderr</span></code>, set a formatter using the format string <code class="docutils literal notranslate"><span class="pre">&quot;%(asctime)s</span>
 <span class="pre">%(funcName)s:</span> <span class="pre">%(message)s&quot;</span></code>, and add the handler to the <code class="docutils literal notranslate"><span class="pre">name</span></code> logger
 with a level of WARNING.</p>
+<p>By default the created logger will not propagate to parent loggers. This
+is to prevent unexpected logging from other packages that set up a root
+logger. To propagate to parent loggers, set <code class="docutils literal notranslate"><span class="pre">propagate=True</span></code>. See
+<a class="reference external" href="https://docs.python.org/3/howto/logging.html#logging-flow">https://docs.python.org/3/howto/logging.html#logging-flow</a>, in particular
+how the log level of parent loggers is ignored in message handling.</p>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># In __init__.py for a package or in any module</span>
 <span class="kn">from</span> <span class="nn">ska_helpers.logging</span> <span class="kn">import</span> <span class="n">basic_logger</span>
@@ -111,15 +119,13 @@ the default behaviour.</p>
 <dt>filemode  Specifies the mode to open the file, if filename is specified</dt><dd><p>(if filemode is unspecified, it defaults to ‘a’).</p>
 </dd>
 </dl>
-<p>format    Use the specified format string for the handler.
-datefmt   Use the specified date/time format.
-style     If a format string is specified, use this to specify the</p>
-<blockquote>
-<div><p>type of format string (possible values ‘%’, ‘{’, ‘$’, for
+<p>format    Use the specified format string for the handler.</p>
+<p>datefmt   Use the specified date/time format.</p>
+<dl class="simple">
+<dt>style     If a format string is specified, use this to specify the</dt><dd><p>type of format string (possible values ‘%’, ‘{’, ‘$’, for
 %-formatting, <code class="xref py py-meth docutils literal notranslate"><span class="pre">str.format()</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">string.Template</span></code>
 - defaults to ‘%’).</p>
-</div></blockquote>
-<dl class="simple">
+</dd>
 <dt>level     Set the <code class="docutils literal notranslate"><span class="pre">name</span></code> logger level to the specified level. This can be</dt><dd><p>a number (10, 20, …) or a string (‘NOTSET’, ‘DEBUG’, ‘INFO’,
 ‘WARNING’, ‘ERROR’, ‘CRITICAL’) or <code class="docutils literal notranslate"><span class="pre">logging.DEBUG</span></code>, etc.</p>
 </dd>
@@ -143,15 +149,21 @@ when the handler is closed.</p>
 <p>Note this function is probably not thread-safe.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – str, logger name</p></li>
-<li><p><strong>format</strong> – str, format string for handler</p></li>
-<li><p><strong>**kwargs</strong> – <p>other keyword arguments for logging.basicConfig</p>
-</p></li>
-</ul>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>logger name</p>
+</dd>
+<dt><strong>format</strong><span class="classifier">str</span></dt><dd><p>format string for handler</p>
+</dd>
+<dt><strong>propagate: bool</strong></dt><dd><p>propagate to parent loggers (default=False)</p>
+</dd>
+<dt><strong>**kwargs</strong><span class="classifier">dict</span></dt><dd><p>other keyword arguments for logging.basicConfig</p>
+</dd>
+</dl>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Logger object</p>
+<dd class="field-even"><dl class="simple">
+<dt><strong>logger</strong><span class="classifier">Logger object</span></dt><dd></dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -180,7 +192,9 @@ limitations under the License.</p>
 <dd><p>Keep track of the stack of exceptions when trying multiple times.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>exceptions</strong> – list of dict, each with keys ‘type’, ‘value’, ‘trace’.</p>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>failures</strong><span class="classifier">list of dict, each with keys ‘type’, ‘value’, ‘trace’.</span></dt><dd></dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -239,7 +253,7 @@ default: retry.logging_logger. if None, logging is disabled.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_helpers.retry.tables_open_file">
 <span class="sig-prename descclassname"><span class="pre">ska_helpers.retry.</span></span><span class="sig-name descname"><span class="pre">tables_open_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/retry/api.html#tables_open_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.retry.tables_open_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Call tables.open_file(<a href="#id3"><span class="problematic" id="id4">*</span></a>args, <a href="#id5"><span class="problematic" id="id6">**</span></a>kwargs) with retry up to 3 times.</p>
+<dd><p>Call tables.open_file(<a href="#id1"><span class="problematic" id="id2">*</span></a>args, <a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs) with retry up to 3 times.</p>
 <p>This only catches tables.exceptions.HDF5ExtError. After an initial failure
 it will try again after 2 seconds and once more after 4 seconds.</p>
 <dl class="field-list simple">
@@ -400,7 +414,7 @@ needed).</p>
 
 </section>
 <section id="module-ska_helpers.version">
-<span id="get-version"></span><h2>Get Version<a class="headerlink" href="#module-ska_helpers.version" title="Permalink to this headline">¶</a></h2>
+<span id="version-info"></span><h2>Version Info<a class="headerlink" href="#module-ska_helpers.version" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ska_helpers.version</span></code> module provides utilities to handle package
 versions. The version of a package is determined using pkg_resources if it is
 installed, and <a class="reference external" href="https://github.com/pypa/setuptools_scm/">setuptools_scm</a>
@@ -577,11 +591,12 @@ program version, and so on.  This is aimed at executable scripts and cron jobs.<
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
 <li><a class="reference internal" href="#">Ska Package Helpers</a><ul>
+<li><a class="reference internal" href="#chandra-models-data">Chandra Models Data</a></li>
 <li><a class="reference internal" href="#module-ska_helpers.logging">Logging</a></li>
 <li><a class="reference internal" href="#module-ska_helpers.retry">Retry</a></li>
 <li><a class="reference internal" href="#module-ska_helpers.setup_helper">Setup Helpers</a></li>
 <li><a class="reference internal" href="#module-ska_helpers.utils">Utilities</a></li>
-<li><a class="reference internal" href="#module-ska_helpers.version">Get Version</a><ul>
+<li><a class="reference internal" href="#module-ska_helpers.version">Version Info</a><ul>
 <li><a class="reference internal" href="#default-versioning-scheme">Default versioning scheme</a></li>
 </ul>
 </li>
