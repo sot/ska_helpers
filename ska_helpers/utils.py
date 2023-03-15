@@ -198,3 +198,55 @@ def lru_cache_timed(maxsize=128, typed=False, timeout=3600):
         return _wrapped
 
     return _wrapper
+
+
+def cache_file(fn):
+    """Cache the result of a function to a file.
+
+    The cache file is in a local directory called "cache" and is named with the
+    function name combined with the arguments and keyword arguments.
+
+    The cache file is a pickle file with the function results.
+
+    Parameters
+    ----------
+    fn : function
+
+    Returns
+    -------
+    wrapped : function
+    """
+    import os
+    import pickle
+    from pathlib import Path
+
+    def wrapped(*args, **kwargs):
+        # define a wrapper that will finally call "fn" with all arguments
+        # if cache exists -> load it and return its content
+        if args:
+            args_str = "_" + "_".join([str(arg) for arg in args])
+        else:
+            args_str = ""
+        if kwargs:
+            kwargs_str = "_" + "_".join(
+                [f"{key}_{value}" for key, value in kwargs.items()]
+            )
+        else:
+            kwargs_str = ""
+        cachedir = Path("cache")
+        cachedir.mkdir(exist_ok=True)
+        cachefile = cachedir / f"{fn.__name__}{args_str}{kwargs_str}.pkl"
+        if os.path.exists(cachefile):
+            with open(cachefile, "rb") as cachehandle:
+                return pickle.load(cachehandle)
+
+        # execute the function with all arguments passed
+        res = fn(*args, **kwargs)
+
+        # write to cache file
+        with open(cachefile, "wb") as cachehandle:
+            pickle.dump(res, cachehandle)
+
+        return res
+
+    return wrapped
