@@ -186,7 +186,7 @@ def retry_call(
 
 
 def tables_open_file(*args, **kwargs):
-    """Call tables.open_file(*args, **kwargs) with retry up to 3 times.
+    """Call ``tables.open_file(*args, **kwargs)`` with retry up to 3 times.
 
     This only catches tables.exceptions.HDF5ExtError. After an initial failure
     it will try again after 2 seconds and once more after 4 seconds.

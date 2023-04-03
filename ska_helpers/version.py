@@ -16,6 +16,8 @@ from pathlib import Path
 
 from ska_helpers.logging import basic_logger
 
+from .environment import configure_ska_environment
+
 with warnings.catch_warnings():
     warnings.filterwarnings(
         "ignore", message=r"Module \w+ was already imported", category=UserWarning
@@ -60,6 +62,11 @@ def get_version(package, distribution=None):
 
     """
     import sys
+
+    # Configure environment for Ska3 runtime. This is a bit of a hack but get_version()
+    # is a convenient place to do this because it is called by every Ska3 package
+    # on import.
+    configure_ska_environment()
 
     level_stdout = "DEBUG" if "SKA_HELPERS_VERSION_DEBUG" in os.environ else "INFO"
     level_string = "DEBUG"
