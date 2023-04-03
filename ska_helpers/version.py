@@ -15,6 +15,7 @@ import warnings
 from pathlib import Path
 
 from ska_helpers.logging import basic_logger
+
 from .environment import configure_ska_environment
 
 with warnings.catch_warnings():
@@ -76,7 +77,7 @@ def get_version(package, distribution=None):
     log(f"Getting version for package={package} distribution={distribution} ")
     log(f"  Current directory: {Path.cwd()}")
     log(f"  {sys.path=}")
-    
+
     # Get module file for package.
     module_file = importlib.util.find_spec(package, distribution).origin
     log(f"  {module_file=}")
