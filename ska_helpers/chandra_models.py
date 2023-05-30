@@ -3,6 +3,7 @@
 Get data from chandra_models repository.
 """
 import contextlib
+import os
 import tempfile
 import warnings
 from pathlib import Path
@@ -35,6 +36,15 @@ def get_data(
 ) -> tuple:
     """
     Get data from chandra_models repository.
+
+    For testing purposes there are three environment variables that impact the behavior:
+
+    - ``CHANDRA_MODELS_REPO_DIR`` or ``THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW``:
+      override the default root for the chandra_models repository
+    - ``CHANDRA_MODELS_DEFAULT_VERSION``: override the default repo version. You can set
+      this to a fixed version in unit tests (e.g. with ``monkeypatch``), or set to a
+      developement branch to test a model file update with applications like yoshi where
+      specifying a version would require a long chain of API updates.
 
     Examples
     --------
@@ -90,11 +100,13 @@ def get_data(
     file_path : str, Path
         Name of model
     version : str
-        Tag, branch or commit of chandra_models to use (default=latest tag from repo)
+        Tag, branch or commit of chandra_models to use (default=latest tag from repo).
+        If the ``CHANDRA_MODELS_DEFAULT_VERSION`` environment variable is set then this
+        is used as the default. This is useful for testing.
     repo_path : str, Path
         Path to directory or URL containing chandra_models repository (default is
-        $SKA/data/chandra_models or the THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW
-        environment variable if set)
+        $SKA/data/chandra_models or either of the ``CHANDRA_MODELS_REPO_DIR`` or
+         ``THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW`` environment variables if set).
     require_latest_version : bool
         Require that ``version`` matches the latest release on GitHub
     timeout : int, float
@@ -114,6 +126,9 @@ def get_data(
     if repo_path is None:
         repo_path = chandra_models_repo_path()
 
+    if version is None:
+        version = os.environ.get("CHANDRA_MODELS_DEFAULT_VERSION")
+
     # NOTE code in xija.get_model_spec.get_repo_version() that does something Windows
     # specific which I don't completely understand.
     #
@@ -124,7 +139,10 @@ def get_data(
     #         repo = git.Repo(repo_path)
 
     # Potentially work in a clone of the repo in a temporary directory, but only if
-    # necessary.
+    # necessary. In particular:
+    # - If the repo is remote on GitHub then we always clone to a temp dir
+    # - If the repo is local and the version is not the default then we clone to a temp
+    #   to allow checking out at the specified version.
     with contextlib.ExitStack() as stack:
         if str(repo_path).startswith("https://github.com") or version is not None:
             # For a remote GitHub repo or non-default version, clone to a temp dir

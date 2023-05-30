@@ -3,10 +3,13 @@
 import os
 from pathlib import Path
 
-# Name of environment variable to override default root for chandra_models repository
-# directory. The name is misleading but this is used by the Matlab tools to override the
-# default root for chandra_models.
-CHANDRA_MODELS_ROOT_ENV_VAR = "THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW"
+# Name of environment variables that can be set to override default root for
+# chandra_models repository directory. The second name is misleading but this is used by
+# the Matlab tools to override the default root for chandra_models.
+CHANDRA_MODELS_ROOT_ENV_VARS = [
+    "CHANDRA_MODELS_REPO_DIR",
+    "THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW",
+]
 
 
 def chandra_models_repo_path() -> Path:
@@ -15,20 +18,25 @@ def chandra_models_repo_path() -> Path:
     This returns a Path object pointing at the ``chandra_models`` repository in the
     Ska data directory. By default is this returns ``$SKA/data/chandra_models``.
 
-    If the environment variable ``THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW`` is set then
-    the path will be ``$THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW``.
+    The default root can be overridden by setting either of these environment variables,
+    which are checked in the order listed:
+
+    - ``CHANDRA_MODELS_REPO_DIR``
+    - ``THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW``
 
     :returns: Path object
         Path to ``chandra_models`` repository
     """
+    for env_var in CHANDRA_MODELS_ROOT_ENV_VARS:
+        if env_var in os.environ:
+            return Path(os.environ[env_var])
+
     default_root = Path(
         os.environ["SKA"],
         "data",
         "chandra_models",
     )
-    root = os.environ.get(CHANDRA_MODELS_ROOT_ENV_VAR, default_root)
-
-    return Path(root)
+    return default_root
 
 
 def chandra_models_path(repo_path=None) -> Path:
