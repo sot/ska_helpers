@@ -1,7 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import json
+import os
 import re
+from pathlib import Path
 
 import git
 import pytest
@@ -45,6 +47,7 @@ def test_get_data_aca_3_30():
 
     for dct in info, info2:
         del dct["data_file_path"]
+        del dct["repo_path"]
         del dct["call_args"]["read_func"]
         del dct["call_args"]["read_func_kwargs"]
 
@@ -60,9 +63,33 @@ def test_get_data_aca_3_30():
         },
         "version": "3.30",
         "commit": "94d2fa56bac1637cbfe63bcb1bc9294954379c11",
+        "CHANDRA_MODELS_DEFAULT_VERSION": None,
+        "CHANDRA_MODELS_REPO_DIR": None,
         "md5": "0e72b6402b8ed1fbaf81d5e79232461b",
     }
     assert info == exp
+
+
+def test_get_data_aca_3_30_version_env_var(monkeypatch):
+    monkeypatch.setenv("CHANDRA_MODELS_DEFAULT_VERSION", "3.30")
+    _, info = chandra_models.get_data(ACA_SPEC_PATH)
+    assert info["version"] == "3.30"
+    assert info["commit"] == "94d2fa56bac1637cbfe63bcb1bc9294954379c11"
+    assert info["md5"] == "0e72b6402b8ed1fbaf81d5e79232461b"
+    assert info["CHANDRA_MODELS_DEFAULT_VERSION"] == "3.30"
+
+
+def test_get_data_aca_3_30_repo_env_vars(monkeypatch, tmp_path):
+    repo_path = tmp_path / "chandra_models"
+    monkeypatch.setenv("CHANDRA_MODELS_REPO_DIR", str(repo_path))
+    default_root = Path(os.environ["SKA"], "data", "chandra_models")
+    git.Repo.clone_from(default_root, repo_path)
+    _, info = chandra_models.get_data(ACA_SPEC_PATH, version="3.30")
+    assert info["version"] == "3.30"
+    assert info["commit"] == "94d2fa56bac1637cbfe63bcb1bc9294954379c11"
+    assert info["md5"] == "0e72b6402b8ed1fbaf81d5e79232461b"
+    assert info["CHANDRA_MODELS_REPO_DIR"] == str(repo_path)
+    assert info["repo_path"] == str(repo_path)
 
 
 def test_get_data_extra_kwargs():
