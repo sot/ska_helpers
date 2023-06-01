@@ -3,6 +3,8 @@
 Get data from chandra_models repository.
 """
 import contextlib
+import hashlib
+import os
 import tempfile
 import warnings
 from pathlib import Path
@@ -36,6 +38,15 @@ def get_data(
     """
     Get data from chandra_models repository.
 
+    For testing purposes there are three environment variables that impact the behavior:
+
+    - ``CHANDRA_MODELS_REPO_DIR`` or ``THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW``:
+      override the default root for the chandra_models repository
+    - ``CHANDRA_MODELS_DEFAULT_VERSION``: override the default repo version. You can set
+      this to a fixed version in unit tests (e.g. with ``monkeypatch``), or set to a
+      developement branch to test a model file update with applications like yoshi where
+      specifying a version would require a long chain of API updates.
+
     Examples
     --------
     First we read the model specification for the ACA model. The ``get_data()`` function
@@ -46,7 +57,7 @@ def get_data(
         >>> from astropy.io import fits
         >>> from ska_helpers import chandra_models
 
-        >>> txt = chandra_models.get_data("chandra_models/xija/aca/aca_spec.json")
+        >>> txt, info = chandra_models.get_data("chandra_models/xija/aca/aca_spec.json")
         >>> model_spec = json.loads(txt)
         >>> model_spec["name"]
         'aacccdpt'
@@ -57,9 +68,9 @@ def get_data(
         >>> def read_fits_image(file_path):
         ...     with fits.open(file_path) as hdus:
         ...         out = hdus[1].data
-        ...     return out
+        ...     return out, file_path
         ...
-        >>> acq_model_image = chandra_models.get_data(
+        >>> acq_model_image, info = chandra_models.get_data(
         ...     "chandra_models/aca_acq_prob/grid-floor-2018-11.fits.gz",
         ...     read_func=read_fits_image
         ... )
@@ -76,11 +87,11 @@ def get_data(
     Finally get version 3.30 of the ACA model spec from GitHub. The use of a lambda
     function to read the JSON file is compact but not recommended for production code.
 
-        >>> model_spec_3_30 = chandra_models.get_data(
+        >>> model_spec_3_30, info = chandra_models.get_data(
         ...     "chandra_models/xija/aca/aca_spec.json",
         ...     version="3.30",
         ...     repo_path="https://github.com/sot/chandra_models.git",
-        ...     read_func=lambda fn: json.load(open(fn, "rb")),
+        ...     read_func=lambda fn: (json.load(open(fn, "rb")), fn),
         ... )
         >>> model_spec_3_30 == model_spec
         False
@@ -90,11 +101,13 @@ def get_data(
     file_path : str, Path
         Name of model
     version : str
-        Tag, branch or commit of chandra_models to use (default=latest tag from repo)
+        Tag, branch or commit of chandra_models to use (default=latest tag from repo).
+        If the ``CHANDRA_MODELS_DEFAULT_VERSION`` environment variable is set then this
+        is used as the default. This is useful for testing.
     repo_path : str, Path
         Path to directory or URL containing chandra_models repository (default is
-        $SKA/data/chandra_models or the THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW
-        environment variable if set)
+        $SKA/data/chandra_models or either of the ``CHANDRA_MODELS_REPO_DIR`` or
+         ``THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW`` environment variables if set).
     require_latest_version : bool
         Require that ``version`` matches the latest release on GitHub
     timeout : int, float
@@ -111,11 +124,29 @@ def get_data(
     tuple of dict, str
         Xija model specification dict, chandra_models version
     """
+    # Information about this request.
+    info = {
+        "call_args": {
+            "file_path": str(file_path),
+            "version": version,
+            "repo_path": str(repo_path),
+            "require_latest_version": require_latest_version,
+            "timeout": timeout,
+            "read_func": str(read_func),
+            "read_func_kwargs": read_func_kwargs,
+        }
+    }
+
     if repo_path is None:
         repo_path = chandra_models_repo_path()
 
-    # NOTE code in xija.get_model_spec.get_repo_version() that does something Windows
-    # specific which I don't completely understand.
+    if version is None:
+        version = os.environ.get("CHANDRA_MODELS_DEFAULT_VERSION")
+
+    # NOTE code in xija.get_model_spec.get_repo_version() which is there to handle the
+    # fact that a few files are in the repo with permissions 0755 while on Parallels
+    # windows they are 0644, so the tree is always dirty.
+    # TODO: just fix the repo permissions.
     #
     # with temp_directory() as repo_path_local:
     #     if platform.system() == 'Windows':
@@ -124,7 +155,10 @@ def get_data(
     #         repo = git.Repo(repo_path)
 
     # Potentially work in a clone of the repo in a temporary directory, but only if
-    # necessary.
+    # necessary. In particular:
+    # - If the repo is remote on GitHub then we always clone to a temp dir
+    # - If the repo is local and the version is not the default then we clone to a temp
+    #   to allow checking out at the specified version.
     with contextlib.ExitStack() as stack:
         if str(repo_path).startswith("https://github.com") or version is not None:
             # For a remote GitHub repo or non-default version, clone to a temp dir
@@ -153,9 +187,30 @@ def get_data(
         else:
             if read_func_kwargs is None:
                 read_func_kwargs = {}
-            data = read_func(repo_file_path, **read_func_kwargs)
+            # read_func() returns the data and the actual file path used. This is useful
+            # for file globs where the file path may be a glob pattern (specified in
+            # the read_func_kwargs).
+            data, repo_file_path = read_func(repo_file_path, **read_func_kwargs)
 
-    return data
+        # Compute the MD5 sum of repo_file_path.
+        md5 = hashlib.md5(repo_file_path.read_bytes()).hexdigest()
+
+        # Store some info about this request in the cache.
+        info.update(
+            {
+                "version": version,
+                "commit": repo.head.commit.hexsha,
+                "data_file_path": str(repo_file_path),
+                "repo_path": str(repo_path),
+                "CHANDRA_MODELS_DEFAULT_VERSION": os.environ.get(
+                    "CHANDRA_MODELS_DEFAULT_VERSION"
+                ),
+                "CHANDRA_MODELS_REPO_DIR": os.environ.get("CHANDRA_MODELS_REPO_DIR"),
+                "md5": md5,
+            }
+        )
+
+    return data, info
 
 
 def assert_latest_version(version, timeout):

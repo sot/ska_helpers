@@ -1,17 +1,19 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from pathlib import Path
 import os
+from pathlib import Path
 
 import pytest
+
 from ska_helpers import paths
 
 
 @pytest.mark.parametrize("repo_source", ["default", "env", "kwargs"])
-def test_chandra_models_paths(repo_source, monkeypatch):
+@pytest.mark.parametrize("chandra_models_repo_dir", paths.CHANDRA_MODELS_ROOT_ENV_VARS)
+def test_chandra_models_paths(repo_source, chandra_models_repo_dir, monkeypatch):
     if repo_source == "env":
         root = Path("/", "foo", "chandra_models")
-        monkeypatch.setenv(paths.CHANDRA_MODELS_ROOT_ENV_VAR, str(root))
+        monkeypatch.setenv(chandra_models_repo_dir, str(root))
         kwargs = {}
     elif repo_source == "default":
         root = Path(os.environ["SKA"]) / "data" / "chandra_models"
