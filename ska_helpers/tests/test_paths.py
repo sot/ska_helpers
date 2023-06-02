@@ -16,6 +16,9 @@ def test_chandra_models_paths(repo_source, chandra_models_repo_dir, monkeypatch)
         monkeypatch.setenv(chandra_models_repo_dir, str(root))
         kwargs = {}
     elif repo_source == "default":
+        # Make sure no path-changing env vars are set
+        for env_var in paths.CHANDRA_MODELS_ROOT_ENV_VARS:
+            monkeypatch.delenv(env_var, raising=False)
         root = Path(os.environ["SKA"]) / "data" / "chandra_models"
         kwargs = {}
     elif repo_source == "kwargs":

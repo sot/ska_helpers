@@ -5,6 +5,7 @@ Get data from chandra_models repository.
 import contextlib
 import hashlib
 import os
+import shutil
 import tempfile
 import warnings
 from pathlib import Path
@@ -24,6 +25,34 @@ __all__ = [
 CHANDRA_MODELS_LATEST_URL = (
     "https://api.github.com/repos/sot/chandra_models/releases/latest"
 )
+
+
+@contextlib.contextmanager
+def get_local_repo(repo_path, version):
+    """Get local version of ``repo_path`` and ensure correct clean-up."""
+
+    def onerror(func, path, exc_info):
+        os.chmod(path, 0o0777)
+        try:
+            func(path)
+        except Exception as exc:
+            print(f"Warning: temp_dir() could not remove {path} because of {exc}")
+
+    clone = str(repo_path).startswith("https://github.com") or version is not None
+    if clone:
+        repo_path_local = tempfile.mkdtemp()
+        repo = git.Repo.clone_from(repo_path, repo_path_local)
+        if version is not None:
+            repo.git.checkout(version)
+    else:
+        repo = git.Repo(repo_path)
+        repo_path_local = repo_path
+
+    yield repo, repo_path_local
+
+    repo.close()
+    if clone:
+        shutil.rmtree(repo_path_local, onerror=onerror)
 
 
 def get_data(
@@ -159,18 +188,11 @@ def get_data(
     # - If the repo is remote on GitHub then we always clone to a temp dir
     # - If the repo is local and the version is not the default then we clone to a temp
     #   to allow checking out at the specified version.
-    with contextlib.ExitStack() as stack:
-        if str(repo_path).startswith("https://github.com") or version is not None:
-            # For a remote GitHub repo or non-default version, clone to a temp dir
-            repo_path_local = stack.enter_context(tempfile.TemporaryDirectory())
-            repo = git.Repo.clone_from(repo_path, repo_path_local)
-            if version is not None:
-                repo.git.checkout(version)
-        else:
-            # For a local repo at the default version use the existing directory
-            repo = git.Repo(repo_path)
-            repo_path_local = repo_path
-
+    # This is all done with a context manager that ensure the repo object is
+    # properly closed and that all temporary files are cleaned up. Doing this
+    # on Windows was challenging. Search on slack:
+    # "The process cannot access the file because it is being used"
+    with get_local_repo(repo_path, version) as (repo, repo_path_local):
         repo_file_path = Path(repo_path_local) / file_path
         if not repo_file_path.exists():
             raise FileNotFoundError(f"chandra_models {file_path=} does not exist")
@@ -193,7 +215,8 @@ def get_data(
             data, repo_file_path = read_func(repo_file_path, **read_func_kwargs)
 
         # Compute the MD5 sum of repo_file_path.
-        md5 = hashlib.md5(repo_file_path.read_bytes()).hexdigest()
+        file_bytes = repo_file_path.read_bytes().replace(b"\r", b"")
+        md5 = hashlib.md5(file_bytes).hexdigest()
 
         # Store some info about this request in the cache.
         info.update(
