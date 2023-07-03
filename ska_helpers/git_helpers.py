@@ -2,16 +2,21 @@
 """
 Helper functions for using git.
 """
+import functools
 import re
 import subprocess
-from pathlib import Path
 import sys
 import warnings
+from pathlib import Path
 
 from ska_file import chdir
 
 
-def make_git_repo_safe(path: str | Path) -> str:
+__all__ = ["make_git_repo_safe"]
+
+
+@functools.lru_cache()
+def make_git_repo_safe(path: str | Path) -> None:
     """Ensure git repo at ``path`` is a safe git repository.
 
     A "safe" repo is one which is owned by the user calling this function. See:
@@ -60,10 +65,10 @@ def _handle_rev_parse_failure(path: Path, proc: subprocess.CompletedProcess):
 
     # Error message from the failed git command, which looks like this:
     # $ git status
-    # fatal: detected dubious ownership in repository at '//Mac/Home/ska/data/chandra_models'
+    # fatal: detected dubious ownership in repository at '//Mac/Home/ska/data/chandra_models'  # noqa: E501
     # To add an exception for this directory, call:
     #
-    #    git config --global --add safe.directory '%(prefix)///Mac/Home/ska/data/chandra_models'
+    #    git config --global --add safe.directory '%(prefix)///Mac/Home/ska/data/chandra_models'  # noqa: E501
 
     err = proc.stderr.decode().strip()
 

@@ -21,6 +21,11 @@ Environment
 .. automodule:: ska_helpers.environment
    :members:
 
+Git helpers
+-----------
+
+.. automodule:: ska_helpers.git_helpers
+   :members:
 
 Logging
 -------
