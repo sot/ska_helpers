@@ -3,19 +3,28 @@ import tempfile
 from ska_helpers import git_helpers
 import git
 import os
+from pathlib import Path
 
-from testr.test_helper import on_head_network
+
+CHANDRA_MODELS = Path(os.environ["SKA"]) / "data" / "chandra_models"
 
 
-# @pytest.mark.filterwarnings("ignore:Updating git config")
-@pytest.mark.skipif(not on_head_network(), reason="bla")
+def ska_ownership_ok():
+    try:
+        return CHANDRA_MODELS.owner() == os.getlogin()
+    except Exception:
+        return False
+
+
+@pytest.mark.skipif(not CHANDRA_MODELS.exists(), reason="Chandra models dir is not there")
+@pytest.mark.skipif(ska_ownership_ok(), reason="Chandra models dir ownership is OK")
 def test_make_git_repo_safe():
-    with tempfile.TemporaryDirectory() as d, pytest.warns(
+    with tempfile.TemporaryDirectory() as tempdir, pytest.warns(
         UserWarning, match="Updating git config"
     ):
-        os.environ["HOME"] = d
-        repo = git.Repo("/proj/sot/ska/data/chandra_models")
+        os.environ["HOME"] = tempdir
+        repo = git.Repo(CHANDRA_MODELS)
         with pytest.raises(git.exc.GitCommandError):
             repo.is_dirty()
-        git_helpers.make_git_repo_safe("/proj/sot/ska/data/chandra_models")
+        git_helpers.make_git_repo_safe(CHANDRA_MODELS)
         repo.is_dirty()
