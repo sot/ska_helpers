@@ -59,9 +59,7 @@ def _handle_rev_parse_failure(path: Path, proc: subprocess.CompletedProcess):
     # Y:\data\chandra_models, the required git config safe.directory is
     # %(prefix)///Mac/ska/data/chandra_models. Using the original ``path`` does
     # not work.
-    git_safe_config_RE = (
-        r"(git) (config) (--global) (--add) (safe\.directory) (\S+)"
-    )
+    git_safe_config_RE = r"(git) (config) (--global) (--add) (safe\.directory) (\S+)"
 
     # Error message from the failed git command, which looks like this:
     # $ git status

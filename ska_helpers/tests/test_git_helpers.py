@@ -6,8 +6,9 @@ import os
 
 from testr.test_helper import on_head_network
 
+
 # @pytest.mark.filterwarnings("ignore:Updating git config")
-@pytest.mark.skipif(not on_head_network(), reason='bla')
+@pytest.mark.skipif(not on_head_network(), reason="bla")
 def test_make_git_repo_safe():
     with tempfile.TemporaryDirectory() as d, pytest.warns(
         UserWarning, match="Updating git config"
