@@ -60,7 +60,7 @@ def _handle_rev_parse_failure(path: Path, proc: subprocess.CompletedProcess):
     # %(prefix)///Mac/ska/data/chandra_models. Using the original ``path`` does
     # not work.
     git_safe_config_RE = (
-        r"(git) (config) (--global) (--add) (safe\.directory) '([^\']+)'"
+        r"(git) (config) (--global) (--add) (safe\.directory) (\S+)"
     )
 
     # Error message from the failed git command, which looks like this:
@@ -73,7 +73,8 @@ def _handle_rev_parse_failure(path: Path, proc: subprocess.CompletedProcess):
     err = proc.stderr.decode().strip()
 
     if match := re.search(git_safe_config_RE, err, re.MULTILINE):
-        cmds = match.groups()
+        cmds = list(match.groups())
+        cmds[-1] = cmds[-1].strip("'")
         warnings.warn(
             "Updating git config to allow read-only git operations on "
             f"trusted repository {path}. Contact Ska team for questions.",
