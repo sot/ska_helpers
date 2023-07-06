@@ -10,6 +10,9 @@ CHANDRA_MODELS = Path(os.environ["SKA"]) / "data" / "chandra_models"
 
 
 def ska_ownership_ok():
+    # Check that the OS and volume support file ownership
+    # (not the case with shared directories on a Windows VM on parallels)
+    # and that the chandra_models dir is owned by the current user
     try:
         return CHANDRA_MODELS.owner() == os.getlogin()
     except Exception:
@@ -21,13 +24,17 @@ def ska_ownership_ok():
 )
 @pytest.mark.skipif(ska_ownership_ok(), reason="Chandra models dir ownership is OK")
 def test_make_git_repo_safe(monkeypatch):
-    with (
-        tempfile.TemporaryDirectory() as tempdir,
-        pytest.warns(UserWarning, match="Updating git config"),
-    ):
+    with tempfile.TemporaryDirectory() as tempdir:
+        # temporarily set HOME to a temp dir so .gitconfig comes from there
         monkeypatch.setenv("HOME", tempdir)
         repo = git.Repo(CHANDRA_MODELS)
         with pytest.raises(git.exc.GitCommandError):
+            # This statement fails with the error
+            #     fatal: detected dubious ownership
+            # unless the repo is marked safe in .gitconfig
             repo.is_dirty()
-        git_helpers.make_git_repo_safe(CHANDRA_MODELS)
+        with pytest.warns(UserWarning, match="Updating git config"):
+            # marke the repo safe and issue warning
+            git_helpers.make_git_repo_safe(CHANDRA_MODELS)
+        # success
         repo.is_dirty()
