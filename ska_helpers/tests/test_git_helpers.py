@@ -16,13 +16,16 @@ def ska_ownership_ok():
         return False
 
 
-@pytest.mark.skipif(not CHANDRA_MODELS.exists(), reason="Chandra models dir is not there")
+@pytest.mark.skipif(
+    not CHANDRA_MODELS.exists(), reason="Chandra models dir is not there"
+)
 @pytest.mark.skipif(ska_ownership_ok(), reason="Chandra models dir ownership is OK")
-def test_make_git_repo_safe():
-    with tempfile.TemporaryDirectory() as tempdir, pytest.warns(
-        UserWarning, match="Updating git config"
+def test_make_git_repo_safe(monkeypatch):
+    with (
+        tempfile.TemporaryDirectory() as tempdir,
+        pytest.warns(UserWarning, match="Updating git config"),
     ):
-        os.environ["HOME"] = tempdir
+        monkeypatch.setenv("HOME", tempdir)
         repo = git.Repo(CHANDRA_MODELS)
         with pytest.raises(git.exc.GitCommandError):
             repo.is_dirty()
