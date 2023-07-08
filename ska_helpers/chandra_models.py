@@ -16,6 +16,7 @@ import git
 import requests
 
 from ska_helpers.paths import chandra_models_repo_path
+from ska_helpers.utils import LRUDict
 
 __all__ = [
     "chandra_models_cache",
@@ -54,16 +55,15 @@ def chandra_models_cache(func):
             _, info = get_data("chandra_models/xija/aca/aca_spec.json", version=version)
             return info
     """
-    cache = {}
+    cache = LRUDict(capacity=32)
 
     @functools.wraps(func)
     def cached_func(*args, **kwargs):
         key = (
-            args
-            + tuple(sorted(kwargs.items()))
-            + tuple((name, os.environ.get(name)) for name in ENV_VAR_NAMES)
+            args,
+            tuple(sorted(kwargs.items())),
+            tuple((name, os.environ.get(name)) for name in ENV_VAR_NAMES),
         )
-        print(f"caching key: {key}")
         if key not in cache:
             cache[key] = func(*args, **kwargs)
 

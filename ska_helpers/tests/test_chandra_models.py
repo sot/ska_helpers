@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import contextlib
 import json
 import os
 import re
@@ -30,6 +31,71 @@ def read_xija_spec(fn):
     with open(fn) as fh:
         spec = json.load(fh)
     return spec, fn
+
+
+@contextlib.contextmanager
+def temp_env_var(name, value):
+    original_value = os.environ.get(name)
+    os.environ[name] = value
+    try:
+        yield
+    finally:
+        if original_value is not None:
+            os.environ[name] = original_value
+        else:
+            del os.environ[name]
+
+
+@chandra_models.chandra_models_cache
+def func_for_cache_test(a, b=1):
+    """Function for testing the cache.
+
+    Returns a tuple of the input arguments and the values of the environment variables
+    named in chandra_models.ENV_VAR_NAMES.
+    """
+    out = (a, b, tuple(os.environ.get(nm) for nm in chandra_models.ENV_VAR_NAMES))
+    return out
+
+
+def test_chandra_models_cache_basic():
+    """Test that the cache works as expected for two calls with identical inputs"""
+    out1 = func_for_cache_test(0)
+    out2 = func_for_cache_test(0)
+    assert out1 is out2
+
+
+def test_chandra_models_cache_kwargs():
+    """Cache invalid even though kwarg matches default. Same output but different
+    object."""
+    out1 = func_for_cache_test(0)
+    out2 = func_for_cache_test(0, b=1)
+    assert out1 == out2
+    assert out1 is not out2
+
+
+def test_chandra_models_cache_env_vars():
+    """Expected environment variable names change the output even though they don't
+    appear in the function signature."""
+    out1 = func_for_cache_test(0)
+    for name in chandra_models.ENV_VAR_NAMES:
+        with temp_env_var(name, "foo"):
+            out3 = func_for_cache_test(0)
+            assert out1 != out3
+
+
+@pytest.mark.parametrize("number", (32, 33))
+def test_chandra_models_cache_size(number):
+    """Cache is an LRU cache with a max size of 32. After 32 calls with different."""
+    out1 = func_for_cache_test(0)
+    for ii in range(number):
+        out2 = func_for_cache_test(ii)
+        out3 = func_for_cache_test(ii)
+        assert out2 is out3
+    out4 = func_for_cache_test(0)
+    if number == 32:
+        assert out1 is out4
+    else:
+        assert out4 is not out1
 
 
 def test_get_data_aca_3_30():
