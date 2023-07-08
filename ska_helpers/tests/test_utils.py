@@ -1,9 +1,10 @@
+import os
 import pickle
 import time
 
 import pytest
 
-from ska_helpers.utils import LazyDict, LazyVal, LRUDict, lru_cache_timed
+from ska_helpers.utils import LazyDict, LazyVal, LRUDict, lru_cache_timed, temp_env_var
 
 
 def load_func(a, b, c=None):
@@ -104,3 +105,16 @@ def test_lru_dict():
     # Access the remaining items in order
     assert d["b"] == 2
     assert d["d"] == 4
+
+
+def test_temp_env_var():
+    name = "ASDF1234_asdfsdaf_982398239324223423_a2323423424211111_adfaASDfaSDFASDF"
+    # Check that the environment variable is initially unset
+    assert os.environ.get(name) is None
+
+    # Set the environment variable using the context manager
+    with temp_env_var(name, "my_value"):
+        assert os.environ.get(name) == "my_value"
+
+    # Check that the environment variable is unset after the context manager exits
+    assert os.environ.get(name) is None

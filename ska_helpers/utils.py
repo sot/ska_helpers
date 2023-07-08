@@ -1,9 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import contextlib
 import functools
+import os
 from collections import OrderedDict
 
-__all__ = ["LazyDict", "LazyVal", "LRUDict", "lru_cache_timed"]
+__all__ = ["LazyDict", "LazyVal", "LRUDict", "lru_cache_timed", "temp_env_var"]
 
 
 def _lazy_load_wrap(unbound_method):
@@ -244,3 +246,35 @@ class LRUDict(OrderedDict):
         if len(self) > self.capacity:
             oldest = next(iter(self))
             del self[oldest]
+
+
+@contextlib.contextmanager
+def temp_env_var(name, value):
+    """
+    A context manager that temporarily sets an environment variable.
+
+    Example::
+
+        >>> os.environ.get("MY_VARIABLE")
+        None
+        >>> with temp_env_var("MY_VARIABLE", "my_value"):
+        ...     os.environ.get("MY_VARIABLE")
+        ...
+        'my_value'
+        >>> os.environ.get("MY_VARIABLE")
+        None
+
+    :param name: str
+        Name of the environment variable to set.
+    :param value: str
+        Value to set the environment variable to.
+    """
+    original_value = os.environ.get(name)
+    os.environ[name] = value
+    try:
+        yield
+    finally:
+        if original_value is not None:
+            os.environ[name] = original_value
+        else:
+            del os.environ[name]

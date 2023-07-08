@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import contextlib
 import json
 import os
 import re
@@ -12,6 +11,7 @@ import requests
 from astropy.io import fits
 
 from ska_helpers import chandra_models
+from ska_helpers.utils import temp_env_var
 
 try:
     # Fast request to see if GitHub is available
@@ -31,19 +31,6 @@ def read_xija_spec(fn):
     with open(fn) as fh:
         spec = json.load(fh)
     return spec, fn
-
-
-@contextlib.contextmanager
-def temp_env_var(name, value):
-    original_value = os.environ.get(name)
-    os.environ[name] = value
-    try:
-        yield
-    finally:
-        if original_value is not None:
-            os.environ[name] = original_value
-        else:
-            del os.environ[name]
 
 
 @chandra_models.chandra_models_cache
