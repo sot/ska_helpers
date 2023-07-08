@@ -3,6 +3,7 @@
 Get data from chandra_models repository.
 """
 import contextlib
+import functools
 import hashlib
 import os
 import shutil
@@ -17,6 +18,7 @@ import requests
 from ska_helpers.paths import chandra_models_repo_path
 
 __all__ = [
+    "chandra_models_cache",
     "get_data",
     "get_repo_version",
     "get_github_version",
@@ -25,6 +27,49 @@ __all__ = [
 CHANDRA_MODELS_LATEST_URL = (
     "https://api.github.com/repos/sot/chandra_models/releases/latest"
 )
+
+ENV_VAR_NAMES = [
+    "CHANDRA_MODELS_REPO_DIR",
+    "CHANDRA_MODELS_DEFAULT_VERSION",
+    "THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW",
+]
+
+
+def chandra_models_cache(func):
+    """Decorator to cache outputs for a function that gets chandra_models data.
+
+    The key used for caching the function output includes the passed arguments and
+    keyword arguments, as well as the values of the environment variables below.
+    This ensures that the cache is invalidated if any of these environment variables
+    change:
+
+    - CHANDRA_MODELS_REPO_DIR
+    - CHANDRA_MODELS_DEFAULT_VERSION
+    - THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW
+
+    Example::
+
+        @chandra_models_cache
+        def get_aca_spec_info(version=None):
+            _, info = get_data("chandra_models/xija/aca/aca_spec.json", version=version)
+            return info
+    """
+    cache = {}
+
+    @functools.wraps(func)
+    def cached_func(*args, **kwargs):
+        key = (
+            args
+            + tuple(sorted(kwargs.items()))
+            + tuple((name, os.environ.get(name)) for name in ENV_VAR_NAMES)
+        )
+        print(f"caching key: {key}")
+        if key not in cache:
+            cache[key] = func(*args, **kwargs)
+
+        return cache[key]
+
+    return cached_func
 
 
 @contextlib.contextmanager
