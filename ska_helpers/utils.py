@@ -3,7 +3,7 @@
 import functools
 from collections import OrderedDict
 
-__all__ = ["LazyDict", "LazyVal"]
+__all__ = ["LazyDict", "LazyVal", "LRUDict", "lru_cache_timed"]
 
 
 def _lazy_load_wrap(unbound_method):
