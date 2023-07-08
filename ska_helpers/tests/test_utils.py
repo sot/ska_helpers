@@ -1,7 +1,9 @@
 import pickle
 import time
 
-from ska_helpers.utils import LazyDict, LazyVal, lru_cache_timed
+import pytest
+
+from ska_helpers.utils import LazyDict, LazyVal, LRUDict, lru_cache_timed
 
 
 def load_func(a, b, c=None):
@@ -63,3 +65,42 @@ def test_lru_cache_timed():
     assert test.cache_info().currsize == 2
     time.sleep(0.11)
     assert test.cache_info().currsize == 0
+
+
+def test_lru_dict():
+    # Create an LRUDict with capacity 2
+    d = LRUDict(2)
+
+    # Add two items to the dict
+    d["a"] = 1
+    d["b"] = 2
+
+    # Access the items in order
+    assert d["a"] == 1
+    assert d["b"] == 2
+
+    # Add a third item to the dict
+    d["c"] = 3
+
+    # The oldest item ("a") should have been evicted
+    with pytest.raises(KeyError):
+        d["a"]
+
+    # Access the remaining items in order
+    assert d["b"] == 2
+    assert d["c"] == 3
+
+    # Access the items in reverse order
+    assert d["c"] == 3
+    assert d["b"] == 2
+
+    # Add a fourth item to the dict
+    d["d"] = 4
+
+    # The oldest item ("c") should have been evicted
+    with pytest.raises(KeyError):
+        d["c"]
+
+    # Access the remaining items in order
+    assert d["b"] == 2
+    assert d["d"] == 4

@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import functools
+from collections import OrderedDict
 
 __all__ = ["LazyDict", "LazyVal"]
 
@@ -198,3 +199,22 @@ def lru_cache_timed(maxsize=128, typed=False, timeout=3600):
         return _wrapped
 
     return _wrapper
+
+
+class LRUDict(OrderedDict):
+    def __init__(self, capacity=128):
+        super().__init__()
+        self.capacity = capacity
+
+    def __getitem__(self, key):
+        value = super().__getitem__(key)
+        self.move_to_end(key)
+        return value
+
+    def __setitem__(self, key, value):
+        if key in self:
+            self.move_to_end(key)
+        super().__setitem__(key, value)
+        if len(self) > self.capacity:
+            oldest = next(iter(self))
+            del self[oldest]
