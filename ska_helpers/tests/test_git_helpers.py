@@ -1,12 +1,13 @@
-import pytest
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+import getpass
 import tempfile
-from ska_helpers import git_helpers
+
 import git
-import os
-from pathlib import Path
+import pytest
 
+from ska_helpers import git_helpers, paths
 
-CHANDRA_MODELS = Path(os.environ["SKA"]) / "data" / "chandra_models"
+CHANDRA_MODELS = paths.chandra_models_repo_path()
 
 
 def ska_ownership_ok():
@@ -14,13 +15,14 @@ def ska_ownership_ok():
     # (not the case with shared directories on a Windows VM on parallels)
     # and that the chandra_models dir is owned by the current user
     try:
-        return CHANDRA_MODELS.owner() == os.getlogin()
+        return CHANDRA_MODELS.owner() == getpass.getuser()
     except Exception:
         return False
 
 
 @pytest.mark.skipif(
-    not CHANDRA_MODELS.exists(), reason="Chandra models dir is not there"
+    not CHANDRA_MODELS.exists(),
+    reason="Chandra models dir is not there",
 )
 @pytest.mark.skipif(ska_ownership_ok(), reason="Chandra models dir ownership is OK")
 def test_make_git_repo_safe(monkeypatch):
