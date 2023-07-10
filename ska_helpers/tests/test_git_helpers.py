@@ -6,6 +6,7 @@ import git
 import pytest
 
 from ska_helpers import git_helpers, paths
+from ska_helpers.utils import get_owner
 
 CHANDRA_MODELS = paths.chandra_models_repo_path()
 
@@ -15,7 +16,7 @@ def ska_ownership_ok():
     # (not the case with shared directories on a Windows VM on parallels)
     # and that the chandra_models dir is owned by the current user
     try:
-        return CHANDRA_MODELS.owner() == getpass.getuser()
+        return get_owner(CHANDRA_MODELS) == getpass.getuser()
     except Exception:
         return False
 
