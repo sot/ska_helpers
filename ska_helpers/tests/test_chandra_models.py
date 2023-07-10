@@ -116,10 +116,11 @@ def test_get_data_aca_3_30():
         },
         "version": "3.30",
         "commit": "94d2fa56bac1637cbfe63bcb1bc9294954379c11",
-        "CHANDRA_MODELS_DEFAULT_VERSION": None,
-        "CHANDRA_MODELS_REPO_DIR": None,
         "md5": "0e72b6402b8ed1fbaf81d5e79232461b",
     }
+    for name in chandra_models.ENV_VAR_NAMES:
+        exp[name] = os.environ.get(name)
+
     assert info == exp
 
 

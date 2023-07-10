@@ -270,13 +270,11 @@ def get_data(
                 "commit": repo.head.commit.hexsha,
                 "data_file_path": str(repo_file_path),
                 "repo_path": str(repo_path),
-                "CHANDRA_MODELS_DEFAULT_VERSION": os.environ.get(
-                    "CHANDRA_MODELS_DEFAULT_VERSION"
-                ),
-                "CHANDRA_MODELS_REPO_DIR": os.environ.get("CHANDRA_MODELS_REPO_DIR"),
                 "md5": md5,
             }
         )
+        for name in ENV_VAR_NAMES:
+            info[name] = os.environ.get(name)
 
     return data, info
 
