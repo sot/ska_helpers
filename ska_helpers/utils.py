@@ -5,6 +5,38 @@ import functools
 __all__ = ["LazyDict", "LazyVal"]
 
 
+def get_owner(path):
+    """
+    Returns the owner of a file or directory.
+
+    Parameters:
+    -----------
+    path : str or pathlib.Path
+        The path to the file or directory.
+
+    Returns:
+    --------
+    str
+        The name of the owner of the file or directory.
+    """
+
+    from testr import test_helper
+    from pathlib import Path
+
+    if test_helper.is_windows():
+        import win32security
+
+        # Suggested by copilot chat, seems to
+        security_descriptor = win32security.GetFileSecurity(
+            str(path), win32security.OWNER_SECURITY_INFORMATION
+        )
+        owner_sid = security_descriptor.GetSecurityDescriptorOwner()
+        owner_name, _, _ = win32security.LookupAccountSid(None, owner_sid)
+    else:
+        owner_name = Path(path).owner()
+    return owner_name
+
+
 def _lazy_load_wrap(unbound_method):
     @functools.wraps(unbound_method)
     def wrapper(self, *args, **kwargs):
