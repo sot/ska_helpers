@@ -26,6 +26,8 @@ except Exception:
 
 ACA_SPEC_PATH = "chandra_models/xija/aca/aca_spec.json"
 
+SOME_ENV_VAR_DEFINED = any(os.environ.get(nm) for nm in chandra_models.ENV_VAR_NAMES)
+
 
 def read_xija_spec(fn):
     with open(fn) as fh:
@@ -160,6 +162,7 @@ def test_get_data_extra_kwargs():
     assert acq_model_image.shape == (141, 31, 7)
 
 
+@pytest.mark.skipif(SOME_ENV_VAR_DEFINED, reason="Non flight repo is being used")
 def test_get_data_aca_latest():
     # Latest version
     spec, info = chandra_models.get_data(
@@ -207,6 +210,7 @@ def test_get_repo_version():
     assert re.match(r"^[0-9.]+$", version)
 
 
+@pytest.mark.skipif(SOME_ENV_VAR_DEFINED, reason="Non flight repo is being used")
 @pytest.mark.skipif(not HAS_GITHUB, reason="GitHub not available")
 def test_check_github_version():
     version = chandra_models.get_repo_version()
