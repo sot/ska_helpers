@@ -11,6 +11,7 @@ import requests
 from astropy.io import fits
 
 from ska_helpers import chandra_models
+from ska_helpers.utils import temp_env_var
 
 try:
     # Fast request to see if GitHub is available
@@ -25,11 +26,65 @@ except Exception:
 
 ACA_SPEC_PATH = "chandra_models/xija/aca/aca_spec.json"
 
+SOME_ENV_VAR_DEFINED = any(os.environ.get(nm) for nm in chandra_models.ENV_VAR_NAMES)
+
 
 def read_xija_spec(fn):
     with open(fn) as fh:
         spec = json.load(fh)
     return spec, fn
+
+
+@chandra_models.chandra_models_cache
+def func_for_cache_test(a, b=1):
+    """Function for testing the cache.
+
+    Returns a tuple of the input arguments and the values of the environment variables
+    named in chandra_models.ENV_VAR_NAMES.
+    """
+    out = (a, b, tuple(os.environ.get(nm) for nm in chandra_models.ENV_VAR_NAMES))
+    return out
+
+
+def test_chandra_models_cache_basic():
+    """Test that the cache works as expected for two calls with identical inputs"""
+    out1 = func_for_cache_test(0)
+    out2 = func_for_cache_test(0)
+    assert out1 is out2
+
+
+def test_chandra_models_cache_kwargs():
+    """Cache invalid even though kwarg matches default. Same output but different
+    object."""
+    out1 = func_for_cache_test(0)
+    out2 = func_for_cache_test(0, b=1)
+    assert out1 == out2
+    assert out1 is not out2
+
+
+def test_chandra_models_cache_env_vars():
+    """Expected environment variable names change the output even though they don't
+    appear in the function signature."""
+    out1 = func_for_cache_test(0)
+    for name in chandra_models.ENV_VAR_NAMES:
+        with temp_env_var(name, "foo"):
+            out3 = func_for_cache_test(0)
+            assert out1 != out3
+
+
+@pytest.mark.parametrize("number", (32, 33))
+def test_chandra_models_cache_size(number):
+    """Cache is an LRU cache with a max size of 32. After 32 calls with different."""
+    out1 = func_for_cache_test(0)
+    for ii in range(number):
+        out2 = func_for_cache_test(ii)
+        out3 = func_for_cache_test(ii)
+        assert out2 is out3
+    out4 = func_for_cache_test(0)
+    if number == 32:
+        assert out1 is out4
+    else:
+        assert out4 is not out1
 
 
 def test_get_data_aca_3_30():
@@ -63,10 +118,11 @@ def test_get_data_aca_3_30():
         },
         "version": "3.30",
         "commit": "94d2fa56bac1637cbfe63bcb1bc9294954379c11",
-        "CHANDRA_MODELS_DEFAULT_VERSION": None,
-        "CHANDRA_MODELS_REPO_DIR": None,
         "md5": "0e72b6402b8ed1fbaf81d5e79232461b",
     }
+    for name in chandra_models.ENV_VAR_NAMES:
+        exp[name] = os.environ.get(name)
+
     assert info == exp
 
 
@@ -106,8 +162,10 @@ def test_get_data_extra_kwargs():
     assert acq_model_image.shape == (141, 31, 7)
 
 
+@pytest.mark.skipif(SOME_ENV_VAR_DEFINED, reason="Non flight repo is being used")
 def test_get_data_aca_latest():
-    # Latest version
+    # If any env vars are set that select a non-flight version of the repo then we have
+    # no expectation that the version of that repo will match github, so skip this test.
     spec, info = chandra_models.get_data(
         ACA_SPEC_PATH, require_latest_version=HAS_GITHUB, read_func=read_xija_spec
     )
@@ -153,8 +211,11 @@ def test_get_repo_version():
     assert re.match(r"^[0-9.]+$", version)
 
 
+@pytest.mark.skipif(SOME_ENV_VAR_DEFINED, reason="Non flight repo is being used")
 @pytest.mark.skipif(not HAS_GITHUB, reason="GitHub not available")
 def test_check_github_version():
+    # If any env vars are set that select a non-flight version of the repo then we have
+    # no expectation that the version of that repo will match github, so skip this test.
     version = chandra_models.get_repo_version()
     status = chandra_models.get_github_version() == version
     assert status is True
