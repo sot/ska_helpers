@@ -209,25 +209,27 @@ class LRUDict(OrderedDict):
 
     Inherits from collections.OrderedDict to maintain the order of insertion.
 
+    Examples:
+    ---------
+    ::
+
+        >>> d = LRUDict(2)
+        >>> d["a"] = 1
+        >>> d["b"] = 2
+        >>> d["c"] = 3
+        >>> list(d.keys())
+        ['b', 'c']
+        >>> d["b"]
+        2
+        >>> d["a"]
+        Traceback (most recent call last):
+            ...
+        KeyError: 'a'
+
     Parameters:
     -----------
     capacity : int, optional
         The maximum number of items that the dictionary can hold. Defaults to 128.
-
-    Examples:
-    ---------
-    >>> d = LRUDict(2)
-    >>> d["a"] = 1
-    >>> d["b"] = 2
-    >>> d["c"] = 3
-    >>> list(d.keys())
-    ['b', 'c']
-    >>> d["b"]
-    2
-    >>> d["a"]
-    Traceback (most recent call last):
-        ...
-    KeyError: 'a'
     """
 
     def __init__(self, capacity=128):

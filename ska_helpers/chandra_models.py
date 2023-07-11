@@ -126,6 +126,7 @@ def get_data(
     First we read the model specification for the ACA model. The ``get_data()`` function
     returns the text of the model spec so we need to use ``json.loads()`` to convert it
     to a dict.
+    ::
 
         >>> import json
         >>> from astropy.io import fits
@@ -138,6 +139,7 @@ def get_data(
 
     Next we read the acquisition probability model image. Since the image is a gzipped
     FITS file we need to use a helper function to read it.
+    ::
 
         >>> def read_fits_image(file_path):
         ...     with fits.open(file_path) as hdus:
@@ -149,7 +151,6 @@ def get_data(
         ...     read_func=read_fits_image
         ... )
         >>> acq_model_image.shape
-        ...
         (141, 31, 7)
 
     Now let's get the version of the chandra_models repository::
@@ -157,9 +158,9 @@ def get_data(
         >>> chandra_models.get_repo_version()
         '3.47'
 
-
     Finally get version 3.30 of the ACA model spec from GitHub. The use of a lambda
     function to read the JSON file is compact but not recommended for production code.
+    ::
 
         >>> model_spec_3_30, info = chandra_models.get_data(
         ...     "chandra_models/xija/aca/aca_spec.json",
@@ -180,8 +181,8 @@ def get_data(
         is used as the default. This is useful for testing.
     repo_path : str, Path
         Path to directory or URL containing chandra_models repository (default is
-        $SKA/data/chandra_models or either of the ``CHANDRA_MODELS_REPO_DIR`` or
-         ``THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW`` environment variables if set).
+        ``$SKA/data/chandra_models`` or either of the ``CHANDRA_MODELS_REPO_DIR`` or
+        ``THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW`` environment variables if set).
     require_latest_version : bool
         Require that ``version`` matches the latest release on GitHub
     timeout : int, float
