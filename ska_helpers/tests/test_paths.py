@@ -7,23 +7,21 @@ import pytest
 
 from ska_helpers import paths
 
-SOME_ENV_VAR_DEFINED = any(
-    os.environ.get(nm) for nm in paths.CHANDRA_MODELS_ROOT_ENV_VARS
-)
 
-
-@pytest.mark.skipif(SOME_ENV_VAR_DEFINED, reason="Test requires clean environment")
 @pytest.mark.parametrize("repo_source", ["default", "env", "kwargs"])
 @pytest.mark.parametrize("chandra_models_repo_dir", paths.CHANDRA_MODELS_ROOT_ENV_VARS)
 def test_chandra_models_paths(repo_source, chandra_models_repo_dir, monkeypatch):
+    if repo_source in ["env", "default"]:
+        # For these two cases we need a clean env as a baseline in order to know the
+        # expected result.
+        for env_var in paths.CHANDRA_MODELS_ROOT_ENV_VARS:
+            monkeypatch.delenv(env_var, raising=False)
+
     if repo_source == "env":
         root = Path("/", "foo", "chandra_models")
         monkeypatch.setenv(chandra_models_repo_dir, str(root))
         kwargs = {}
     elif repo_source == "default":
-        # Make sure no path-changing env vars are set
-        for env_var in paths.CHANDRA_MODELS_ROOT_ENV_VARS:
-            monkeypatch.delenv(env_var, raising=False)
         root = Path(os.environ["SKA"]) / "data" / "chandra_models"
         kwargs = {}
     elif repo_source == "kwargs":

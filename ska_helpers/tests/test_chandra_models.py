@@ -164,7 +164,8 @@ def test_get_data_extra_kwargs():
 
 @pytest.mark.skipif(SOME_ENV_VAR_DEFINED, reason="Non flight repo is being used")
 def test_get_data_aca_latest():
-    # Latest version
+    # If any env vars are set that select a non-flight version of the repo then we have
+    # no expectation that the version of that repo will match github, so skip this test.
     spec, info = chandra_models.get_data(
         ACA_SPEC_PATH, require_latest_version=HAS_GITHUB, read_func=read_xija_spec
     )
@@ -213,6 +214,8 @@ def test_get_repo_version():
 @pytest.mark.skipif(SOME_ENV_VAR_DEFINED, reason="Non flight repo is being used")
 @pytest.mark.skipif(not HAS_GITHUB, reason="GitHub not available")
 def test_check_github_version():
+    # If any env vars are set that select a non-flight version of the repo then we have
+    # no expectation that the version of that repo will match github, so skip this test.
     version = chandra_models.get_repo_version()
     status = chandra_models.get_github_version() == version
     assert status is True
