@@ -313,8 +313,6 @@ def get_repo_version(
 
     tags = sorted(repo.tags, key=lambda tag: tag.commit.committed_datetime)
     tag_repo = tags[-1]
-    if tag_repo.commit != repo.head.commit:
-        raise ValueError(f"repo tip is not at tag {tag_repo}")
 
     return tag_repo.name
 
