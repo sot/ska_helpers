@@ -1,8 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import contextlib
 import functools
+import os
+from collections import OrderedDict
 
-__all__ = ["LazyDict", "LazyVal"]
+__all__ = ["LazyDict", "LazyVal", "LRUDict", "lru_cache_timed", "temp_env_var"]
 
 
 def get_owner(path):
@@ -230,3 +233,82 @@ def lru_cache_timed(maxsize=128, typed=False, timeout=3600):
         return _wrapped
 
     return _wrapper
+
+
+class LRUDict(OrderedDict):
+    """
+    Dict that maintains a fixed capacity and evicts least recently used item when full.
+
+    Inherits from collections.OrderedDict to maintain the order of insertion.
+
+    Examples:
+    ---------
+    ::
+
+        >>> d = LRUDict(2)
+        >>> d["a"] = 1
+        >>> d["b"] = 2
+        >>> d["c"] = 3
+        >>> list(d.keys())
+        ['b', 'c']
+        >>> d["b"]
+        2
+        >>> d["a"]
+        Traceback (most recent call last):
+            ...
+        KeyError: 'a'
+
+    Parameters:
+    -----------
+    capacity : int, optional
+        The maximum number of items that the dictionary can hold. Defaults to 128.
+    """
+
+    def __init__(self, capacity=128):
+        super().__init__()
+        self.capacity = capacity
+
+    def __getitem__(self, key):
+        value = super().__getitem__(key)
+        self.move_to_end(key)
+        return value
+
+    def __setitem__(self, key, value):
+        if key in self:
+            self.move_to_end(key)
+        super().__setitem__(key, value)
+        if len(self) > self.capacity:
+            oldest = next(iter(self))
+            del self[oldest]
+
+
+@contextlib.contextmanager
+def temp_env_var(name, value):
+    """
+    A context manager that temporarily sets an environment variable.
+
+    Example::
+
+        >>> os.environ.get("MY_VARIABLE")
+        None
+        >>> with temp_env_var("MY_VARIABLE", "my_value"):
+        ...     os.environ.get("MY_VARIABLE")
+        ...
+        'my_value'
+        >>> os.environ.get("MY_VARIABLE")
+        None
+
+    :param name: str
+        Name of the environment variable to set.
+    :param value: str
+        Value to set the environment variable to.
+    """
+    original_value = os.environ.get(name)
+    os.environ[name] = value
+    try:
+        yield
+    finally:
+        if original_value is not None:
+            os.environ[name] = original_value
+        else:
+            del os.environ[name]

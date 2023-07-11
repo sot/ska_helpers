@@ -3,6 +3,7 @@
 Get data from chandra_models repository.
 """
 import contextlib
+import functools
 import hashlib
 import os
 import shutil
@@ -16,8 +17,10 @@ import requests
 
 from ska_helpers.paths import chandra_models_repo_path
 from ska_helpers.git_helpers import make_git_repo_safe
+from ska_helpers.utils import LRUDict
 
 __all__ = [
+    "chandra_models_cache",
     "get_data",
     "get_repo_version",
     "get_github_version",
@@ -26,6 +29,48 @@ __all__ = [
 CHANDRA_MODELS_LATEST_URL = (
     "https://api.github.com/repos/sot/chandra_models/releases/latest"
 )
+
+ENV_VAR_NAMES = [
+    "CHANDRA_MODELS_REPO_DIR",
+    "CHANDRA_MODELS_DEFAULT_VERSION",
+    "THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW",
+]
+
+
+def chandra_models_cache(func):
+    """Decorator to cache outputs for a function that gets chandra_models data.
+
+    The key used for caching the function output includes the passed arguments and
+    keyword arguments, as well as the values of the environment variables below.
+    This ensures that the cache is invalidated if any of these environment variables
+    change:
+
+    - CHANDRA_MODELS_REPO_DIR
+    - CHANDRA_MODELS_DEFAULT_VERSION
+    - THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW
+
+    Example::
+
+        @chandra_models_cache
+        def get_aca_spec_info(version=None):
+            _, info = get_data("chandra_models/xija/aca/aca_spec.json", version=version)
+            return info
+    """
+    cache = LRUDict(capacity=32)
+
+    @functools.wraps(func)
+    def cached_func(*args, **kwargs):
+        key = (
+            args,
+            tuple(sorted(kwargs.items())),
+            tuple((name, os.environ.get(name)) for name in ENV_VAR_NAMES),
+        )
+        if key not in cache:
+            cache[key] = func(*args, **kwargs)
+
+        return cache[key]
+
+    return cached_func
 
 
 @contextlib.contextmanager
@@ -83,6 +128,7 @@ def get_data(
     First we read the model specification for the ACA model. The ``get_data()`` function
     returns the text of the model spec so we need to use ``json.loads()`` to convert it
     to a dict.
+    ::
 
         >>> import json
         >>> from astropy.io import fits
@@ -95,6 +141,7 @@ def get_data(
 
     Next we read the acquisition probability model image. Since the image is a gzipped
     FITS file we need to use a helper function to read it.
+    ::
 
         >>> def read_fits_image(file_path):
         ...     with fits.open(file_path) as hdus:
@@ -106,7 +153,6 @@ def get_data(
         ...     read_func=read_fits_image
         ... )
         >>> acq_model_image.shape
-        ...
         (141, 31, 7)
 
     Now let's get the version of the chandra_models repository::
@@ -114,9 +160,9 @@ def get_data(
         >>> chandra_models.get_repo_version()
         '3.47'
 
-
     Finally get version 3.30 of the ACA model spec from GitHub. The use of a lambda
     function to read the JSON file is compact but not recommended for production code.
+    ::
 
         >>> model_spec_3_30, info = chandra_models.get_data(
         ...     "chandra_models/xija/aca/aca_spec.json",
@@ -137,8 +183,8 @@ def get_data(
         is used as the default. This is useful for testing.
     repo_path : str, Path
         Path to directory or URL containing chandra_models repository (default is
-        $SKA/data/chandra_models or either of the ``CHANDRA_MODELS_REPO_DIR`` or
-         ``THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW`` environment variables if set).
+        ``$SKA/data/chandra_models`` or either of the ``CHANDRA_MODELS_REPO_DIR`` or
+        ``THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW`` environment variables if set).
     require_latest_version : bool
         Require that ``version`` matches the latest release on GitHub
     timeout : int, float
@@ -227,13 +273,11 @@ def get_data(
                 "commit": repo.head.commit.hexsha,
                 "data_file_path": str(repo_file_path),
                 "repo_path": str(repo_path),
-                "CHANDRA_MODELS_DEFAULT_VERSION": os.environ.get(
-                    "CHANDRA_MODELS_DEFAULT_VERSION"
-                ),
-                "CHANDRA_MODELS_REPO_DIR": os.environ.get("CHANDRA_MODELS_REPO_DIR"),
                 "md5": md5,
             }
         )
+        for name in ENV_VAR_NAMES:
+            info[name] = os.environ.get(name)
 
     return data, info
 

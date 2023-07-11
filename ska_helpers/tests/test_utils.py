@@ -1,7 +1,10 @@
+import os
 import pickle
 import time
 
-from ska_helpers.utils import LazyDict, LazyVal, lru_cache_timed
+import pytest
+
+from ska_helpers.utils import LazyDict, LazyVal, LRUDict, lru_cache_timed, temp_env_var
 
 
 def load_func(a, b, c=None):
@@ -63,3 +66,55 @@ def test_lru_cache_timed():
     assert test.cache_info().currsize == 2
     time.sleep(0.11)
     assert test.cache_info().currsize == 0
+
+
+def test_lru_dict():
+    # Create an LRUDict with capacity 2
+    d = LRUDict(2)
+
+    # Add two items to the dict
+    d["a"] = 1
+    d["b"] = 2
+
+    # Access the items in order
+    assert d["a"] == 1
+    assert d["b"] == 2
+
+    # Add a third item to the dict
+    d["c"] = 3
+
+    # The oldest item ("a") should have been evicted
+    with pytest.raises(KeyError):
+        d["a"]
+
+    # Access the remaining items in order
+    assert d["b"] == 2
+    assert d["c"] == 3
+
+    # Access the items in reverse order
+    assert d["c"] == 3
+    assert d["b"] == 2
+
+    # Add a fourth item to the dict
+    d["d"] = 4
+
+    # The oldest item ("c") should have been evicted
+    with pytest.raises(KeyError):
+        d["c"]
+
+    # Access the remaining items in order
+    assert d["b"] == 2
+    assert d["d"] == 4
+
+
+def test_temp_env_var():
+    name = "ASDF1234_asdfsdaf_982398239324223423_a2323423424211111_adfaASDfaSDFASDF"
+    # Check that the environment variable is initially unset
+    assert os.environ.get(name) is None
+
+    # Set the environment variable using the context manager
+    with temp_env_var(name, "my_value"):
+        assert os.environ.get(name) == "my_value"
+
+    # Check that the environment variable is unset after the context manager exits
+    assert os.environ.get(name) is None
