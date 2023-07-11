@@ -91,8 +91,8 @@ def get_local_repo(repo_path, version):
         if version is not None:
             repo.git.checkout(version)
     else:
-        make_git_repo_safe(repo_path)
         repo = git.Repo(repo_path)
+        make_git_repo_safe(repo_path)
         repo_path_local = repo_path
 
     yield repo, repo_path_local
