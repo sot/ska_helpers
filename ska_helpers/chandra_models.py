@@ -15,6 +15,7 @@ import git
 import requests
 
 from ska_helpers.paths import chandra_models_repo_path
+from ska_helpers.git_helpers import make_git_repo_safe
 
 __all__ = [
     "get_data",
@@ -45,6 +46,7 @@ def get_local_repo(repo_path, version):
         if version is not None:
             repo.git.checkout(version)
     else:
+        make_git_repo_safe(repo_path)
         repo = git.Repo(repo_path)
         repo_path_local = repo_path
 
