@@ -27,6 +27,7 @@ def ska_ownership_ok():
 )
 @pytest.mark.skipif(ska_ownership_ok(), reason="Chandra models dir ownership is OK")
 def test_make_git_repo_safe(monkeypatch):
+    git_helpers.make_git_repo_safe.cache_clear()
     with tempfile.TemporaryDirectory() as tempdir:
         # temporarily set HOME to a temp dir so .gitconfig comes from there
         monkeypatch.setenv("HOME", tempdir)
