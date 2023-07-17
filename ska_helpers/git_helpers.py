@@ -78,6 +78,9 @@ def _handle_git_status_failure(path: Path, proc_err: git.exc.GitCommandError):
             f"trusted repository {path}. Contact Ska team for questions.",
             stacklevel=3,
         )
-        subprocess.check_call(cmds)
+
+        # Run the git config command to add this repo as a safe directory.
+        # Use stdin=DEVNULL to avoid issues with no stdin from matlab pyexec.
+        subprocess.check_call(cmds, stdin=subprocess.DEVNULL)
     else:
         raise proc_err
