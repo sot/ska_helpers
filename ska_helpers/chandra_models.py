@@ -16,7 +16,6 @@ import git
 import requests
 
 from ska_helpers.paths import chandra_models_repo_path
-from ska_helpers.git_helpers import make_git_repo_safe
 from ska_helpers.utils import LRUDict
 
 __all__ = [
@@ -92,7 +91,6 @@ def get_local_repo(repo_path, version):
             repo.git.checkout(version)
     else:
         repo = git.Repo(repo_path)
-        make_git_repo_safe(repo_path)
         repo_path_local = repo_path
 
     yield repo, repo_path_local
