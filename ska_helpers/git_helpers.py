@@ -6,11 +6,8 @@ import functools
 import git
 import re
 import subprocess
-import sys
 import warnings
 from pathlib import Path
-
-from ska_file import chdir
 
 
 __all__ = ["make_git_repo_safe"]
