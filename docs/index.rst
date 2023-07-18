@@ -48,6 +48,13 @@ Setup Helpers
    :members:
 
 
+Subprocess on Windows
+---------------------
+
+.. automodule:: ska_helpers.subprocess_win
+   :members:
+
+
 Utilities
 ---------
 

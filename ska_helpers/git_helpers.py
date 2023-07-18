@@ -11,6 +11,7 @@ from pathlib import Path
 
 from ska_file import chdir
 
+from ska_helpers import subprocess_win
 
 __all__ = ["make_git_repo_safe"]
 
@@ -38,12 +39,12 @@ def make_git_repo_safe(path: str | Path) -> None:
 
     with chdir(path):
         # Run a lightweight command which will fail for an unsafe repo
-        proc = subprocess.run(["git", "rev-parse"], capture_output=True)
+        proc = subprocess_win.run(["git", "rev-parse"], capture_output=True)
         if proc.returncode != 0:
             _handle_rev_parse_failure(path, proc)
             # Ensure that the repo is now safe. This will raise an exception
             # otherwise.
-            subprocess.check_call(["git", "rev-parse"])
+            subprocess_win.check_call(["git", "rev-parse"])
 
 
 def _handle_rev_parse_failure(path: Path, proc: subprocess.CompletedProcess):
@@ -78,7 +79,7 @@ def _handle_rev_parse_failure(path: Path, proc: subprocess.CompletedProcess):
             f"trusted repository {path}. Contact Ska team for questions.",
             stacklevel=3,
         )
-        subprocess.check_call(cmds)
+        subprocess_win.check_call(cmds)
     else:
         print(err, file=sys.stderr)
         proc.check_returncode()
