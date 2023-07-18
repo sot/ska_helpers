@@ -78,6 +78,8 @@ def _handle_git_rev_parse_failure(path: Path, proc_err: git.exc.GitCommandError)
 
         # Run the git config command to add this repo as a safe directory.
         # Use stdin=DEVNULL to avoid issues with no stdin from matlab pyexec.
-        subprocess.check_call(cmds, stdin=subprocess.DEVNULL)
+        subprocess.check_call(
+            cmds, stdin=subprocess.DEVNULL, creationflags=subprocess.CREATE_NO_WINDOW
+        )
     else:
         raise proc_err
