@@ -36,15 +36,15 @@ def make_git_repo_safe(path: str | Path) -> None:
 
     repo = git.Repo(path)
     try:
-        repo.git.status()
+        repo.git.rev_parse()
     except git.exc.GitCommandError as err:
-        _handle_git_status_failure(path, err)
+        _handle_git_rev_parse_failure(path, err)
         # Ensure that the repo is now safe. This will raise an exception
         # otherwise.
-        repo.git.status()
+        repo.git.rev_parse()
 
 
-def _handle_git_status_failure(path: Path, proc_err: git.exc.GitCommandError):
+def _handle_git_rev_parse_failure(path: Path, proc_err: git.exc.GitCommandError):
     """Handle a failure of `git status` command.
 
     This is most likely due to repo not being safe. If that is the case (based
