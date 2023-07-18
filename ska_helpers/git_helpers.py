@@ -5,7 +5,6 @@ Helper functions for using git.
 import functools
 import git
 import re
-import subprocess
 import warnings
 from pathlib import Path
 
@@ -76,10 +75,10 @@ def _handle_git_rev_parse_failure(path: Path, proc_err: git.exc.GitCommandError)
             stacklevel=3,
         )
 
+        path_from_error = cmds[-1]
+
         # Run the git config command to add this repo as a safe directory.
-        # Use stdin=DEVNULL to avoid issues with no stdin from matlab pyexec.
-        subprocess.check_call(
-            cmds, stdin=subprocess.DEVNULL, creationflags=subprocess.CREATE_NO_WINDOW
-        )
+        repo = git.Repo(path)
+        repo.git.config("--global", "--add", "safe.directory", path_from_error)
     else:
         raise proc_err
