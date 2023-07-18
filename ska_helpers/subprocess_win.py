@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-"""Fix subprocess high-level functions on Windows.
+"""Fix subprocess high-level functions on Windows via MATLAB pyexec().
 
 For the subprocess functions ``run``, ``call``, ``check_call``, and ``check_output``,
 this module defines thin wrappers that change the following argument defaults to fix
@@ -10,7 +10,18 @@ issues on Windows:
 
 On non-Windows platforms these wrappers are no-ops.
 
-See discussion https://github.com/sot/ska_helpers/pull/42 for details.
+See also discussion in https://github.com/sot/ska_helpers/pull/42.
+
+The ``stdin`` fix addresses this exception:
+```
+>> pyexec('proc = subprocess.run(["git", "rev-parse"], capture_output=True)')
+  ...
+PYPROC: Error executing python statement: 'proc = subprocess.run(["git", "rev-parse"],
+        capture_output=True)' - [WinError 6] The handle is invalid
+```
+
+The ``creationflags`` fix addresses the problem of a console window popping up when
+running a subprocess command within the MATLAB environment.
 """
 import functools
 import subprocess
