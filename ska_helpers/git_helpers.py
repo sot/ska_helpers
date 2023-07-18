@@ -3,13 +3,10 @@
 Helper functions for using git.
 """
 import functools
+import git
 import re
-import subprocess
-import sys
 import warnings
 from pathlib import Path
-
-from ska_file import chdir
 
 
 __all__ = ["make_git_repo_safe"]
@@ -36,18 +33,18 @@ def make_git_repo_safe(path: str | Path) -> None:
     if not (path / ".git").exists():
         raise FileNotFoundError(f"'{path}' is not the top level of a git repo")
 
-    with chdir(path):
-        # Run a lightweight command which will fail for an unsafe repo
-        proc = subprocess.run(["git", "rev-parse"], capture_output=True)
-        if proc.returncode != 0:
-            _handle_rev_parse_failure(path, proc)
-            # Ensure that the repo is now safe. This will raise an exception
-            # otherwise.
-            subprocess.check_call(["git", "rev-parse"])
+    repo = git.Repo(path)
+    try:
+        repo.git.rev_parse()
+    except git.exc.GitCommandError as err:
+        _handle_git_rev_parse_failure(path, err)
+        # Ensure that the repo is now safe. This will raise an exception
+        # otherwise.
+        repo.git.rev_parse()
 
 
-def _handle_rev_parse_failure(path: Path, proc: subprocess.CompletedProcess):
-    """Handle a failure of `git --rev-parse` command.
+def _handle_git_rev_parse_failure(path: Path, proc_err: git.exc.GitCommandError):
+    """Handle a failure of `git status` command.
 
     This is most likely due to repo not being safe. If that is the case (based
     on the command error output) then issue a warning and update the user git
@@ -67,8 +64,7 @@ def _handle_rev_parse_failure(path: Path, proc: subprocess.CompletedProcess):
     # To add an exception for this directory, call:
     #
     #    git config --global --add safe.directory '%(prefix)///Mac/Home/ska/data/chandra_models'  # noqa: E501
-
-    err = proc.stderr.decode().strip()
+    err = proc_err.stderr.strip()
 
     if match := re.search(git_safe_config_RE, err, re.MULTILINE):
         cmds = list(match.groups())
@@ -78,7 +74,11 @@ def _handle_rev_parse_failure(path: Path, proc: subprocess.CompletedProcess):
             f"trusted repository {path}. Contact Ska team for questions.",
             stacklevel=3,
         )
-        subprocess.check_call(cmds)
+
+        path_from_error = cmds[-1]
+
+        # Run the git config command to add this repo as a safe directory.
+        repo = git.Repo(path)
+        repo.git.config("--global", "--add", "safe.directory", path_from_error)
     else:
-        print(err, file=sys.stderr)
-        proc.check_returncode()
+        raise proc_err
