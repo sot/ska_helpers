@@ -77,8 +77,7 @@ def _handle_git_rev_parse_failure(path: Path, proc_err: git.exc.GitCommandError)
 
         path_from_error = cmds[-1]
 
-        # Run the git config command to add this repo as a safe directory.
-        repo = git.Repo(path)
-        repo.git.config("--global", "--add", "safe.directory", path_from_error)
+        # Run the git config command to add the error repo path as a safe directory.
+        git.Git().config("--global", "--add", "safe.directory", path_from_error)
     else:
         raise proc_err
