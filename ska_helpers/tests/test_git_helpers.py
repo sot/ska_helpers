@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import getpass
 import tempfile
+from packaging.version import Version
 
 import git
 import pytest
@@ -23,9 +24,10 @@ def ska_ownership_ok():
 
 def git_version_old():
     # Is the git version too old to have the repo_safe feature?
-    # This is the version of git not gitpython.
-    repo = git.Repo(CHANDRA_MODELS)
-    return repo.git.version_info < (2, 35, 2)
+    # The safe checking feature was added in git 2.35.2.
+    # This Git().version_info is the version of git not gitpython.
+    git_version = ".".join(str(val) for val in git.Git().version_info)
+    return Version(git_version) < Version("2.35.2")
 
 
 @pytest.mark.skipif(
