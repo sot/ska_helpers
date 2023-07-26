@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import getpass
 import tempfile
+from packaging.version import Version
 
 import git
 import pytest
@@ -21,11 +22,20 @@ def ska_ownership_ok():
         return False
 
 
+def git_version_old():
+    # Is the git version too old to have the repo_safe feature?
+    # The safe checking feature was added in git 2.35.2.
+    # This Git().version_info is the version of git not gitpython.
+    git_version = ".".join(str(val) for val in git.Git().version_info)
+    return Version(git_version) < Version("2.35.2")
+
+
 @pytest.mark.skipif(
     not CHANDRA_MODELS.exists(),
     reason="Chandra models dir is not there",
 )
 @pytest.mark.skipif(ska_ownership_ok(), reason="Chandra models dir ownership is OK")
+@pytest.mark.skipif(git_version_old(), reason="Git version is too old to care")
 def test_make_git_repo_safe(monkeypatch):
     # Clear the 'repo_safe' cache so that this test always has something to do.
     git_helpers.make_git_repo_safe.cache_clear()
