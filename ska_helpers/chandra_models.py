@@ -310,8 +310,13 @@ def get_repo_version(
             repo_path = chandra_models_repo_path()
         repo = git.Repo(repo_path)
 
-    if repo.is_dirty():
-        raise ValueError("repo is dirty")
+    # Use the THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW environment variable as a proxy
+    # to determine if we are running in the MATLAB tools software environment. If so
+    # the repo will not be dirty and using is_dirty() will touch a lock that will cause
+    # SVN to mark the directory as modified.
+    if os.environ.get('THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW') is None:
+        if repo.is_dirty():
+            raise ValueError("repo is dirty")
 
     tags = sorted(repo.tags, key=lambda tag: tag.commit.committed_datetime)
     tag_repo = tags[-1]
