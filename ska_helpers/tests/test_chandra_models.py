@@ -216,7 +216,7 @@ def test_repo_dirty_handling(monkeypatch, tmp_path):
 
     repo = git.Repo(repo_path)
     # Messing with the init should make the repo "dirty"
-    assert repo.is_dirty() == True
+    assert repo.is_dirty() is True
 
     # And get_data should raise a ValueError as the repo is dirty
     with pytest.raises(ValueError):
