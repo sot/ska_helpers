@@ -114,7 +114,7 @@ def get_data(
     """
     Get data from chandra_models repository.
 
-    For testing purposes there are three environment variables that impact the behavior:
+    There are three environment variables that impact the behavior:
 
     - ``CHANDRA_MODELS_REPO_DIR`` or ``THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW``:
       override the default root for the chandra_models repository
@@ -122,6 +122,15 @@ def get_data(
       this to a fixed version in unit tests (e.g. with ``monkeypatch``), or set to a
       developement branch to test a model file update with applications like yoshi where
       specifying a version would require a long chain of API updates.
+
+    ``THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW`` is used to define the chandra_models repository
+    location when running in the MATLAB tools software environment.  If this environment
+    variable is set, then the git is_dirty() check of the chandra_models directory is skipped
+    as the chandra_models repository is verified via SVN in the MATLAB tools software environment.
+    Users in the FOT Matlab tools should exercise caution if using locally-modified files
+    for testing, as the version information reported by this function in that case will not
+    be correct.
+
 
     Examples
     --------
@@ -310,8 +319,13 @@ def get_repo_version(
             repo_path = chandra_models_repo_path()
         repo = git.Repo(repo_path)
 
-    if repo.is_dirty():
-        raise ValueError("repo is dirty")
+    # Use the THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW environment variable as a proxy
+    # to determine if we are running in the MATLAB tools software environment. If so
+    # the repo will be checked via SVN and using is_dirty() would change the .git/index
+    # and cause SVN to mark the directory as modified. So skip is_dirty() in this case.
+    if os.environ.get("THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW") is None:
+        if repo.is_dirty():
+            raise ValueError("repo is dirty")
 
     tags = sorted(repo.tags, key=lambda tag: tag.commit.committed_datetime)
     tag_repo = tags[-1]

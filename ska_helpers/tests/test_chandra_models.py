@@ -205,6 +205,29 @@ def test_get_model_file_fail():
         chandra_models.get_data(ACA_SPEC_PATH, repo_path="__NOT_A_DIRECTORY__")
 
 
+@pytest.mark.skipif(SOME_ENV_VAR_DEFINED, reason="Non flight repo is being used")
+def test_repo_dirty_handling(monkeypatch, tmp_path):
+    repo_path = tmp_path / "chandra_models"
+    default_root = Path(os.environ["SKA"], "data", "chandra_models")
+    git.Repo.clone_from(default_root, repo_path)
+    # Make a change to the repo
+    with open(repo_path / "chandra_models/__init__.py", "a") as fh:
+        fh.write("# test\n")
+
+    repo = git.Repo(repo_path)
+    # Messing with the init should make the repo "dirty"
+    assert repo.is_dirty() is True
+
+    # And get_data should raise a ValueError as the repo is dirty
+    with pytest.raises(ValueError):
+        _, info = chandra_models.get_data(ACA_SPEC_PATH, repo_path=repo_path)
+
+    # But no value error if the THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW env var is set
+    monkeypatch.setenv("THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW", str(repo_path))
+    _, info = chandra_models.get_data(ACA_SPEC_PATH, repo_path=repo_path)
+    assert info["repo_path"] == str(repo_path)
+
+
 def test_get_repo_version():
     version = chandra_models.get_repo_version()
     assert isinstance(version, str)
