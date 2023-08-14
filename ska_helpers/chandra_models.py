@@ -123,7 +123,7 @@ def get_data(
       developement branch to test a model file update with applications like yoshi where
       specifying a version would require a long chain of API updates.
 
-    ``THERMAL_MODESL_DIR_FOR_MATLAB_TOOLS_SW`` is used to define the chandra_models repository
+    ``THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW`` is used to define the chandra_models repository
     location when running in the MATLAB tools software environment.  If this environment
     variable is set, then the git is_dirty() check of the chandra_models directory is skipped
     as the chandra_models repository is verified via SVN in the MATLAB tools software environment.
