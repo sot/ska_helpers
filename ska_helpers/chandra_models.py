@@ -114,7 +114,7 @@ def get_data(
     """
     Get data from chandra_models repository.
 
-    For testing purposes there are three environment variables that impact the behavior:
+    There are three environment variables that impact the behavior:
 
     - ``CHANDRA_MODELS_REPO_DIR`` or ``THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW``:
       override the default root for the chandra_models repository
@@ -122,6 +122,15 @@ def get_data(
       this to a fixed version in unit tests (e.g. with ``monkeypatch``), or set to a
       developement branch to test a model file update with applications like yoshi where
       specifying a version would require a long chain of API updates.
+
+    ``THERMAL_MODESL_DIR_FOR_MATLAB_TOOLS_SW`` is used to define the chandra_models repository
+    location when running in the MATLAB tools software environment.  If this environment
+    variable is set, then the git is_dirty() check of the chandra_models directory is skipped
+    as the chandra_models repository is verified via SVN in the MATLAB tools software environment.
+    Users in the FOT Matlab tools should exercise caution if using locally-modified files
+    for testing, as the version information reported by this function in that case will not
+    be correct.
+
 
     Examples
     --------
