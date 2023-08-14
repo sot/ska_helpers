@@ -321,8 +321,8 @@ def get_repo_version(
 
     # Use the THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW environment variable as a proxy
     # to determine if we are running in the MATLAB tools software environment. If so
-    # the repo will not be dirty and using is_dirty() will touch a lock that will cause
-    # SVN to mark the directory as modified.
+    # the repo will be checked via SVN and using is_dirty() would change the .git/index
+    # and cause SVN to mark the directory as modified. So skip is_dirty() in this case.
     if os.environ.get("THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW") is None:
         if repo.is_dirty():
             raise ValueError("repo is dirty")
