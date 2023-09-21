@@ -341,6 +341,13 @@ def convert_to_int_float_str(val: str) -> int | float | str:
     -------
     int, float, or str
         The input value as an int, float, or string.
+
+    Notes
+    -----
+    An input string like "01234" is interpreted as a decimal integer and will be
+    returned as the integer 1234. In some contexts a leading 0 indicates an octal number
+    and to avoid confusion in Python a leading 0 is not allowed in a decimal integer
+    literal.
     """
     import ast
 
