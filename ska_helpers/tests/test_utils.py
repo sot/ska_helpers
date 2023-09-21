@@ -145,7 +145,7 @@ cases = [
 def test_convert_to_int_float_str(value, type_, expected):
     out = convert_to_int_float_str(value)
     assert out == expected
-    assert type(out) == type_
+    assert type(out) is type_  # noqa: E721
 
 
 def test_convert_to_int_float_str_error():
