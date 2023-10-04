@@ -5,7 +5,14 @@ import functools
 import os
 from collections import OrderedDict
 
-__all__ = ["LazyDict", "LazyVal", "LRUDict", "lru_cache_timed", "temp_env_var"]
+__all__ = [
+    "LazyDict",
+    "LazyVal",
+    "LRUDict",
+    "lru_cache_timed",
+    "temp_env_var",
+    "convert_to_int_float_str",
+]
 
 
 def get_owner(path):
@@ -23,8 +30,9 @@ def get_owner(path):
         The name of the owner of the file or directory.
     """
 
-    from testr import test_helper
     from pathlib import Path
+
+    from testr import test_helper
 
     if test_helper.is_windows():
         import win32security
@@ -312,3 +320,54 @@ def temp_env_var(name, value):
             os.environ[name] = original_value
         else:
             del os.environ[name]
+
+
+def convert_to_int_float_str(val: str) -> int | float | str:
+    """Convert an input string into an int, float, or string.
+
+    This tries to convert the input string into an int using the built-in ``int()``
+    function. If that fails then it tries ``float()``, and finally if that fails it
+    returns the original string.
+
+    This function is often useful when parsing text representations of structured data
+    where the data types are implicit.
+
+    Parameters
+    ----------
+    val : str
+        The input string to convert
+
+    Returns
+    -------
+    int, float, or str
+        The input value as an int, float, or string.
+
+    Notes
+    -----
+    An input string like "01234" is interpreted as a decimal integer and will be
+    returned as the integer 1234. In some contexts a leading 0 indicates an octal number
+    and to avoid confusion in Python a leading 0 is not allowed in a decimal integer
+    literal.
+    """
+    import ast
+
+    if not isinstance(val, str):
+        raise TypeError(f"input value must be a string, not {type(val).__name__}")
+
+    try:
+        out = int(val)
+    except Exception:
+        try:
+            out = float(val)
+        except Exception:
+            try:
+                # Handle an input like "'string'"
+                out = ast.literal_eval(val)
+                if not isinstance(out, str):
+                    # If this wasn't a string literal (e.g. "[1]" then raise and return
+                    # the original string.
+                    raise ValueError
+            except Exception:
+                out = val
+
+    return out

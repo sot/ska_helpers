@@ -4,7 +4,14 @@ import time
 
 import pytest
 
-from ska_helpers.utils import LazyDict, LazyVal, LRUDict, lru_cache_timed, temp_env_var
+from ska_helpers.utils import (
+    LazyDict,
+    LazyVal,
+    LRUDict,
+    convert_to_int_float_str,
+    lru_cache_timed,
+    temp_env_var,
+)
 
 
 def load_func(a, b, c=None):
@@ -118,3 +125,29 @@ def test_temp_env_var():
 
     # Check that the environment variable is unset after the context manager exits
     assert os.environ.get(name) is None
+
+
+cases = [
+    (" 1 ", int, 1),
+    ("1e5", float, 1e5),
+    (" 01.01e5 ", float, 1.01e5),
+    ("1.0a5", str, "1.0a5"),
+    ("0472", int, 472),
+    ("-0472", int, -472),
+    (" 'test string' ", str, "test string"),
+    (' "test string" ', str, "test string"),
+    (" test string", str, " test string"),
+    ("[1, 2, 3]", str, "[1, 2, 3]"),
+]
+
+
+@pytest.mark.parametrize("value, type_, expected", cases)
+def test_convert_to_int_float_str(value, type_, expected):
+    out = convert_to_int_float_str(value)
+    assert out == expected
+    assert type(out) is type_  # noqa: E721
+
+
+def test_convert_to_int_float_str_error():
+    with pytest.raises(TypeError, match="input value must be a string, not float"):
+        convert_to_int_float_str(1.05)
