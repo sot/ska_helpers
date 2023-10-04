@@ -1,18 +1,17 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ska_helpers.utils &#8212; Ska Helpers 0.8.0 documentation</title>
+    <title>ska_helpers.utils &#8212; Ska Helpers 0.12.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css" />
     
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <script type="text/javascript" src="../../_static/copybutton.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -46,7 +45,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Ska Helpers 0.8.0 documentation</a>
+	<a href="../../index.html">Ska Helpers 0.12.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" >Module code</a> &#187;</li>
@@ -65,9 +64,52 @@
   <h1>Source code for ska_helpers.utils</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
 
+<span class="kn">import</span> <span class="nn">contextlib</span>
 <span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;LazyDict&quot;</span><span class="p">,</span> <span class="s2">&quot;LazyVal&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;LazyDict&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LazyVal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LRUDict&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lru_cache_timed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;temp_env_var&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;convert_to_int_float_str&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">get_owner</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the owner of a file or directory.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    path : str or pathlib.Path</span>
+<span class="sd">        The path to the file or directory.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    --------</span>
+<span class="sd">    str</span>
+<span class="sd">        The name of the owner of the file or directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+    <span class="kn">from</span> <span class="nn">testr</span> <span class="kn">import</span> <span class="n">test_helper</span>
+
+    <span class="k">if</span> <span class="n">test_helper</span><span class="o">.</span><span class="n">is_windows</span><span class="p">():</span>
+        <span class="kn">import</span> <span class="nn">win32security</span>
+
+        <span class="c1"># Suggested by copilot chat, seems to</span>
+        <span class="n">security_descriptor</span> <span class="o">=</span> <span class="n">win32security</span><span class="o">.</span><span class="n">GetFileSecurity</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">win32security</span><span class="o">.</span><span class="n">OWNER_SECURITY_INFORMATION</span>
+        <span class="p">)</span>
+        <span class="n">owner_sid</span> <span class="o">=</span> <span class="n">security_descriptor</span><span class="o">.</span><span class="n">GetSecurityDescriptorOwner</span><span class="p">()</span>
+        <span class="n">owner_name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">win32security</span><span class="o">.</span><span class="n">LookupAccountSid</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">owner_sid</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">owner_name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">owner</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">owner_name</span>
 
 
 <span class="k">def</span> <span class="nf">_lazy_load_wrap</span><span class="p">(</span><span class="n">unbound_method</span><span class="p">):</span>
@@ -80,7 +122,7 @@
 
 
 <div class="viewcode-block" id="LazyVal"><a class="viewcode-back" href="../../index.html#ska_helpers.utils.LazyVal">[docs]</a><span class="k">class</span> <span class="nc">LazyVal</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Value which is lazy-initialized using supplied function ``load_func``.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Value which is lazy-initialized using supplied function ``load_func``.</span>
 
 <span class="sd">    This class allows defining a module-level value that is expensive to</span>
 <span class="sd">    initialize, where the initialization is done lazily (only when actually</span>
@@ -134,7 +176,7 @@
 
 
 <div class="viewcode-block" id="LazyDict"><a class="viewcode-back" href="../../index.html#ska_helpers.utils.LazyDict">[docs]</a><span class="k">class</span> <span class="nc">LazyDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Dict which is lazy-initialized using supplied function ``load_func``.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dict which is lazy-initialized using supplied function ``load_func``.</span>
 
 <span class="sd">    This class allows defining a module-level dict that is expensive to</span>
 <span class="sd">    initialize, where the initialization is done lazily (only when actually</span>
@@ -213,8 +255,8 @@
     <span class="n">values</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">values</span><span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">lru_cache_timed</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">typed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">3600</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;LRU cache decorator where the cache expires after ``timeout`` seconds.</span>
+<div class="viewcode-block" id="lru_cache_timed"><a class="viewcode-back" href="../../index.html#ska_helpers.utils.lru_cache_timed">[docs]</a><span class="k">def</span> <span class="nf">lru_cache_timed</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">typed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">3600</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;LRU cache decorator where the cache expires after ``timeout`` seconds.</span>
 
 <span class="sd">    This wraps the functools.lru_cache decorator so that the entire cache gets</span>
 <span class="sd">    cleared if the cache is older than ``timeout`` seconds.</span>
@@ -254,7 +296,7 @@
                 <span class="n">next_update</span> <span class="o">=</span> <span class="n">now</span> <span class="o">+</span> <span class="n">timeout</span>
 
         <span class="k">def</span> <span class="nf">cache_info</span><span class="p">():</span>
-            <span class="sd">&quot;&quot;&quot;Report cache statistics&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Report cache statistics&quot;&quot;&quot;</span>
             <span class="n">clear_cache_if_expired</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">func</span><span class="o">.</span><span class="n">cache_info</span><span class="p">()</span>
 
@@ -262,7 +304,137 @@
         <span class="n">_wrapped</span><span class="o">.</span><span class="n">cache_clear</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">cache_clear</span>
         <span class="k">return</span> <span class="n">_wrapped</span>
 
-    <span class="k">return</span> <span class="n">_wrapper</span>
+    <span class="k">return</span> <span class="n">_wrapper</span></div>
+
+
+<div class="viewcode-block" id="LRUDict"><a class="viewcode-back" href="../../index.html#ska_helpers.utils.LRUDict">[docs]</a><span class="k">class</span> <span class="nc">LRUDict</span><span class="p">(</span><span class="n">OrderedDict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dict that maintains a fixed capacity and evicts least recently used item when full.</span>
+
+<span class="sd">    Inherits from collections.OrderedDict to maintain the order of insertion.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">    ---------</span>
+<span class="sd">    ::</span>
+
+<span class="sd">        &gt;&gt;&gt; d = LRUDict(2)</span>
+<span class="sd">        &gt;&gt;&gt; d[&quot;a&quot;] = 1</span>
+<span class="sd">        &gt;&gt;&gt; d[&quot;b&quot;] = 2</span>
+<span class="sd">        &gt;&gt;&gt; d[&quot;c&quot;] = 3</span>
+<span class="sd">        &gt;&gt;&gt; list(d.keys())</span>
+<span class="sd">        [&#39;b&#39;, &#39;c&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; d[&quot;b&quot;]</span>
+<span class="sd">        2</span>
+<span class="sd">        &gt;&gt;&gt; d[&quot;a&quot;]</span>
+<span class="sd">        Traceback (most recent call last):</span>
+<span class="sd">            ...</span>
+<span class="sd">        KeyError: &#39;a&#39;</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    capacity : int, optional</span>
+<span class="sd">        The maximum number of items that the dictionary can hold. Defaults to 128.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mi">128</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span> <span class="o">=</span> <span class="n">capacity</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">move_to_end</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">move_to_end</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span><span class="p">:</span>
+            <span class="n">oldest</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="n">oldest</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="temp_env_var"><a class="viewcode-back" href="../../index.html#ska_helpers.utils.temp_env_var">[docs]</a><span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<span class="k">def</span> <span class="nf">temp_env_var</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A context manager that temporarily sets an environment variable.</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        &gt;&gt;&gt; os.environ.get(&quot;MY_VARIABLE&quot;)</span>
+<span class="sd">        None</span>
+<span class="sd">        &gt;&gt;&gt; with temp_env_var(&quot;MY_VARIABLE&quot;, &quot;my_value&quot;):</span>
+<span class="sd">        ...     os.environ.get(&quot;MY_VARIABLE&quot;)</span>
+<span class="sd">        ...</span>
+<span class="sd">        &#39;my_value&#39;</span>
+<span class="sd">        &gt;&gt;&gt; os.environ.get(&quot;MY_VARIABLE&quot;)</span>
+<span class="sd">        None</span>
+
+<span class="sd">    :param name: str</span>
+<span class="sd">        Name of the environment variable to set.</span>
+<span class="sd">    :param value: str</span>
+<span class="sd">        Value to set the environment variable to.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">original_value</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">original_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">original_value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="convert_to_int_float_str"><a class="viewcode-back" href="../../index.html#ska_helpers.utils.convert_to_int_float_str">[docs]</a><span class="k">def</span> <span class="nf">convert_to_int_float_str</span><span class="p">(</span><span class="n">val</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert an input string into an int, float, or string.</span>
+
+<span class="sd">    This tries to convert the input string into an int using the built-in ``int()``</span>
+<span class="sd">    function. If that fails then it tries ``float()``, and finally if that fails it</span>
+<span class="sd">    returns the original string.</span>
+
+<span class="sd">    This function is often useful when parsing text representations of structured data</span>
+<span class="sd">    where the data types are implicit.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    val : str</span>
+<span class="sd">        The input string to convert</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int, float, or str</span>
+<span class="sd">        The input value as an int, float, or string.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    An input string like &quot;01234&quot; is interpreted as a decimal integer and will be</span>
+<span class="sd">    returned as the integer 1234. In some contexts a leading 0 indicates an octal number</span>
+<span class="sd">    and to avoid confusion in Python a leading 0 is not allowed in a decimal integer</span>
+<span class="sd">    literal.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">ast</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input value must be a string, not </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Handle an input like &quot;&#39;string&#39;&quot;</span>
+                <span class="n">out</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="c1"># If this wasn&#39;t a string literal (e.g. &quot;[1]&quot; then raise and return</span>
+                    <span class="c1"># the original string.</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">out</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="k">return</span> <span class="n">out</span></div>
 </pre></div>
 
             <div class="clearer"></div>
@@ -287,7 +459,7 @@
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2019, Javier Gonzalez.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 6.1.3. &nbsp;
   </p>
 </footer>
   </body>

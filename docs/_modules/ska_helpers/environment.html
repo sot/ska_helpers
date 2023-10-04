@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ska_helpers.setup_helper &#8212; Ska Helpers 0.12.0 documentation</title>
+    <title>ska_helpers.environment &#8212; Ska Helpers 0.12.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css" />
     
@@ -61,29 +61,35 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <h1>Source code for ska_helpers.setup_helper</h1><div class="highlight"><pre>
+  <h1>Source code for ska_helpers.environment</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The ``ska_helpers.environment`` module provides a function to configure the Ska3</span>
+<span class="sd">runtime environment at the point of import of every Ska3 package.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cache</span>
 
 
-<div class="viewcode-block" id="duplicate_package_info"><a class="viewcode-back" href="../../index.html#ska_helpers.setup_helper.duplicate_package_info">[docs]</a><span class="k">def</span> <span class="nf">duplicate_package_info</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">name_in</span><span class="p">,</span> <span class="n">name_out</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Duplicate a list or dict of values inplace, replacing ``name_in`` with ``name_out``.</span>
+<div class="viewcode-block" id="configure_ska_environment"><a class="viewcode-back" href="../../index.html#ska_helpers.environment.configure_ska_environment">[docs]</a><span class="nd">@cache</span>
+<span class="k">def</span> <span class="nf">configure_ska_environment</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configure environment for Ska3 runtime.</span>
 
-<span class="sd">    Normally used in setup.py for making a namespace package that copies a flat one.</span>
-<span class="sd">    For an example see setup.py in the ska_sun or Ska.Sun repo.</span>
+<span class="sd">    This is called by ska_helpers.version.get_version() and thus gets called</span>
+<span class="sd">    upon import of every Ska3 package.</span>
 
-<span class="sd">    :param vals: list or dict of values</span>
-<span class="sd">    :param name_in: string to replace at start of each value</span>
-<span class="sd">    :param name_out: output string</span>
+<span class="sd">    This includes setting NUMBA_CACHE_DIR to $HOME/.ska3/cache/numba if that env</span>
+<span class="sd">    var is not already defined.  This is to avoid problems with read-only</span>
+<span class="sd">    filesystems.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">import</span> <span class="nn">re</span>
-
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">vals</span><span class="p">):</span>
-        <span class="n">new_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;^</span><span class="si">{</span><span class="n">name_in</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">name_out</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">vals</span><span class="p">[</span><span class="n">new_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span></div>
+    <span class="c1"># If not already defined, set NUMBA_CACHE_DIR to a writable directory in the</span>
+    <span class="c1"># user&#39;s home directory $HOME/.ska3/cache/numba. The numba default is to put</span>
+    <span class="c1"># files into the package distribution directory, which is read-only on Ska3</span>
+    <span class="c1"># on HEAD and GRETA. Note that numba will create this directory if it does exist,</span>
+    <span class="c1"># potentially including subdirectories.</span>
+    <span class="n">numba_cache_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">),</span> <span class="s2">&quot;.ska3&quot;</span><span class="p">,</span> <span class="s2">&quot;cache&quot;</span><span class="p">,</span> <span class="s2">&quot;numba&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;NUMBA_CACHE_DIR&quot;</span><span class="p">,</span> <span class="n">numba_cache_dir</span><span class="p">)</span></div>
 </pre></div>
 
             <div class="clearer"></div>

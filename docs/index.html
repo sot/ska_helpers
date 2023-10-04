@@ -1,19 +1,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Ska Package Helpers &#8212; Ska Helpers 0.8.0 documentation</title>
+    <title>Ska Package Helpers &#8212; Ska Helpers 0.12.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -47,7 +46,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="#">Ska Helpers 0.8.0 documentation</a>
+	<a href="#">Ska Helpers 0.12.0 documentation</a>
 	 &#187;
       </li>
       
@@ -62,7 +61,7 @@
           <div class="body" role="main">
             
   <section id="module-ska_helpers">
-<span id="ska-package-helpers"></span><h1>Ska Package Helpers<a class="headerlink" href="#module-ska_helpers" title="Permalink to this headline">¶</a></h1>
+<span id="ska-package-helpers"></span><h1>Ska Package Helpers<a class="headerlink" href="#module-ska_helpers" title="Permalink to this heading">¶</a></h1>
 <p>Ska_helpers is a collection of utilities for the Ska3 runtime environment.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_helpers.test">
@@ -70,11 +69,211 @@
 <dd><p>Run py.test unit tests.</p>
 </dd></dl>
 
-<section id="chandra-models-data">
-<h2>Chandra Models Data<a class="headerlink" href="#chandra-models-data" title="Permalink to this headline">¶</a></h2>
+<section id="module-ska_helpers.chandra_models">
+<span id="chandra-models-data"></span><h2>Chandra Models Data<a class="headerlink" href="#module-ska_helpers.chandra_models" title="Permalink to this heading">¶</a></h2>
+<p>Get data from chandra_models repository.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="ska_helpers.chandra_models.chandra_models_cache">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.chandra_models.</span></span><span class="sig-name descname"><span class="pre">chandra_models_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/chandra_models.html#chandra_models_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.chandra_models.chandra_models_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator to cache outputs for a function that gets chandra_models data.</p>
+<p>The key used for caching the function output includes the passed arguments and
+keyword arguments, as well as the values of the environment variables below.
+This ensures that the cache is invalidated if any of these environment variables
+change:</p>
+<ul class="simple">
+<li><p>CHANDRA_MODELS_REPO_DIR</p></li>
+<li><p>CHANDRA_MODELS_DEFAULT_VERSION</p></li>
+<li><p>THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@chandra_models_cache</span>
+<span class="k">def</span> <span class="nf">get_aca_spec_info</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="s2">&quot;chandra_models/xija/aca/aca_spec.json&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">info</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ska_helpers.chandra_models.get_data">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.chandra_models.</span></span><span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">require_latest_version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_func_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/ska_helpers/chandra_models.html#get_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.chandra_models.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get data from chandra_models repository.</p>
+<p>There are three environment variables that impact the behavior:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CHANDRA_MODELS_REPO_DIR</span></code> or <code class="docutils literal notranslate"><span class="pre">THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW</span></code>:
+override the default root for the chandra_models repository</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CHANDRA_MODELS_DEFAULT_VERSION</span></code>: override the default repo version. You can set
+this to a fixed version in unit tests (e.g. with <code class="docutils literal notranslate"><span class="pre">monkeypatch</span></code>), or set to a
+developement branch to test a model file update with applications like yoshi where
+specifying a version would require a long chain of API updates.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW</span></code> is used to define the chandra_models repository
+location when running in the MATLAB tools software environment.  If this environment
+variable is set, then the git is_dirty() check of the chandra_models directory is skipped
+as the chandra_models repository is verified via SVN in the MATLAB tools software environment.
+Users in the FOT Matlab tools should exercise caution if using locally-modified files
+for testing, as the version information reported by this function in that case will not
+be correct.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>file_path</strong><span class="classifier">str, Path</span></dt><dd><p>Name of model</p>
+</dd>
+<dt><strong>version</strong><span class="classifier">str</span></dt><dd><p>Tag, branch or commit of chandra_models to use (default=latest tag from repo).
+If the <code class="docutils literal notranslate"><span class="pre">CHANDRA_MODELS_DEFAULT_VERSION</span></code> environment variable is set then this
+is used as the default. This is useful for testing.</p>
+</dd>
+<dt><strong>repo_path</strong><span class="classifier">str, Path</span></dt><dd><p>Path to directory or URL containing chandra_models repository (default is
+<code class="docutils literal notranslate"><span class="pre">$SKA/data/chandra_models</span></code> or either of the <code class="docutils literal notranslate"><span class="pre">CHANDRA_MODELS_REPO_DIR</span></code> or
+<code class="docutils literal notranslate"><span class="pre">THERMAL_MODELS_DIR_FOR_MATLAB_TOOLS_SW</span></code> environment variables if set).</p>
+</dd>
+<dt><strong>require_latest_version</strong><span class="classifier">bool</span></dt><dd><p>Require that <code class="docutils literal notranslate"><span class="pre">version</span></code> matches the latest release on GitHub</p>
+</dd>
+<dt><strong>timeout</strong><span class="classifier">int, float</span></dt><dd><p>Timeout (sec) for querying GitHub for the expected chandra_models version.
+Default = 5 sec.</p>
+</dd>
+<dt><strong>read_func</strong><span class="classifier">callable</span></dt><dd><p>Optional function to read the data file. This function must take the file path
+as its first argument. If not provided then read the file as a text file.</p>
+</dd>
+<dt><strong>read_func_kwargs</strong><span class="classifier">dict</span></dt><dd><p>Optional dict of kwargs to pass to <code class="docutils literal notranslate"><span class="pre">read_func</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tuple of dict, str</dt><dd><p>Xija model specification dict, chandra_models version</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>First we read the model specification for the ACA model. The <code class="docutils literal notranslate"><span class="pre">get_data()</span></code> function
+returns the text of the model spec so we need to use <code class="docutils literal notranslate"><span class="pre">json.loads()</span></code> to convert it
+to a dict.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">json</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">fits</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">ska_helpers</span> <span class="kn">import</span> <span class="n">chandra_models</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">txt</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">chandra_models</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="s2">&quot;chandra_models/xija/aca/aca_spec.json&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model_spec</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model_spec</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+<span class="go">&#39;aacccdpt&#39;</span>
+</pre></div>
+</div>
+<p>Next we read the acquisition probability model image. Since the image is a gzipped
+FITS file we need to use a helper function to read it.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">read_fits_image</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdus</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="n">out</span> <span class="o">=</span> <span class="n">hdus</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">out</span><span class="p">,</span> <span class="n">file_path</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">acq_model_image</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">chandra_models</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">&quot;chandra_models/aca_acq_prob/grid-floor-2018-11.fits.gz&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">read_func</span><span class="o">=</span><span class="n">read_fits_image</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">acq_model_image</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(141, 31, 7)</span>
+</pre></div>
+</div>
+<p>Now let’s get the version of the chandra_models repository:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">chandra_models</span><span class="o">.</span><span class="n">get_repo_version</span><span class="p">()</span>
+<span class="go">&#39;3.47&#39;</span>
+</pre></div>
+</div>
+<p>Finally get version 3.30 of the ACA model spec from GitHub. The use of a lambda
+function to read the JSON file is compact but not recommended for production code.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model_spec_3_30</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">chandra_models</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">&quot;chandra_models/xija/aca/aca_spec.json&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;3.30&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">repo_path</span><span class="o">=</span><span class="s2">&quot;https://github.com/sot/chandra_models.git&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">read_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">fn</span><span class="p">:</span> <span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)),</span> <span class="n">fn</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model_spec_3_30</span> <span class="o">==</span> <span class="n">model_spec</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ska_helpers.chandra_models.get_github_version">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.chandra_models.</span></span><span class="sig-name descname"><span class="pre">get_github_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'https://api.github.com/repos/sot/chandra_models/releases/latest'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ska_helpers/chandra_models.html#get_github_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.chandra_models.get_github_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get latest chandra_models GitHub repo release tag (version).</p>
+<p>This queries GitHub for the latest release of chandra_models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>url</strong><span class="classifier">str</span></dt><dd><p>URL for latest chandra_models release on GitHub API</p>
+</dd>
+<dt><strong>timeout</strong><span class="classifier">int, float</span></dt><dd><p>Request timeout (sec, default=5)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>str, None</dt><dd><p>Tag name (str) of latest chandra_models release on GitHub.
+None if the request timed out, indicating indeterminate answer.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ska_helpers.chandra_models.get_repo_version">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.chandra_models.</span></span><span class="sig-name descname"><span class="pre">get_repo_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repo_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Repo</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ska_helpers/chandra_models.html#get_repo_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.chandra_models.get_repo_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return version (most recent tag) of models repository.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>str</dt><dd><p>Version (most recent tag) of models repository</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-ska_helpers.environment">
+<span id="environment"></span><h2>Environment<a class="headerlink" href="#module-ska_helpers.environment" title="Permalink to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ska_helpers.environment</span></code> module provides a function to configure the Ska3
+runtime environment at the point of import of every Ska3 package.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="ska_helpers.environment.configure_ska_environment">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.environment.</span></span><span class="sig-name descname"><span class="pre">configure_ska_environment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/environment.html#configure_ska_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.environment.configure_ska_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure environment for Ska3 runtime.</p>
+<p>This is called by ska_helpers.version.get_version() and thus gets called
+upon import of every Ska3 package.</p>
+<p>This includes setting NUMBA_CACHE_DIR to $HOME/.ska3/cache/numba if that env
+var is not already defined.  This is to avoid problems with read-only
+filesystems.</p>
+</dd></dl>
+
+</section>
+<section id="module-ska_helpers.git_helpers">
+<span id="git-helpers"></span><h2>Git helpers<a class="headerlink" href="#module-ska_helpers.git_helpers" title="Permalink to this heading">¶</a></h2>
+<p>Helper functions for using git.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="ska_helpers.git_helpers.make_git_repo_safe">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.git_helpers.</span></span><span class="sig-name descname"><span class="pre">make_git_repo_safe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ska_helpers/git_helpers.html#make_git_repo_safe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.git_helpers.make_git_repo_safe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure git repo at <code class="docutils literal notranslate"><span class="pre">path</span></code> is a safe git repository.</p>
+<p>A “safe” repo is one which is owned by the user calling this function. See:
+<a class="reference external" href="https://github.blog/2022-04-12-git-security-vulnerability-announced/#cve-2022-24765">https://github.blog/2022-04-12-git-security-vulnerability-announced/#cve-2022-24765</a></p>
+<p>If an unsafe repo is detected then this command issues a warning to that
+effect and then updates the user’s git config to add this repo as a safe
+directory.</p>
+<p>This function should only be called for known safe git repos such as
+<code class="docutils literal notranslate"><span class="pre">$SKA/data/chandra_models</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> – str, Path
+Path to top level of a git repository</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-ska_helpers.logging">
-<span id="logging"></span><h2>Logging<a class="headerlink" href="#module-ska_helpers.logging" title="Permalink to this headline">¶</a></h2>
+<span id="logging"></span><h2>Logging<a class="headerlink" href="#module-ska_helpers.logging" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_helpers.logging.basic_logger">
 <span class="sig-prename descclassname"><span class="pre">ska_helpers.logging.</span></span><span class="sig-name descname"><span class="pre">basic_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%(asctime)s</span> <span class="pre">%(funcName)s:</span> <span class="pre">%(message)s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">propagate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/logging.html#basic_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.logging.basic_logger" title="Permalink to this definition">¶</a></dt>
@@ -114,31 +313,36 @@ how the log level of parent loggers is ignored in message handling.</p>
 <p>A number of optional keyword arguments may be specified, which can alter
 the default behaviour.</p>
 <dl class="simple">
-<dt>filename  Specifies that a FileHandler be created, using the specified</dt><dd><p>filename, rather than a StreamHandler.</p>
+<dt>filename</dt><dd><p>Specifies that a FileHandler be created, using the specified filename,
+rather than a StreamHandler.</p>
 </dd>
-<dt>filemode  Specifies the mode to open the file, if filename is specified</dt><dd><p>(if filemode is unspecified, it defaults to ‘a’).</p>
+<dt>filemode</dt><dd><p>Specifies the mode to open the file, if filename is specified (if
+filemode is unspecified, it defaults to ‘a’).</p>
 </dd>
-</dl>
-<p>format    Use the specified format string for the handler.</p>
-<p>datefmt   Use the specified date/time format.</p>
-<dl class="simple">
-<dt>style     If a format string is specified, use this to specify the</dt><dd><p>type of format string (possible values ‘%’, ‘{’, ‘$’, for
-%-formatting, <code class="xref py py-meth docutils literal notranslate"><span class="pre">str.format()</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">string.Template</span></code>
-- defaults to ‘%’).</p>
+<dt>format</dt><dd><p>Use the specified format string for the handler.</p>
 </dd>
-<dt>level     Set the <code class="docutils literal notranslate"><span class="pre">name</span></code> logger level to the specified level. This can be</dt><dd><p>a number (10, 20, …) or a string (‘NOTSET’, ‘DEBUG’, ‘INFO’,
-‘WARNING’, ‘ERROR’, ‘CRITICAL’) or <code class="docutils literal notranslate"><span class="pre">logging.DEBUG</span></code>, etc.</p>
+<dt>datefmt</dt><dd><p>Use the specified date/time format.</p>
 </dd>
-<dt>stream    Use the specified stream to initialize the StreamHandler. Note</dt><dd><p>that this argument is incompatible with ‘filename’ - if both
-are present, ‘stream’ is ignored.</p>
+<dt>style</dt><dd><p>If a format string is specified, use this to specify the type of format
+string (possible values ‘%’, ‘{’, ‘$’, for %-formatting,
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">str.format()</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">string.Template</span></code> - defaults to ‘%’).</p>
 </dd>
-<dt>handlers  If specified, this should be an iterable of already created</dt><dd><p>handlers, which will be added to the <code class="docutils literal notranslate"><span class="pre">name</span></code> handler. Any handler
-in the list which does not have a formatter assigned will be
-assigned the formatter created in this function.</p>
+<dt>level</dt><dd><p>Set the <code class="docutils literal notranslate"><span class="pre">name</span></code> logger level to the specified level. This can be a
+number (10, 20, …) or a string (‘NOTSET’, ‘DEBUG’, ‘INFO’, ‘WARNING’,
+‘ERROR’, ‘CRITICAL’) or <code class="docutils literal notranslate"><span class="pre">logging.DEBUG</span></code>, etc.</p>
 </dd>
-<dt>force     If this keyword  is specified as true, any existing handlers</dt><dd><p>attached to the <code class="docutils literal notranslate"><span class="pre">name</span></code> logger are removed and closed, before
-carrying out the configuration as specified by the other
-arguments.</p>
+<dt>stream</dt><dd><p>Use the specified stream to initialize the StreamHandler. Note that this
+argument is incompatible with ‘filename’ - if both are present, ‘stream’
+is ignored.</p>
+</dd>
+<dt>handlers</dt><dd><p>If specified, this should be an iterable of already created handlers,
+which will be added to the <code class="docutils literal notranslate"><span class="pre">name</span></code> handler. Any handler in the list
+which does not have a formatter assigned will be assigned the formatter
+created in this function.</p>
+</dd>
+<dt>force</dt><dd><p>If this keyword  is specified as true, any existing handlers attached to
+the <code class="docutils literal notranslate"><span class="pre">name</span></code> logger are removed and closed, before carrying out the
+configuration as specified by the other arguments.</p>
 </dd>
 </dl>
 <p>Note that you could specify a stream created using open(filename, mode)
@@ -148,7 +352,7 @@ using sys.stdout or sys.stderr), whereas FileHandler closes its stream
 when the handler is closed.</p>
 <p>Note this function is probably not thread-safe.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>logger name</p>
 </dd>
@@ -160,7 +364,7 @@ when the handler is closed.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>logger</strong><span class="classifier">Logger object</span></dt><dd></dd>
 </dl>
@@ -170,28 +374,31 @@ when the handler is closed.</p>
 
 </section>
 <section id="module-ska_helpers.retry">
-<span id="retry"></span><h2>Retry<a class="headerlink" href="#module-ska_helpers.retry" title="Permalink to this headline">¶</a></h2>
+<span id="retry"></span><h2>Retry<a class="headerlink" href="#module-ska_helpers.retry" title="Permalink to this heading">¶</a></h2>
 <p>Retry package initially copied from <a class="reference external" href="https://github.com/invl/retry">https://github.com/invl/retry</a>.</p>
 <p>This project appears to be abandoned so moving it to ska_helpers.</p>
 <p>LICENSE:</p>
-<p>Copyright 2014 invl</p>
-<p>Licensed under the Apache License, Version 2.0 (the “License”);
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at</p>
-<blockquote>
-<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
-</div></blockquote>
-<p>Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an “AS IS” BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Copyright</span> <span class="mi">2014</span> <span class="n">invl</span>
+
+<span class="n">Licensed</span> <span class="n">under</span> <span class="n">the</span> <span class="n">Apache</span> <span class="n">License</span><span class="p">,</span> <span class="n">Version</span> <span class="mf">2.0</span> <span class="p">(</span><span class="n">the</span> <span class="s2">&quot;License&quot;</span><span class="p">);</span>
+<span class="n">you</span> <span class="n">may</span> <span class="ow">not</span> <span class="n">use</span> <span class="n">this</span> <span class="n">file</span> <span class="k">except</span> <span class="ow">in</span> <span class="n">compliance</span> <span class="k">with</span> <span class="n">the</span> <span class="n">License</span><span class="o">.</span>
+<span class="n">You</span> <span class="n">may</span> <span class="n">obtain</span> <span class="n">a</span> <span class="n">copy</span> <span class="n">of</span> <span class="n">the</span> <span class="n">License</span> <span class="n">at</span>
+
+    <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">www</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">licenses</span><span class="o">/</span><span class="n">LICENSE</span><span class="o">-</span><span class="mf">2.0</span>
+
+<span class="n">Unless</span> <span class="n">required</span> <span class="n">by</span> <span class="n">applicable</span> <span class="n">law</span> <span class="ow">or</span> <span class="n">agreed</span> <span class="n">to</span> <span class="ow">in</span> <span class="n">writing</span><span class="p">,</span> <span class="n">software</span>
+<span class="n">distributed</span> <span class="n">under</span> <span class="n">the</span> <span class="n">License</span> <span class="ow">is</span> <span class="n">distributed</span> <span class="n">on</span> <span class="n">an</span> <span class="s2">&quot;AS IS&quot;</span> <span class="n">BASIS</span><span class="p">,</span>
+<span class="n">WITHOUT</span> <span class="n">WARRANTIES</span> <span class="n">OR</span> <span class="n">CONDITIONS</span> <span class="n">OF</span> <span class="n">ANY</span> <span class="n">KIND</span><span class="p">,</span> <span class="n">either</span> <span class="n">express</span> <span class="ow">or</span> <span class="n">implied</span><span class="o">.</span>
+<span class="n">See</span> <span class="n">the</span> <span class="n">License</span> <span class="k">for</span> <span class="n">the</span> <span class="n">specific</span> <span class="n">language</span> <span class="n">governing</span> <span class="n">permissions</span> <span class="ow">and</span>
+<span class="n">limitations</span> <span class="n">under</span> <span class="n">the</span> <span class="n">License</span><span class="o">.</span>
+</pre></div>
+</div>
 <dl class="py exception">
 <dt class="sig sig-object py" id="ska_helpers.retry.RetryError">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">ska_helpers.retry.</span></span><span class="sig-name descname"><span class="pre">RetryError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">failures</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/retry/api.html#RetryError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.retry.RetryError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ska_helpers.retry.</span></span><span class="sig-name descname"><span class="pre">RetryError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">failures</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/retry/api.html#RetryError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.retry.RetryError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Keep track of the stack of exceptions when trying multiple times.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>failures</strong><span class="classifier">list of dict, each with keys ‘type’, ‘value’, ‘trace’.</span></dt><dd></dd>
 </dl>
@@ -201,10 +408,10 @@ limitations under the License.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_helpers.retry.retry">
-<span class="sig-prename descclassname"><span class="pre">ska_helpers.retry.</span></span><span class="sig-name descname"><span class="pre">retry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">exceptions=&lt;class</span> <span class="pre">'Exception'&gt;</span></em>, <em class="sig-param"><span class="pre">tries=-1</span></em>, <em class="sig-param"><span class="pre">delay=0</span></em>, <em class="sig-param"><span class="pre">max_delay=None</span></em>, <em class="sig-param"><span class="pre">backoff=1</span></em>, <em class="sig-param"><span class="pre">jitter=0</span></em>, <em class="sig-param"><span class="pre">logger=&lt;Logger</span> <span class="pre">ska_helpers.retry.api</span> <span class="pre">(WARNING)&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/retry/api.html#retry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.retry.retry" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.retry.</span></span><span class="sig-name descname"><span class="pre">retry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exceptions=&lt;class</span> <span class="pre">'Exception'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tries=-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_delay=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backoff=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jitter=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger=&lt;Logger</span> <span class="pre">ska_helpers.retry.api</span> <span class="pre">(WARNING)&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/retry/api.html#retry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.retry.retry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a retry decorator.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>exceptions</strong> – an exception or a tuple of exceptions to catch. default: Exception.</p></li>
 <li><p><strong>tries</strong> – the maximum number of attempts. default: -1 (infinite).</p></li>
@@ -217,7 +424,7 @@ fixed if a number, random if a range tuple (min, max)</p></li>
 default: retry.logging_logger. if None, logging is disabled.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>a retry decorator.</p>
 </dd>
 </dl>
@@ -225,10 +432,10 @@ default: retry.logging_logger. if None, logging is disabled.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_helpers.retry.retry_call">
-<span class="sig-prename descclassname"><span class="pre">ska_helpers.retry.</span></span><span class="sig-name descname"><span class="pre">retry_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">f</span></em>, <em class="sig-param"><span class="pre">args=None</span></em>, <em class="sig-param"><span class="pre">kwargs=None</span></em>, <em class="sig-param"><span class="pre">exceptions=&lt;class</span> <span class="pre">'Exception'&gt;</span></em>, <em class="sig-param"><span class="pre">tries=-1</span></em>, <em class="sig-param"><span class="pre">delay=0</span></em>, <em class="sig-param"><span class="pre">max_delay=None</span></em>, <em class="sig-param"><span class="pre">backoff=1</span></em>, <em class="sig-param"><span class="pre">jitter=0</span></em>, <em class="sig-param"><span class="pre">logger=&lt;Logger</span> <span class="pre">ska_helpers.retry.api</span> <span class="pre">(WARNING)&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/retry/api.html#retry_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.retry.retry_call" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.retry.</span></span><span class="sig-name descname"><span class="pre">retry_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exceptions=&lt;class</span> <span class="pre">'Exception'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tries=-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_delay=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backoff=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jitter=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger=&lt;Logger</span> <span class="pre">ska_helpers.retry.api</span> <span class="pre">(WARNING)&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/retry/api.html#retry_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.retry.retry_call" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calls a function and re-executes it if it failed.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>f</strong> – the function to execute.</p></li>
 <li><p><strong>args</strong> – the positional arguments of the function to execute.</p></li>
@@ -244,7 +451,7 @@ fixed if a number, random if a range tuple (min, max)</p></li>
 default: retry.logging_logger. if None, logging is disabled.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>the result of the f function.</p>
 </dd>
 </dl>
@@ -253,11 +460,11 @@ default: retry.logging_logger. if None, logging is disabled.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_helpers.retry.tables_open_file">
 <span class="sig-prename descclassname"><span class="pre">ska_helpers.retry.</span></span><span class="sig-name descname"><span class="pre">tables_open_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/retry/api.html#tables_open_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.retry.tables_open_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Call tables.open_file(<a href="#id1"><span class="problematic" id="id2">*</span></a>args, <a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs) with retry up to 3 times.</p>
+<dd><p>Call <code class="docutils literal notranslate"><span class="pre">tables.open_file(*args,</span> <span class="pre">**kwargs)</span></code> with retry up to 3 times.</p>
 <p>This only catches tables.exceptions.HDF5ExtError. After an initial failure
 it will try again after 2 seconds and once more after 4 seconds.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>*args</strong> – <p>args passed through to tables.open_file()</p>
 </p></li>
@@ -265,7 +472,7 @@ it will try again after 2 seconds and once more after 4 seconds.</p>
 </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>tables file handle</p>
 </dd>
 </dl>
@@ -273,7 +480,7 @@ it will try again after 2 seconds and once more after 4 seconds.</p>
 
 </section>
 <section id="module-ska_helpers.setup_helper">
-<span id="setup-helpers"></span><h2>Setup Helpers<a class="headerlink" href="#module-ska_helpers.setup_helper" title="Permalink to this headline">¶</a></h2>
+<span id="setup-helpers"></span><h2>Setup Helpers<a class="headerlink" href="#module-ska_helpers.setup_helper" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_helpers.setup_helper.duplicate_package_info">
 <span class="sig-prename descclassname"><span class="pre">ska_helpers.setup_helper.</span></span><span class="sig-name descname"><span class="pre">duplicate_package_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/setup_helper.html#duplicate_package_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.setup_helper.duplicate_package_info" title="Permalink to this definition">¶</a></dt>
@@ -281,7 +488,7 @@ it will try again after 2 seconds and once more after 4 seconds.</p>
 <p>Normally used in setup.py for making a namespace package that copies a flat one.
 For an example see setup.py in the ska_sun or Ska.Sun repo.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vals</strong> – list or dict of values</p></li>
 <li><p><strong>name_in</strong> – string to replace at start of each value</p></li>
@@ -293,16 +500,23 @@ For an example see setup.py in the ska_sun or Ska.Sun repo.</p>
 
 </section>
 <section id="module-ska_helpers.utils">
-<span id="utilities"></span><h2>Utilities<a class="headerlink" href="#module-ska_helpers.utils" title="Permalink to this headline">¶</a></h2>
+<span id="utilities"></span><h2>Utilities<a class="headerlink" href="#module-ska_helpers.utils" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ska_helpers.utils.LRUDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ska_helpers.utils.</span></span><span class="sig-name descname"><span class="pre">LRUDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#LRUDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.utils.LRUDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict that maintains a fixed capacity and evicts least recently used item when full.</p>
+<p>Inherits from collections.OrderedDict to maintain the order of insertion.</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="ska_helpers.utils.LazyDict">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ska_helpers.utils.</span></span><span class="sig-name descname"><span class="pre">LazyDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load_func</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#LazyDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.utils.LazyDict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ska_helpers.utils.</span></span><span class="sig-name descname"><span class="pre">LazyDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load_func</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#LazyDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.utils.LazyDict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dict which is lazy-initialized using supplied function <code class="docutils literal notranslate"><span class="pre">load_func</span></code>.</p>
 <p>This class allows defining a module-level dict that is expensive to
 initialize, where the initialization is done lazily (only when actually
 needed).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>load_func</strong><span class="classifier">function</span></dt><dd><p>Reference to a function that returns a dict to init this dict object</p>
 </dd>
@@ -350,8 +564,9 @@ needed).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ska_helpers.utils.LazyDict.pop">
-<span class="sig-name descname"><span class="pre">pop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">k</span></em><span class="optional">[</span>, <em class="sig-param"><span class="pre">d</span></em><span class="optional">]</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">v,</span> <span class="pre">remove</span> <span class="pre">specified</span> <span class="pre">key</span> <span class="pre">and</span> <span class="pre">return</span> <span class="pre">the</span> <span class="pre">corresponding</span> <span class="pre">value.</span></span></span><a class="headerlink" href="#ska_helpers.utils.LazyDict.pop" title="Permalink to this definition">¶</a></dt>
-<dd><p>If key is not found, d is returned if given, otherwise KeyError is raised</p>
+<span class="sig-name descname"><span class="pre">pop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="optional">[</span>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="optional">]</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">v,</span> <span class="pre">remove</span> <span class="pre">specified</span> <span class="pre">key</span> <span class="pre">and</span> <span class="pre">return</span> <span class="pre">the</span> <span class="pre">corresponding</span> <span class="pre">value.</span></span></span><a class="headerlink" href="#ska_helpers.utils.LazyDict.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the key is not found, return the default if given; otherwise,
+raise a KeyError.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -378,14 +593,14 @@ Raises KeyError if the dict is empty.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ska_helpers.utils.LazyVal">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ska_helpers.utils.</span></span><span class="sig-name descname"><span class="pre">LazyVal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load_func</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#LazyVal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.utils.LazyVal" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ska_helpers.utils.</span></span><span class="sig-name descname"><span class="pre">LazyVal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load_func</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#LazyVal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.utils.LazyVal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Value which is lazy-initialized using supplied function <code class="docutils literal notranslate"><span class="pre">load_func</span></code>.</p>
 <p>This class allows defining a module-level value that is expensive to
 initialize, where the initialization is done lazily (only when actually
 needed).</p>
 <p>The lazy value is accessed using the <code class="docutils literal notranslate"><span class="pre">val</span></code> property.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>load_func</strong><span class="classifier">function</span></dt><dd><p>Reference to a function that returns a dict to init this dict object</p>
 </dd>
@@ -412,9 +627,90 @@ needed).</p>
 </div>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="ska_helpers.utils.convert_to_int_float_str">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.utils.</span></span><span class="sig-name descname"><span class="pre">convert_to_int_float_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ska_helpers/utils.html#convert_to_int_float_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.utils.convert_to_int_float_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an input string into an int, float, or string.</p>
+<p>This tries to convert the input string into an int using the built-in <code class="docutils literal notranslate"><span class="pre">int()</span></code>
+function. If that fails then it tries <code class="docutils literal notranslate"><span class="pre">float()</span></code>, and finally if that fails it
+returns the original string.</p>
+<p>This function is often useful when parsing text representations of structured data
+where the data types are implicit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>val</strong><span class="classifier">str</span></dt><dd><p>The input string to convert</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>int, float, or str</dt><dd><p>The input value as an int, float, or string.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>An input string like “01234” is interpreted as a decimal integer and will be
+returned as the integer 1234. In some contexts a leading 0 indicates an octal number
+and to avoid confusion in Python a leading 0 is not allowed in a decimal integer
+literal.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ska_helpers.utils.lru_cache_timed">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.utils.</span></span><span class="sig-name descname"><span class="pre">lru_cache_timed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">maxsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3600</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#lru_cache_timed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.utils.lru_cache_timed" title="Permalink to this definition">¶</a></dt>
+<dd><p>LRU cache decorator where the cache expires after <code class="docutils literal notranslate"><span class="pre">timeout</span></code> seconds.</p>
+<p>This wraps the functools.lru_cache decorator so that the entire cache gets
+cleared if the cache is older than <code class="docutils literal notranslate"><span class="pre">timeout</span></code> seconds.</p>
+<p>This is mostly copied from this gist, with no license specified:
+<a class="reference external" href="https://gist.github.com/helix84/05ee246d6c80bc7bacdfa6a62fbff3fa">https://gist.github.com/helix84/05ee246d6c80bc7bacdfa6a62fbff3fa</a></p>
+<p>The cachetools package provides a way to apply the timeout per-item, if that
+is required.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>maxsize</strong><span class="classifier">int</span></dt><dd><p>functools.lru_cache maxsize parameter</p>
+</dd>
+<dt><strong>typed</strong><span class="classifier">bool</span></dt><dd><p>functools.lru_cache typed parameter</p>
+</dd>
+<dt><strong>timeout</strong><span class="classifier">int, float</span></dt><dd><p>Clear cache after <code class="docutils literal notranslate"><span class="pre">timeout</span></code> seconds from last clear</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ska_helpers.utils.temp_env_var">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.utils.</span></span><span class="sig-name descname"><span class="pre">temp_env_var</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#temp_env_var"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.utils.temp_env_var" title="Permalink to this definition">¶</a></dt>
+<dd><p>A context manager that temporarily sets an environment variable.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MY_VARIABLE&quot;</span><span class="p">)</span>
+<span class="go">None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">temp_env_var</span><span class="p">(</span><span class="s2">&quot;MY_VARIABLE&quot;</span><span class="p">,</span> <span class="s2">&quot;my_value&quot;</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MY_VARIABLE&quot;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="go">&#39;my_value&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MY_VARIABLE&quot;</span><span class="p">)</span>
+<span class="go">None</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – str
+Name of the environment variable to set.</p></li>
+<li><p><strong>value</strong> – str
+Value to set the environment variable to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-ska_helpers.version">
-<span id="version-info"></span><h2>Version Info<a class="headerlink" href="#module-ska_helpers.version" title="Permalink to this headline">¶</a></h2>
+<span id="version-info"></span><h2>Version Info<a class="headerlink" href="#module-ska_helpers.version" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ska_helpers.version</span></code> module provides utilities to handle package
 versions. The version of a package is determined using pkg_resources if it is
 installed, and <a class="reference external" href="https://github.com/pypa/setuptools_scm/">setuptools_scm</a>
@@ -426,15 +722,15 @@ otherwise.</p>
 <p>If the package is not from an installed distribution then get version from
 git using setuptools_scm.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>package :</strong></dt><dd><p>package name, typically __package__</p>
+<dt><strong>package</strong></dt><dd><p>package name, typically __package__</p>
 </dd>
-<dt><strong>distribution :</strong></dt><dd><p>name of distribution if different from <code class="docutils literal notranslate"><span class="pre">package</span></code> (Default value = None)</p>
+<dt><strong>distribution</strong></dt><dd><p>name of distribution if different from <code class="docutils literal notranslate"><span class="pre">package</span></code> (Default value = None)</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt>str</dt><dd><p>Version string</p>
 </dd>
@@ -449,13 +745,13 @@ git using setuptools_scm.</p>
 <dd><p>Parse version string and return a dictionary with version information.
 This only handles the default scheme.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>version :</strong></dt><dd><p>str</p>
+<dt><strong>version</strong></dt><dd><p>str</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt>dict</dt><dd><p>version information</p>
 </dd>
@@ -465,7 +761,7 @@ This only handles the default scheme.</p>
 </dd></dl>
 
 <section id="default-versioning-scheme">
-<h3>Default versioning scheme<a class="headerlink" href="#default-versioning-scheme" title="Permalink to this headline">¶</a></h3>
+<h3>Default versioning scheme<a class="headerlink" href="#default-versioning-scheme" title="Permalink to this heading">¶</a></h3>
 <p>What follows is the scheme as described in <a class="reference external" href="https://github.com/pypa/setuptools_scm/">setuptools_scm’s documentation</a>.</p>
 <p>In the standard configuration <code class="docutils literal notranslate"><span class="pre">setuptools_scm</span></code> takes a look at three things:</p>
 <ol class="arabic simple">
@@ -498,7 +794,7 @@ accordingly.</p>
 </section>
 </section>
 <section id="module-ska_helpers.run_info">
-<span id="run-time-information"></span><h2>Run time information<a class="headerlink" href="#module-ska_helpers.run_info" title="Permalink to this headline">¶</a></h2>
+<span id="run-time-information"></span><h2>Run time information<a class="headerlink" href="#module-ska_helpers.run_info" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ska_helpers.run_info</span></code> module provides convenience functions to get
 and print relevant run time information such as machine name, user name, date,
 program version, and so on.  This is aimed at executable scripts and cron jobs.</p>
@@ -507,17 +803,17 @@ program version, and so on.  This is aimed at executable scripts and cron jobs.<
 <span class="sig-prename descclassname"><span class="pre">ska_helpers.run_info.</span></span><span class="sig-name descname"><span class="pre">get_run_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stack_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/run_info.html#get_run_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.run_info.get_run_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get run time information as dict.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>opt :</strong></dt><dd><p>argparse options (Default value = None)</p>
+<dt><strong>opt</strong></dt><dd><p>argparse options (Default value = None)</p>
 </dd>
-<dt><strong>version :</strong></dt><dd><p>program version (default=__version__ in calling module)</p>
+<dt><strong>version</strong></dt><dd><p>program version (default=__version__ in calling module)</p>
 </dd>
-<dt><strong>stack_level :</strong></dt><dd><p>stack level for getting calling module (Default value = 1)</p>
+<dt><strong>stack_level</strong></dt><dd><p>stack level for getting calling module (Default value = 1)</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt>dcit</dt><dd><p>run information</p>
 </dd>
@@ -531,17 +827,17 @@ program version, and so on.  This is aimed at executable scripts and cron jobs.<
 <span class="sig-prename descclassname"><span class="pre">ska_helpers.run_info.</span></span><span class="sig-name descname"><span class="pre">get_run_info_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stack_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/run_info.html#get_run_info_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.run_info.get_run_info_lines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get run time information as formatted lines.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>opt :</strong></dt><dd><p>argparse options (Default value = None)</p>
+<dt><strong>opt</strong></dt><dd><p>argparse options (Default value = None)</p>
 </dd>
-<dt><strong>version :</strong></dt><dd><p>program version (default=__version__ in calling module)</p>
+<dt><strong>version</strong></dt><dd><p>program version (default=__version__ in calling module)</p>
 </dd>
-<dt><strong>stack_level :</strong></dt><dd><p>stack level for getting calling module (Default value = 2)</p>
+<dt><strong>stack_level</strong></dt><dd><p>stack level for getting calling module (Default value = 2)</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt>list</dt><dd><p>formatted information lines</p>
 </dd>
@@ -556,15 +852,15 @@ program version, and so on.  This is aimed at executable scripts and cron jobs.<
 <dd><p>Output run time information as formatted lines via <code class="docutils literal notranslate"><span class="pre">log_func</span></code>.</p>
 <p>Each formatted line is passed to <code class="docutils literal notranslate"><span class="pre">log_func</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>log_func :</strong></dt><dd><p>logger output function (e.g. logger.info)</p>
+<dt><strong>log_func</strong></dt><dd><p>logger output function (e.g. logger.info)</p>
 </dd>
-<dt><strong>opt :</strong></dt><dd><p>argparse options (Default value = None)</p>
+<dt><strong>opt</strong></dt><dd><p>argparse options (Default value = None)</p>
 </dd>
-<dt><strong>version :</strong></dt><dd><p>program version (default=__version__ in calling module)</p>
+<dt><strong>version</strong></dt><dd><p>program version (default=__version__ in calling module)</p>
 </dd>
-<dt><strong>stack_level :</strong></dt><dd><p>stack level for getting calling module (Default value = 3)</p>
+<dt><strong>stack_level</strong></dt><dd><p>stack level for getting calling module (Default value = 3)</p>
 </dd>
 </dl>
 </dd>
@@ -574,7 +870,7 @@ program version, and so on.  This is aimed at executable scripts and cron jobs.<
 </section>
 </section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
@@ -591,16 +887,68 @@ program version, and so on.  This is aimed at executable scripts and cron jobs.<
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
 <li><a class="reference internal" href="#">Ska Package Helpers</a><ul>
-<li><a class="reference internal" href="#chandra-models-data">Chandra Models Data</a></li>
-<li><a class="reference internal" href="#module-ska_helpers.logging">Logging</a></li>
-<li><a class="reference internal" href="#module-ska_helpers.retry">Retry</a></li>
-<li><a class="reference internal" href="#module-ska_helpers.setup_helper">Setup Helpers</a></li>
-<li><a class="reference internal" href="#module-ska_helpers.utils">Utilities</a></li>
+<li><a class="reference internal" href="#ska_helpers.test"><code class="docutils literal notranslate"><span class="pre">test()</span></code></a></li>
+<li><a class="reference internal" href="#module-ska_helpers.chandra_models">Chandra Models Data</a><ul>
+<li><a class="reference internal" href="#ska_helpers.chandra_models.chandra_models_cache"><code class="docutils literal notranslate"><span class="pre">chandra_models_cache()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.chandra_models.get_data"><code class="docutils literal notranslate"><span class="pre">get_data()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.chandra_models.get_github_version"><code class="docutils literal notranslate"><span class="pre">get_github_version()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.chandra_models.get_repo_version"><code class="docutils literal notranslate"><span class="pre">get_repo_version()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-ska_helpers.environment">Environment</a><ul>
+<li><a class="reference internal" href="#ska_helpers.environment.configure_ska_environment"><code class="docutils literal notranslate"><span class="pre">configure_ska_environment()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-ska_helpers.git_helpers">Git helpers</a><ul>
+<li><a class="reference internal" href="#ska_helpers.git_helpers.make_git_repo_safe"><code class="docutils literal notranslate"><span class="pre">make_git_repo_safe()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-ska_helpers.logging">Logging</a><ul>
+<li><a class="reference internal" href="#ska_helpers.logging.basic_logger"><code class="docutils literal notranslate"><span class="pre">basic_logger()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-ska_helpers.retry">Retry</a><ul>
+<li><a class="reference internal" href="#ska_helpers.retry.RetryError"><code class="docutils literal notranslate"><span class="pre">RetryError</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.retry.retry"><code class="docutils literal notranslate"><span class="pre">retry()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.retry.retry_call"><code class="docutils literal notranslate"><span class="pre">retry_call()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.retry.tables_open_file"><code class="docutils literal notranslate"><span class="pre">tables_open_file()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-ska_helpers.setup_helper">Setup Helpers</a><ul>
+<li><a class="reference internal" href="#ska_helpers.setup_helper.duplicate_package_info"><code class="docutils literal notranslate"><span class="pre">duplicate_package_info()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-ska_helpers.utils">Utilities</a><ul>
+<li><a class="reference internal" href="#ska_helpers.utils.LRUDict"><code class="docutils literal notranslate"><span class="pre">LRUDict</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.utils.LazyDict"><code class="docutils literal notranslate"><span class="pre">LazyDict</span></code></a><ul>
+<li><a class="reference internal" href="#ska_helpers.utils.LazyDict.copy"><code class="docutils literal notranslate"><span class="pre">LazyDict.copy()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.utils.LazyDict.get"><code class="docutils literal notranslate"><span class="pre">LazyDict.get()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.utils.LazyDict.items"><code class="docutils literal notranslate"><span class="pre">LazyDict.items()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.utils.LazyDict.keys"><code class="docutils literal notranslate"><span class="pre">LazyDict.keys()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.utils.LazyDict.pop"><code class="docutils literal notranslate"><span class="pre">LazyDict.pop()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.utils.LazyDict.popitem"><code class="docutils literal notranslate"><span class="pre">LazyDict.popitem()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.utils.LazyDict.setdefault"><code class="docutils literal notranslate"><span class="pre">LazyDict.setdefault()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.utils.LazyDict.values"><code class="docutils literal notranslate"><span class="pre">LazyDict.values()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ska_helpers.utils.LazyVal"><code class="docutils literal notranslate"><span class="pre">LazyVal</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.utils.convert_to_int_float_str"><code class="docutils literal notranslate"><span class="pre">convert_to_int_float_str()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.utils.lru_cache_timed"><code class="docutils literal notranslate"><span class="pre">lru_cache_timed()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.utils.temp_env_var"><code class="docutils literal notranslate"><span class="pre">temp_env_var()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-ska_helpers.version">Version Info</a><ul>
+<li><a class="reference internal" href="#ska_helpers.version.get_version"><code class="docutils literal notranslate"><span class="pre">get_version()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.version.parse_version"><code class="docutils literal notranslate"><span class="pre">parse_version()</span></code></a></li>
 <li><a class="reference internal" href="#default-versioning-scheme">Default versioning scheme</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-ska_helpers.run_info">Run time information</a></li>
+<li><a class="reference internal" href="#module-ska_helpers.run_info">Run time information</a><ul>
+<li><a class="reference internal" href="#ska_helpers.run_info.get_run_info"><code class="docutils literal notranslate"><span class="pre">get_run_info()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.run_info.get_run_info_lines"><code class="docutils literal notranslate"><span class="pre">get_run_info_lines()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.run_info.log_run_info"><code class="docutils literal notranslate"><span class="pre">log_run_info()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
@@ -630,7 +978,7 @@ program version, and so on.  This is aimed at executable scripts and cron jobs.<
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2019, Javier Gonzalez.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 6.1.3. &nbsp;
   </p>
 </footer>
   </body>
