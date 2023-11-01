@@ -148,6 +148,6 @@ def test_convert_to_int_float_str(value, type_, expected):
     assert type(out) is type_  # noqa: E721
 
 
-def test_convert_to_int_float_str_error():
+def test_convert_to_int_float_str_err():
     with pytest.raises(TypeError, match="input value must be a string, not float"):
         convert_to_int_float_str(1.05)
