@@ -92,7 +92,7 @@ def get_twiki_page_markdown(page: str, rev: Optional[int] = None) -> str:
         params.append(f"rev={rev}")
     url = f"https://occweb.cfa.harvard.edu/twiki/bin/view/{page}?{'&'.join(params)}"
 
-    html = get_occweb_page(url, cache=True)
+    html = get_occweb_page(url)
 
     bs = BeautifulSoup(html, "html.parser")
     textarea = bs.find_all("textarea")[0]
