@@ -5,6 +5,7 @@ runtime environment at the point of import of every Ska3 package.
 """
 
 import os
+import warnings
 from functools import cache
 
 
@@ -26,3 +27,12 @@ def configure_ska_environment():
     # potentially including subdirectories.
     numba_cache_dir = os.path.join(os.path.expanduser("~"), ".ska3", "cache", "numba")
     os.environ.setdefault("NUMBA_CACHE_DIR", numba_cache_dir)
+
+    # Suppress warning when importing astropy_healpix in a git repo.
+    # https://github.com/astropy/astropy-healpix/issues/211
+    warnings.filterwarnings(
+        "ignore",
+        category=UserWarning,
+        message="git archive did not support describe output",
+        module="setuptools_scm",
+    )
