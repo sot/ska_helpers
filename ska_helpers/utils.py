@@ -382,10 +382,10 @@ class TypedDescriptor:
     setting the ``cls`` class attribute on the descriptor class.
 
     Most commonly ``cls`` is a class like ``CxoTime`` or ``Quat``, but it could also
-    be a function like ``int`` or ``float``.
+    be a built-in like ``int`` or ``float`` or any callable function.
 
     This descriptor can be used either as a base class with the ``cls`` class attribute
-    set accordingly, or as a decriptor with the ``cls`` keyword argument set.
+    set accordingly, or as a descriptor with the ``cls`` keyword argument set.
 
     Parameters
     ----------
