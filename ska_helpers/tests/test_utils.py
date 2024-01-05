@@ -1,6 +1,7 @@
 import os
 import pickle
 import time
+from dataclasses import dataclass
 
 import pytest
 
@@ -8,6 +9,7 @@ from ska_helpers.utils import (
     LazyDict,
     LazyVal,
     LRUDict,
+    TypedDescriptorBase,
     convert_to_int_float_str,
     lru_cache_timed,
     temp_env_var,
@@ -151,3 +153,57 @@ def test_convert_to_int_float_str(value, type_, expected):
 def test_convert_to_int_float_str_err():
     with pytest.raises(TypeError, match="input value must be a string, not float"):
         convert_to_int_float_str(1.05)
+
+
+class IntDescriptor(TypedDescriptorBase):
+    cls = int
+
+
+def test_int_descriptor_not_required_no_default():
+    @dataclass
+    class MyClass:
+        val_int: int | None = IntDescriptor()
+
+    obj = MyClass()
+    assert obj.val_int is None
+
+    obj = MyClass(val_int=10.2)
+    assert isinstance(obj.val_int, int)
+    assert obj.val_int == 10
+
+
+def test_int_descriptor_is_required():
+    @dataclass
+    class MyClass:
+        val_int: int = IntDescriptor(required=True)
+
+    obj = MyClass(10.2)
+    assert obj.val_int == 10
+
+    with pytest.raises(
+        ValueError, match="cannot set required attribute 'val_int' to None"
+    ):
+        MyClass()
+
+
+def test_int_descriptor_has_default():
+    @dataclass
+    class MyClass:
+        val_int: int = IntDescriptor(default=10.5)
+
+    obj = MyClass()
+    # Default of 10.5 is cast to int
+    assert obj.val_int == 10
+
+    obj = MyClass(val_int=3.5)
+    assert obj.val_int == 3
+
+
+def test_int_descriptor_is_required_has_default_exception():
+    with pytest.raises(
+        ValueError, match="cannot set both 'required' and 'default' arguments"
+    ):
+
+        @dataclass
+        class MyClass:
+            quat: int = IntDescriptor(default=30, required=True)

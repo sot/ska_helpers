@@ -371,3 +371,75 @@ def convert_to_int_float_str(val: str) -> int | float | str:
                 out = val
 
     return out
+
+
+class TypedDescriptorBase:
+    """Base class to create a descriptor for an attribute that is cast to a type.
+
+    This is a base class for creating a descriptor that can be used to define an
+    attribute on a class that is cast to a specific type.  The type is specified by
+    setting the ``cls`` class attribute on the descriptor class.
+
+    Most commonly ``cls`` is a class like ``CxoTime`` or ``Quat``, but it could also
+    be a function like ``int`` or ``float``.
+
+    Parameters
+    ----------
+    default : optional
+        Default value for the attribute.  If not specified, the default for the
+        attribute is ``None``.
+    required : bool, optional
+        If ``True``, the attribute is required to be set explicitly when the object
+        is created. If ``False`` the default value is used if the attribute is not set.
+
+    Examples
+    --------
+    >>> from dataclasses import dataclass
+    >>> from Quaternion import Quat
+    >>> from ska_helpers.utils import TypedDescriptorBase
+    >>> class QuatDescriptor(TypedDescriptorBase):
+    ...     cls = Quat
+    >>> @dataclass
+    ... class MyClass:
+    ...     att1: Quat = QuatDescriptor(required=True)
+    ...     att2: Quat = QuatDescriptor(default=[10, 20, 30])
+    ...     att3: Quat | None = QuatDescriptor()
+    ...
+    >>> obj = MyClass(att1=[0, 0, 0, 1])
+    >>> obj.att1
+    <Quat q1=0.00000000 q2=0.00000000 q3=0.00000000 q4=1.00000000>
+    >>> obj.att2.equatorial
+    array([10., 20., 30.])
+    >>> obj.att3 is None
+    True
+    >>> obj.att3 = [10, 20, 30]
+    >>> obj.att3.equatorial
+    array([10., 20., 30.])
+    """
+
+    cls = None
+
+    def __init__(self, *, default=None, required=False):
+        if required and default is not None:
+            raise ValueError("cannot set both 'required' and 'default' arguments")
+        self.default = default if default is None else self.cls(default)
+        self.required = required
+
+    def __set_name__(self, owner, name):
+        self.name = "_" + name
+
+    def __get__(self, obj, objtype=None):
+        if obj is None:
+            return self.default
+
+        if self.required:
+            return getattr(obj, self.name)
+        else:
+            return getattr(obj, self.name, self.default)
+
+    def __set__(self, obj, value):
+        if self.required and value is None:
+            raise ValueError(f"cannot set required attribute {self.name[1:]!r} to None")
+        if value is not None:
+            value = self.cls(value)
+        setattr(obj, self.name, value)
