@@ -12,6 +12,7 @@ __all__ = [
     "lru_cache_timed",
     "temp_env_var",
     "convert_to_int_float_str",
+    "TypedDescriptor",
 ]
 
 
