@@ -1,6 +1,8 @@
+import functools
 import os
 import pickle
 import time
+from dataclasses import dataclass
 
 import pytest
 
@@ -8,6 +10,7 @@ from ska_helpers.utils import (
     LazyDict,
     LazyVal,
     LRUDict,
+    TypedDescriptor,
     convert_to_int_float_str,
     lru_cache_timed,
     temp_env_var,
@@ -151,3 +154,64 @@ def test_convert_to_int_float_str(value, type_, expected):
 def test_convert_to_int_float_str_err():
     with pytest.raises(TypeError, match="input value must be a string, not float"):
         convert_to_int_float_str(1.05)
+
+
+class IntDescriptor(TypedDescriptor):
+    cls = int
+
+
+IntDescriptorFromKwargs = functools.partial(TypedDescriptor, cls=int)
+
+
+@pytest.mark.parametrize("cls_descriptor", [IntDescriptor, IntDescriptorFromKwargs])
+def test_int_descriptor_not_required_no_default(cls_descriptor):
+    @dataclass
+    class MyClass:
+        val_int: int | None = cls_descriptor()
+
+    obj = MyClass()
+    assert obj.val_int is None
+
+    obj = MyClass(val_int=10.2)
+    assert isinstance(obj.val_int, int)
+    assert obj.val_int == 10
+
+
+@pytest.mark.parametrize("cls_descriptor", [IntDescriptor, IntDescriptorFromKwargs])
+def test_int_descriptor_is_required(cls_descriptor):
+    @dataclass
+    class MyClass:
+        val_int: int = cls_descriptor(required=True)
+
+    obj = MyClass(10.2)
+    assert obj.val_int == 10
+
+    with pytest.raises(
+        ValueError, match="cannot set required attribute 'val_int' to None"
+    ):
+        MyClass()
+
+
+@pytest.mark.parametrize("cls_descriptor", [IntDescriptor, IntDescriptorFromKwargs])
+def test_int_descriptor_has_default(cls_descriptor):
+    @dataclass
+    class MyClass:
+        val_int: int = cls_descriptor(default=10.5)
+
+    obj = MyClass()
+    # Default of 10.5 is cast to int
+    assert obj.val_int == 10
+
+    obj = MyClass(val_int=3.5)
+    assert obj.val_int == 3
+
+
+@pytest.mark.parametrize("cls_descriptor", [IntDescriptor, IntDescriptorFromKwargs])
+def test_int_descriptor_is_required_has_default_exception(cls_descriptor):
+    with pytest.raises(
+        ValueError, match="cannot set both 'required' and 'default' arguments"
+    ):
+
+        @dataclass
+        class MyClass:
+            quat: int = cls_descriptor(default=30, required=True)
