@@ -373,8 +373,8 @@ def convert_to_int_float_str(val: str) -> int | float | str:
     return out
 
 
-class TypedDescriptorBase:
-    """Base class to create a descriptor for an attribute that is cast to a type.
+class TypedDescriptor:
+    """Class to create a descriptor for an attribute that is cast to a type.
 
     This is a base class for creating a descriptor that can be used to define an
     attribute on a class that is cast to a specific type.  The type is specified by
@@ -382,6 +382,9 @@ class TypedDescriptorBase:
 
     Most commonly ``cls`` is a class like ``CxoTime`` or ``Quat``, but it could also
     be a function like ``int`` or ``float``.
+
+    This descriptor can be used either as a base class with the ``cls`` class attribute
+    set accordingly, or as a decriptor with the ``cls`` keyword argument set.
 
     Parameters
     ----------
@@ -395,9 +398,22 @@ class TypedDescriptorBase:
     Examples
     --------
     >>> from dataclasses import dataclass
+    >>> from ska_helpers.utils import TypedDescriptor
+
+    Here we make a dataclass with an attribute that is cast to an int.
+
+    >>> @dataclass
+    >>> class SomeClass:
+    ...     int_val: int = TypedDescriptor(required=True, cls=int)
+    >>> obj = SomeClass(10.5)
+    >>> obj.int_val
+    10
+
+    Here we define a ``QuatDescriptor`` class that can be used repeatedly for any
+    quaternion attribute.
+
     >>> from Quaternion import Quat
-    >>> from ska_helpers.utils import TypedDescriptorBase
-    >>> class QuatDescriptor(TypedDescriptorBase):
+    >>> class QuatDescriptor(TypedDescriptor):
     ...     cls = Quat
     >>> @dataclass
     ... class MyClass:
@@ -417,9 +433,9 @@ class TypedDescriptorBase:
     array([10., 20., 30.])
     """
 
-    cls = None
-
-    def __init__(self, *, default=None, required=False):
+    def __init__(self, *, default=None, required=False, cls=None):
+        if cls is not None:
+            self.cls = cls
         if required and default is not None:
             raise ValueError("cannot set both 'required' and 'default' arguments")
         self.default = default if default is None else self.cls(default)
