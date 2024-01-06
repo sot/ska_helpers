@@ -187,7 +187,12 @@ def test_int_descriptor_is_required(cls_descriptor):
     assert obj.val_int == 10
 
     with pytest.raises(
-        ValueError, match="cannot set required attribute 'val_int' to None"
+        ValueError, match="attribute 'val_int' is required and cannot be set to None"
+    ):
+        obj.val_int = None
+
+    with pytest.raises(
+        ValueError, match="attribute 'val_int' is required and cannot be set to None"
     ):
         MyClass()
 
@@ -197,6 +202,9 @@ def test_int_descriptor_has_default(cls_descriptor):
     @dataclass
     class MyClass:
         val_int: int = cls_descriptor(default=10.5)
+
+    # Accessing the class attribute returns original default value (used by dataclass).
+    assert MyClass.val_int == 10.5
 
     obj = MyClass()
     # Default of 10.5 is cast to int
