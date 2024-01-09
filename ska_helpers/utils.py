@@ -375,26 +375,36 @@ def convert_to_int_float_str(val: str) -> int | float | str:
 
 
 class TypedDescriptor:
-    """Class to create a descriptor for an attribute that is cast to a type.
+    """Class to create a descriptor for a dataclass attribute that is cast to a type.
 
     This is a base class for creating a descriptor that can be used to define an
-    attribute on a class that is cast to a specific type.  The type is specified by
+    attribute on a dataclass that is cast to a specific type.  The type is specified by
     setting the ``cls`` class attribute on the descriptor class.
 
-    Most commonly ``cls`` is a class like ``CxoTime`` or ``Quat``, but it could also
-    be a built-in like ``int`` or ``float`` or any callable function.
+    Most commonly ``cls`` is a class like ``CxoTime`` or ``Quat``, but it could also be
+    a built-in like ``int`` or ``float`` or any callable function.
 
     This descriptor can be used either as a base class with the ``cls`` class attribute
     set accordingly, or as a descriptor with the ``cls`` keyword argument set.
 
+    .. warning:: This descriptor class is recommended for use within a
+       `dataclass <https://docs.python.org/3/library/dataclasses.html>`_. In a normal
+        class the default value **must** be set to the correct type since it will not be
+        coerced to the correct type automatically.
+
+    The default value cannot be ``list``, ``dict``, or ``set`` since these are mutable
+    and are disallowed by the dataclass machinery. In most cases a ``list`` can be
+    replaced by a ``tuple`` and a ``dict`` can be replaced by an ``OrderedDict``.
+
     Parameters
     ----------
     default : optional
-        Default value for the attribute.  If not specified, the default for the
-        attribute is ``None``.
+        Default value for the attribute. If specified and not ``None``, it will be
+        coerced to the correct type via ``cls(default)``.  If not specified, the default
+        for the attribute is ``None``.
     required : bool, optional
-        If ``True``, the attribute is required to be set explicitly when the object
-        is created. If ``False`` the default value is used if the attribute is not set.
+        If ``True``, the attribute is required to be set explicitly when the object is
+        created. If ``False`` the default value is used if the attribute is not set.
 
     Examples
     --------
@@ -439,24 +449,36 @@ class TypedDescriptor:
             self.cls = cls
         if required and default is not None:
             raise ValueError("cannot set both 'required' and 'default' arguments")
-        self.default = default if default is None else self.cls(default)
         self.required = required
+
+        # Default is set here at the time of class creation, not at the time of
+        # instantiation.  Coercing the default to the correct type is deferred until the
+        # instance is created. This happens because at instance creation (if the
+        # attribute value was not specified) the dataclass machinery evaluates
+        # ``Class.attr`` (e.g. ``QuatDescriptor.quat``) which triggers the ``__get__``
+        # method of the descriptor with ``obj=None``. That returns the default which is
+        # then passed to the ``__set__`` method which does type coercion. See
+        # https://docs.python.org/3/library/dataclasses.html#descriptor-typed-fields and
+        # the bit about "To determine whether a field contains a default value".
+        self.default = default
 
     def __set_name__(self, owner, name):
         self.name = "_" + name
 
     def __get__(self, obj, objtype=None):
         if obj is None:
+            # See long comment above about why this is returning self.default.
             return self.default
 
-        if self.required:
-            return getattr(obj, self.name)
-        else:
-            return getattr(obj, self.name, self.default)
+        return getattr(obj, self.name)
 
     def __set__(self, obj, value):
         if self.required and value is None:
-            raise ValueError(f"cannot set required attribute {self.name[1:]!r} to None")
+            raise ValueError(
+                f"attribute {self.name[1:]!r} is required and cannot be set to None"
+            )
+        # None is the default value for the attribute if it is not set explicitly.
+        # In this case it is not coerced to the descriptor type.
         if value is not None:
             value = self.cls(value)
         setattr(obj, self.name, value)
