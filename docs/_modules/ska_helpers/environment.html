@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ska_helpers.environment &#8212; Ska Helpers 0.13.0 documentation</title>
+    <title>ska_helpers.environment &#8212; Ska Helpers 0.14.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css" />
     
@@ -45,7 +45,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Ska Helpers 0.13.0 documentation</a>
+	<a href="../../index.html">Ska Helpers 0.14.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" >Module code</a> &#187;</li>
@@ -69,6 +69,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cache</span>
 
 
@@ -89,7 +90,16 @@
     <span class="c1"># on HEAD and GRETA. Note that numba will create this directory if it does exist,</span>
     <span class="c1"># potentially including subdirectories.</span>
     <span class="n">numba_cache_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">),</span> <span class="s2">&quot;.ska3&quot;</span><span class="p">,</span> <span class="s2">&quot;cache&quot;</span><span class="p">,</span> <span class="s2">&quot;numba&quot;</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;NUMBA_CACHE_DIR&quot;</span><span class="p">,</span> <span class="n">numba_cache_dir</span><span class="p">)</span></div>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;NUMBA_CACHE_DIR&quot;</span><span class="p">,</span> <span class="n">numba_cache_dir</span><span class="p">)</span>
+
+    <span class="c1"># Suppress warning when importing astropy_healpix in a git repo.</span>
+    <span class="c1"># https://github.com/astropy/astropy-healpix/issues/211</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
+        <span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+        <span class="n">category</span><span class="o">=</span><span class="ne">UserWarning</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">&quot;git archive did not support describe output&quot;</span><span class="p">,</span>
+        <span class="n">module</span><span class="o">=</span><span class="s2">&quot;setuptools_scm&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
 </pre></div>
 
             <div class="clearer"></div>

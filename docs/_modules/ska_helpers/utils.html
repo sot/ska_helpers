@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ska_helpers.utils &#8212; Ska Helpers 0.13.0 documentation</title>
+    <title>ska_helpers.utils &#8212; Ska Helpers 0.14.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css" />
     
@@ -45,7 +45,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Ska Helpers 0.13.0 documentation</a>
+	<a href="../../index.html">Ska Helpers 0.14.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" >Module code</a> &#187;</li>
@@ -76,6 +76,7 @@
     <span class="s2">&quot;lru_cache_timed&quot;</span><span class="p">,</span>
     <span class="s2">&quot;temp_env_var&quot;</span><span class="p">,</span>
     <span class="s2">&quot;convert_to_int_float_str&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TypedDescriptor&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -435,6 +436,116 @@
                 <span class="n">out</span> <span class="o">=</span> <span class="n">val</span>
 
     <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="TypedDescriptor"><a class="viewcode-back" href="../../index.html#ska_helpers.utils.TypedDescriptor">[docs]</a><span class="k">class</span> <span class="nc">TypedDescriptor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to create a descriptor for a dataclass attribute that is cast to a type.</span>
+
+<span class="sd">    This is a base class for creating a descriptor that can be used to define an</span>
+<span class="sd">    attribute on a dataclass that is cast to a specific type.  The type is specified by</span>
+<span class="sd">    setting the ``cls`` class attribute on the descriptor class.</span>
+
+<span class="sd">    Most commonly ``cls`` is a class like ``CxoTime`` or ``Quat``, but it could also be</span>
+<span class="sd">    a built-in like ``int`` or ``float`` or any callable function.</span>
+
+<span class="sd">    This descriptor can be used either as a base class with the ``cls`` class attribute</span>
+<span class="sd">    set accordingly, or as a descriptor with the ``cls`` keyword argument set.</span>
+
+<span class="sd">    .. warning:: This descriptor class is recommended for use within a</span>
+<span class="sd">       `dataclass &lt;https://docs.python.org/3/library/dataclasses.html&gt;`_. In a normal</span>
+<span class="sd">        class the default value **must** be set to the correct type since it will not be</span>
+<span class="sd">        coerced to the correct type automatically.</span>
+
+<span class="sd">    The default value cannot be ``list``, ``dict``, or ``set`` since these are mutable</span>
+<span class="sd">    and are disallowed by the dataclass machinery. In most cases a ``list`` can be</span>
+<span class="sd">    replaced by a ``tuple`` and a ``dict`` can be replaced by an ``OrderedDict``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    default : optional</span>
+<span class="sd">        Default value for the attribute. If specified and not ``None``, it will be</span>
+<span class="sd">        coerced to the correct type via ``cls(default)``.  If not specified, the default</span>
+<span class="sd">        for the attribute is ``None``.</span>
+<span class="sd">    required : bool, optional</span>
+<span class="sd">        If ``True``, the attribute is required to be set explicitly when the object is</span>
+<span class="sd">        created. If ``False`` the default value is used if the attribute is not set.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from dataclasses import dataclass</span>
+<span class="sd">    &gt;&gt;&gt; from ska_helpers.utils import TypedDescriptor</span>
+
+<span class="sd">    Here we make a dataclass with an attribute that is cast to an int.</span>
+
+<span class="sd">    &gt;&gt;&gt; @dataclass</span>
+<span class="sd">    &gt;&gt;&gt; class SomeClass:</span>
+<span class="sd">    ...     int_val: int = TypedDescriptor(required=True, cls=int)</span>
+<span class="sd">    &gt;&gt;&gt; obj = SomeClass(10.5)</span>
+<span class="sd">    &gt;&gt;&gt; obj.int_val</span>
+<span class="sd">    10</span>
+
+<span class="sd">    Here we define a ``QuatDescriptor`` class that can be used repeatedly for any</span>
+<span class="sd">    quaternion attribute.</span>
+
+<span class="sd">    &gt;&gt;&gt; from Quaternion import Quat</span>
+<span class="sd">    &gt;&gt;&gt; class QuatDescriptor(TypedDescriptor):</span>
+<span class="sd">    ...     cls = Quat</span>
+<span class="sd">    &gt;&gt;&gt; @dataclass</span>
+<span class="sd">    ... class MyClass:</span>
+<span class="sd">    ...     att1: Quat = QuatDescriptor(required=True)</span>
+<span class="sd">    ...     att2: Quat = QuatDescriptor(default=[10, 20, 30])</span>
+<span class="sd">    ...     att3: Quat | None = QuatDescriptor()</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; obj = MyClass(att1=[0, 0, 0, 1])</span>
+<span class="sd">    &gt;&gt;&gt; obj.att1</span>
+<span class="sd">    &lt;Quat q1=0.00000000 q2=0.00000000 q3=0.00000000 q4=1.00000000&gt;</span>
+<span class="sd">    &gt;&gt;&gt; obj.att2.equatorial</span>
+<span class="sd">    array([10., 20., 30.])</span>
+<span class="sd">    &gt;&gt;&gt; obj.att3 is None</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; obj.att3 = [10, 20, 30]</span>
+<span class="sd">    &gt;&gt;&gt; obj.att3.equatorial</span>
+<span class="sd">    array([10., 20., 30.])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cls</span> <span class="o">=</span> <span class="bp">cls</span>
+        <span class="k">if</span> <span class="n">required</span> <span class="ow">and</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cannot set both &#39;required&#39; and &#39;default&#39; arguments&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="n">required</span>
+
+        <span class="c1"># Default is set here at the time of class creation, not at the time of</span>
+        <span class="c1"># instantiation.  Coercing the default to the correct type is deferred until the</span>
+        <span class="c1"># instance is created. This happens because at instance creation (if the</span>
+        <span class="c1"># attribute value was not specified) the dataclass machinery evaluates</span>
+        <span class="c1"># ``Class.attr`` (e.g. ``QuatDescriptor.quat``) which triggers the ``__get__``</span>
+        <span class="c1"># method of the descriptor with ``obj=None``. That returns the default which is</span>
+        <span class="c1"># then passed to the ``__set__`` method which does type coercion. See</span>
+        <span class="c1"># https://docs.python.org/3/library/dataclasses.html#descriptor-typed-fields and</span>
+        <span class="c1"># the bit about &quot;To determine whether a field contains a default value&quot;.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
+
+    <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">name</span>
+
+    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">objtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># See long comment above about why this is returning self.default.</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
+
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;attribute </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="si">!r}</span><span class="s2"> is required and cannot be set to None&quot;</span>
+            <span class="p">)</span>
+        <span class="c1"># None is the default value for the attribute if it is not set explicitly.</span>
+        <span class="c1"># In this case it is not coerced to the descriptor type.</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 </pre></div>
 
             <div class="clearer"></div>

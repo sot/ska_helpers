@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Ska Package Helpers &#8212; Ska Helpers 0.13.0 documentation</title>
+    <title>Ska Package Helpers &#8212; Ska Helpers 0.14.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     
@@ -46,7 +46,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="#">Ska Helpers 0.13.0 documentation</a>
+	<a href="#">Ska Helpers 0.14.0 documentation</a>
 	 &#187;
       </li>
       
@@ -627,6 +627,81 @@ needed).</p>
 </div>
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="ska_helpers.utils.TypedDescriptor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ska_helpers.utils.</span></span><span class="sig-name descname"><span class="pre">TypedDescriptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#TypedDescriptor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.utils.TypedDescriptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to create a descriptor for a dataclass attribute that is cast to a type.</p>
+<p>This is a base class for creating a descriptor that can be used to define an
+attribute on a dataclass that is cast to a specific type.  The type is specified by
+setting the <code class="docutils literal notranslate"><span class="pre">cls</span></code> class attribute on the descriptor class.</p>
+<p>Most commonly <code class="docutils literal notranslate"><span class="pre">cls</span></code> is a class like <code class="docutils literal notranslate"><span class="pre">CxoTime</span></code> or <code class="docutils literal notranslate"><span class="pre">Quat</span></code>, but it could also be
+a built-in like <code class="docutils literal notranslate"><span class="pre">int</span></code> or <code class="docutils literal notranslate"><span class="pre">float</span></code> or any callable function.</p>
+<p>This descriptor can be used either as a base class with the <code class="docutils literal notranslate"><span class="pre">cls</span></code> class attribute
+set accordingly, or as a descriptor with the <code class="docutils literal notranslate"><span class="pre">cls</span></code> keyword argument set.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This descriptor class is recommended for use within a
+<a class="reference external" href="https://docs.python.org/3/library/dataclasses.html">dataclass</a>. In a normal</p>
+<blockquote>
+<div><p>class the default value <strong>must</strong> be set to the correct type since it will not be
+coerced to the correct type automatically.</p>
+</div></blockquote>
+</div>
+<p>The default value cannot be <code class="docutils literal notranslate"><span class="pre">list</span></code>, <code class="docutils literal notranslate"><span class="pre">dict</span></code>, or <code class="docutils literal notranslate"><span class="pre">set</span></code> since these are mutable
+and are disallowed by the dataclass machinery. In most cases a <code class="docutils literal notranslate"><span class="pre">list</span></code> can be
+replaced by a <code class="docutils literal notranslate"><span class="pre">tuple</span></code> and a <code class="docutils literal notranslate"><span class="pre">dict</span></code> can be replaced by an <code class="docutils literal notranslate"><span class="pre">OrderedDict</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>default</strong><span class="classifier">optional</span></dt><dd><p>Default value for the attribute. If specified and not <code class="docutils literal notranslate"><span class="pre">None</span></code>, it will be
+coerced to the correct type via <code class="docutils literal notranslate"><span class="pre">cls(default)</span></code>.  If not specified, the default
+for the attribute is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+<dt><strong>required</strong><span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the attribute is required to be set explicitly when the object is
+created. If <code class="docutils literal notranslate"><span class="pre">False</span></code> the default value is used if the attribute is not set.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">ska_helpers.utils</span> <span class="kn">import</span> <span class="n">TypedDescriptor</span>
+</pre></div>
+</div>
+<p>Here we make a dataclass with an attribute that is cast to an int.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nd">@dataclass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">SomeClass</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">int_val</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">TypedDescriptor</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">SomeClass</span><span class="p">(</span><span class="mf">10.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">int_val</span>
+<span class="go">10</span>
+</pre></div>
+</div>
+<p>Here we define a <code class="docutils literal notranslate"><span class="pre">QuatDescriptor</span></code> class that can be used repeatedly for any
+quaternion attribute.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Quaternion</span> <span class="kn">import</span> <span class="n">Quat</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">QuatDescriptor</span><span class="p">(</span><span class="n">TypedDescriptor</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="bp">cls</span> <span class="o">=</span> <span class="n">Quat</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@dataclass</span>
+<span class="gp">... </span><span class="k">class</span> <span class="nc">MyClass</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">att1</span><span class="p">:</span> <span class="n">Quat</span> <span class="o">=</span> <span class="n">QuatDescriptor</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">att2</span><span class="p">:</span> <span class="n">Quat</span> <span class="o">=</span> <span class="n">QuatDescriptor</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="n">att3</span><span class="p">:</span> <span class="n">Quat</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">QuatDescriptor</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">MyClass</span><span class="p">(</span><span class="n">att1</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">att1</span>
+<span class="go">&lt;Quat q1=0.00000000 q2=0.00000000 q3=0.00000000 q4=1.00000000&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">att2</span><span class="o">.</span><span class="n">equatorial</span>
+<span class="go">array([10., 20., 30.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">att3</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">att3</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">att3</span><span class="o">.</span><span class="n">equatorial</span>
+<span class="go">array([10., 20., 30.])</span>
+</pre></div>
+</div>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_helpers.utils.convert_to_int_float_str">
 <span class="sig-prename descclassname"><span class="pre">ska_helpers.utils.</span></span><span class="sig-name descname"><span class="pre">convert_to_int_float_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ska_helpers/utils.html#convert_to_int_float_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.utils.convert_to_int_float_str" title="Permalink to this definition">¶</a></dt>
@@ -932,6 +1007,7 @@ program version, and so on.  This is aimed at executable scripts and cron jobs.<
 </ul>
 </li>
 <li><a class="reference internal" href="#ska_helpers.utils.LazyVal"><code class="docutils literal notranslate"><span class="pre">LazyVal</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.utils.TypedDescriptor"><code class="docutils literal notranslate"><span class="pre">TypedDescriptor</span></code></a></li>
 <li><a class="reference internal" href="#ska_helpers.utils.convert_to_int_float_str"><code class="docutils literal notranslate"><span class="pre">convert_to_int_float_str()</span></code></a></li>
 <li><a class="reference internal" href="#ska_helpers.utils.lru_cache_timed"><code class="docutils literal notranslate"><span class="pre">lru_cache_timed()</span></code></a></li>
 <li><a class="reference internal" href="#ska_helpers.utils.temp_env_var"><code class="docutils literal notranslate"><span class="pre">temp_env_var()</span></code></a></li>
