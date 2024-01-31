@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 The ``ska_helpers.version`` module provides utilities to handle package
-versions. The version of a package is determined using pkg_resources if it is
+versions. The version of a package is determined using importlib if it is
 installed, and `setuptools_scm <https://github.com/pypa/setuptools_scm/>`_
 otherwise.
 """
@@ -22,7 +22,7 @@ with warnings.catch_warnings():
     warnings.filterwarnings(
         "ignore", message=r"Module \w+ was already imported", category=UserWarning
     )
-    from pkg_resources import DistributionNotFound, get_distribution
+    from importlib import resources, metadata
 
 
 def get_version_logger(level_stdout, level_string):
@@ -93,32 +93,17 @@ def get_version(package, distribution=None):
                 "  Getting distribution "
                 f"dist_info=get_distribution({distribution or package})"
             )
-            dist_info = get_distribution(distribution or package)
-            version = dist_info.version
-            log(f"    {dist_info.location=}")
-            log(f"    {dist_info.version=}")
-
-            # Check if the imported package __init__.py file has the same location
-            # as the distribution that was found.  If working in a local git repo
-            # that does not have a <package>.egg-info directory, get_distribution()
-            # will find an installed version.  Windows does not necessarily
-            # respect the case so downcase everything.
-            ok = module_file.lower().startswith(dist_info.location.lower())
-            if ok:
-                log("    distinfo.location matches module_file")
-            else:
-                log(
-                    "    WARNING: distinfo.location does not match module_file, "
-                    "falling through to setuptools_scm"
-                )
-            assert ok
+            version = metadata.version(distribution or package)
+            location = resources.files(distribution or package)
+            log(f"    {location=}")
+            log(f"    {version=}")
 
             # If the dist_info.location appears to be a git repo, then
-            # get_distribution() has gotten a "local" distribution and the
-            # dist_info.version just corresponds to whatever version was the
+            # importlib has gotten a "local" distribution and the
+            # version just corresponds to whatever version was the
             # last run of "setup.py sdist" or "setup.py bdist_wheel", i.e.
             # unrelated to current version, so ignore in this case.
-            git_dir = Path(dist_info.location, ".git")
+            git_dir = location.parent / ".git"
             bad = git_dir.exists() and git_dir.is_dir()
             if bad:
                 log(
@@ -129,8 +114,8 @@ def get_version(package, distribution=None):
                 log("    distinfo.location looks OK (not a git repo)")
             assert not bad
 
-        except (DistributionNotFound, AssertionError):
-            # Get_distribution failed or found a different package from this
+        except (metadata.PackageNotFoundError, AssertionError):
+            # metadata.version failed or found a different package from this
             # file, try getting version from source repo.
             from setuptools_scm import get_version
 
