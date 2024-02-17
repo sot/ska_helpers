@@ -1,11 +1,13 @@
 import functools
-import logging
 import random
+import re
 import sys
 import time
 import traceback
 
-logging_logger = logging.getLogger(__name__)
+from ska_helpers.logging import basic_logger
+
+logging_logger = basic_logger(__name__, format="%(message)s")
 
 
 class RetryError(Exception):
@@ -21,6 +23,33 @@ class RetryError(Exception):
         self.failures = failures
 
 
+def _mangle_alert_words(msg):
+    """
+    Mangle alert words "warning", "error", "fatal", "fail", "exception" in a string.
+
+    This is done by replacing "i" or "l" with "1" and "o" with "0" in the middle of
+    any of these words. The intent is to avoid triggering the task schedule "check" for
+    for those words. This is done with a case-insensitive regex substitution.
+
+    Example::
+
+        >>> mangle_alert_words("WARNING: This is a fatal Error message.")
+        'WARN1NG: This is a fata1 Err0r message.'
+
+    :param msg: the string to mangle.
+    :returns: the mangled string.
+    """
+    for re_word, sub in (
+        ("(warn)(i)(ng)", "1"),
+        ("(err)(o)(r)", "0"),
+        ("(fata)(l)()", "1"),
+        ("(fai)(l)()", "1"),
+        ("(excepti)(o)(n)", "0"),
+    ):
+        msg = re.sub(re_word, rf"\g<1>{sub}\3", msg, flags=re.IGNORECASE)
+    return msg
+
+
 def __retry_internal(
     f,
     exceptions=Exception,
@@ -30,6 +59,7 @@ def __retry_internal(
     backoff=1,
     jitter=0,
     logger=logging_logger,
+    mangle_alert_words=False,
     args=None,
     kwargs=None,
 ):
@@ -46,6 +76,9 @@ def __retry_internal(
                    fixed if a number, random if a range tuple (min, max)
     :param logger: logger.warning(fmt, error, delay) will be called on failed attempts.
                    default: retry.logging_logger. if None, logging is disabled.
+    :param mangle_alert_words: if True, mangle alert words "warning", "error", "fatal",
+                   "exception", "fail" when issuing a logger warning message.
+                   Default: False.
     :param args: tuple, function args
     :param kwargs: dict, function kwargs
     :returns: the result of the f function.
@@ -76,10 +109,13 @@ def __retry_internal(
                 call_args_str = ", ".join(str(arg) for arg in call_args)
                 func_name = getattr(f, "__name__", "func")
                 func_call = f"{func_name}({call_args_str})"
-                logger.warning(
+                msg = (
                     f"WARNING: {func_call} exception: {e}, retrying "
                     f"in {_delay} seconds..."
                 )
+                if mangle_alert_words:
+                    msg = _mangle_alert_words(msg)
+                logger.warning(msg)
 
             time.sleep(_delay)
             _delay *= backoff
@@ -101,6 +137,7 @@ def retry(
     backoff=1,
     jitter=0,
     logger=logging_logger,
+    mangle_alert_words=False,
 ):
     """Returns a retry decorator.
 
@@ -113,6 +150,8 @@ def retry(
                    fixed if a number, random if a range tuple (min, max)
     :param logger: logger.warning(fmt, error, delay) will be called on failed attempts.
                    default: retry.logging_logger. if None, logging is disabled.
+    :param mangle_alert_words: if True, mangle alert words "warning", "error", "fatal",
+                   "exception" when issuing a logger warning message. Default: False.
     :returns: a retry decorator.
     """
 
@@ -128,6 +167,7 @@ def retry(
                 backoff,
                 jitter,
                 logger,
+                mangle_alert_words=mangle_alert_words,
                 args=args,
                 kwargs=kwargs,
             )
@@ -148,6 +188,7 @@ def retry_call(
     backoff=1,
     jitter=0,
     logger=logging_logger,
+    mangle_alert_words=False,
 ):
     """
     Calls a function and re-executes it if it failed.
@@ -164,6 +205,9 @@ def retry_call(
                    fixed if a number, random if a range tuple (min, max)
     :param logger: logger.warning(fmt, error, delay) will be called on failed attempts.
                    default: retry.logging_logger. if None, logging is disabled.
+    :param mangle_alert_words: if True, mangle alert words "warning", "error", "fatal",
+                   "exception", "fail" when issuing a logger warning message.
+                   Default: False.
     :returns: the result of the f function.
     """
     if args is None:
@@ -180,6 +224,7 @@ def retry_call(
         backoff,
         jitter,
         logger,
+        mangle_alert_words=mangle_alert_words,
         args=args,
         kwargs=kwargs,
     )
@@ -192,7 +237,15 @@ def tables_open_file(*args, **kwargs):
     it will try again after 2 seconds and once more after 4 seconds.
 
     :param *args: args passed through to tables.open_file()
-    :param **kwargs: kwargs passed through to tables.open_file()
+    :param mangle_alert_words: (keyword-only) if True, mangle alert words "warning",
+                   "error", "fatal", "exception", "fail" when issuing a logger warning
+                   message. Default: True.
+    :param retry_delay: (keyword-only) initial delay between attempts. default: 2.
+    :param retry_tries: (keyword-only) the maximum number of attempts. default: 3.
+    :param retry_backoff: (keyword-only) multiplier applied to delay between attempts.
+                     default: 2.
+    :param retry_logger: (keyword-only) logger.warning(msg) will be called.
+    :param **kwargs: additional kwargs passed through to tables.open_file()
     :returns: tables file handle
     """
     import tables
@@ -200,13 +253,21 @@ def tables_open_file(*args, **kwargs):
 
     import ska_helpers.retry
 
+    mangle_alert_words = kwargs.pop("mangle_alert_words", True)
+    retry_delay = kwargs.pop("retry_delay", 2)
+    retry_tries = kwargs.pop("retry_tries", 3)
+    retry_backoff = kwargs.pop("retry_backoff", 2)
+    retry_logger = kwargs.pop("retry_logger", logging_logger)
+
     h5 = ska_helpers.retry.retry_call(
         tables.open_file,
         args=args,
         kwargs=kwargs,
         exceptions=tables.exceptions.HDF5ExtError,
-        delay=2,
-        tries=3,
-        backoff=2,
+        delay=retry_delay,
+        tries=retry_tries,
+        backoff=retry_backoff,
+        logger=retry_logger,
+        mangle_alert_words=mangle_alert_words,
     )
     return h5
