@@ -57,6 +57,18 @@ lint.extend-ignore = [
 #  "C416", # Unnecessary `dict` comprehension (rewrite using `dict()`)
 #  "G010", # warn is deprecated in favor of warning
 #  "PYI056", # Calling `.append()` on `__all__` may not be supported by all type checkers
+    #
+    # These were noted in PR #57 with the transition to ruff and are being ignored only
+    # to minimize unrelated diffs there. These should mosty be fixed in a subsequent PR.
+    #
+    "ARG001",
+    "PYI041",
+    "D205",
+    "I001",
+    "C403",
+    "B904",
+    "B018",
+    "F541",
 ]
 
 extend-exclude = [
@@ -71,4 +83,4 @@ max-line-length = 100 # E501 reports lines that exceed the length of 100.
 # For tests:
 # - D205: Don't worry about test docstrings
 # - ARG001: Unused function argument false positives for some fixtures
-"**/tests/test_*.py" = ["D205", "ARG001"]
+"**/tests/test_*.py" = ["D205", "ARG001", "E501"]
