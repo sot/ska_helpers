@@ -1,17 +1,16 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ska_helpers.utils &#8212; Ska Helpers 0.15.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css" />
+    <title>ska_helpers.utils &#8212; Ska Helpers 0.16.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/documentation_options.js?v=7de89ed4"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <script type="text/javascript" src="../../_static/copybutton.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -45,7 +44,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Ska Helpers 0.15.0 documentation</a>
+	<a href="../../index.html">Ska Helpers 0.16.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" >Module code</a> &#187;</li>
@@ -122,7 +121,9 @@
     <span class="k">return</span> <span class="n">wrapper</span>
 
 
-<div class="viewcode-block" id="LazyVal"><a class="viewcode-back" href="../../index.html#ska_helpers.utils.LazyVal">[docs]</a><span class="k">class</span> <span class="nc">LazyVal</span><span class="p">:</span>
+<div class="viewcode-block" id="LazyVal">
+<a class="viewcode-back" href="../../index.html#ska_helpers.utils.LazyVal">[docs]</a>
+<span class="k">class</span> <span class="nc">LazyVal</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Value which is lazy-initialized using supplied function ``load_func``.</span>
 
 <span class="sd">    This class allows defining a module-level value that is expensive to</span>
@@ -176,7 +177,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_val</span></div>
 
 
-<div class="viewcode-block" id="LazyDict"><a class="viewcode-back" href="../../index.html#ska_helpers.utils.LazyDict">[docs]</a><span class="k">class</span> <span class="nc">LazyDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+
+<div class="viewcode-block" id="LazyDict">
+<a class="viewcode-back" href="../../index.html#ska_helpers.utils.LazyDict">[docs]</a>
+<span class="k">class</span> <span class="nc">LazyDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Dict which is lazy-initialized using supplied function ``load_func``.</span>
 
 <span class="sd">    This class allows defining a module-level dict that is expensive to</span>
@@ -256,7 +260,10 @@
     <span class="n">values</span> <span class="o">=</span> <span class="n">_lazy_load_wrap</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">values</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="lru_cache_timed"><a class="viewcode-back" href="../../index.html#ska_helpers.utils.lru_cache_timed">[docs]</a><span class="k">def</span> <span class="nf">lru_cache_timed</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">typed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">3600</span><span class="p">):</span>
+
+<div class="viewcode-block" id="lru_cache_timed">
+<a class="viewcode-back" href="../../index.html#ska_helpers.utils.lru_cache_timed">[docs]</a>
+<span class="k">def</span> <span class="nf">lru_cache_timed</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">typed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">3600</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;LRU cache decorator where the cache expires after ``timeout`` seconds.</span>
 
 <span class="sd">    This wraps the functools.lru_cache decorator so that the entire cache gets</span>
@@ -308,7 +315,10 @@
     <span class="k">return</span> <span class="n">_wrapper</span></div>
 
 
-<div class="viewcode-block" id="LRUDict"><a class="viewcode-back" href="../../index.html#ska_helpers.utils.LRUDict">[docs]</a><span class="k">class</span> <span class="nc">LRUDict</span><span class="p">(</span><span class="n">OrderedDict</span><span class="p">):</span>
+
+<div class="viewcode-block" id="LRUDict">
+<a class="viewcode-back" href="../../index.html#ska_helpers.utils.LRUDict">[docs]</a>
+<span class="k">class</span> <span class="nc">LRUDict</span><span class="p">(</span><span class="n">OrderedDict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Dict that maintains a fixed capacity and evicts least recently used item when full.</span>
 
@@ -355,7 +365,10 @@
             <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="n">oldest</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="temp_env_var"><a class="viewcode-back" href="../../index.html#ska_helpers.utils.temp_env_var">[docs]</a><span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+
+<div class="viewcode-block" id="temp_env_var">
+<a class="viewcode-back" href="../../index.html#ska_helpers.utils.temp_env_var">[docs]</a>
+<span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
 <span class="k">def</span> <span class="nf">temp_env_var</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A context manager that temporarily sets an environment variable.</span>
@@ -387,7 +400,10 @@
             <span class="k">del</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="convert_to_int_float_str"><a class="viewcode-back" href="../../index.html#ska_helpers.utils.convert_to_int_float_str">[docs]</a><span class="k">def</span> <span class="nf">convert_to_int_float_str</span><span class="p">(</span><span class="n">val</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="convert_to_int_float_str">
+<a class="viewcode-back" href="../../index.html#ska_helpers.utils.convert_to_int_float_str">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_to_int_float_str</span><span class="p">(</span><span class="n">val</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert an input string into an int, float, or string.</span>
 
 <span class="sd">    This tries to convert the input string into an int using the built-in ``int()``</span>
@@ -438,7 +454,10 @@
     <span class="k">return</span> <span class="n">out</span></div>
 
 
-<div class="viewcode-block" id="TypedDescriptor"><a class="viewcode-back" href="../../index.html#ska_helpers.utils.TypedDescriptor">[docs]</a><span class="k">class</span> <span class="nc">TypedDescriptor</span><span class="p">:</span>
+
+<div class="viewcode-block" id="TypedDescriptor">
+<a class="viewcode-back" href="../../index.html#ska_helpers.utils.TypedDescriptor">[docs]</a>
+<span class="k">class</span> <span class="nc">TypedDescriptor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to create a descriptor for a dataclass attribute that is cast to a type.</span>
 
 <span class="sd">    This is a base class for creating a descriptor that can be used to define an</span>
@@ -546,6 +565,7 @@
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -570,7 +590,7 @@
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2019, Javier Gonzalez.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 6.1.3. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
   </p>
 </footer>
   </body>
