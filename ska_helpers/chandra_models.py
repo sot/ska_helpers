@@ -2,6 +2,7 @@
 """
 Get data from chandra_models repository.
 """
+
 import contextlib
 import functools
 import hashlib
