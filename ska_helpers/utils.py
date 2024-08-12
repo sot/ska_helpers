@@ -5,6 +5,8 @@ import functools
 import os
 from collections import OrderedDict
 
+import numpy as np
+
 __all__ = [
     "get_owner",
     "LazyDict",
@@ -271,6 +273,62 @@ def lru_cache_timed(maxsize=128, typed=False, timeout=3600):
         return _wrapped
 
     return _wrapper
+
+
+def random_radec_in_cone(
+    ra: float, dec: float, angle: float, size=None
+) -> tuple[np.ndarray, np.ndarray]:
+    """Get random sky coordinates within a cone.
+
+    This returns a tuple of RA and Dec values within ``angle`` degrees of ``ra`` and
+    ``dec``. The coordinates are uniformly distributed over the sky area.
+
+    Parameters
+    ----------
+    ra : float
+        RA in degrees of the center of the cone.
+    dec : float
+        Dec in degrees of the center of the cone.
+    angle : float
+        The radius of the cone in degrees.
+    size : int, optional
+        The number of random coordinates to generate. If not specified, a single
+        coordinate is generated.
+
+    Returns
+    -------
+    ra_rand : np.ndarray
+        Random RA values in degrees.
+    dec_rand : np.ndarray
+        Random Dec values in degrees.
+    """
+    import chandra_aca.transform as cat
+    from Quaternion import Quat
+
+    # Convert input angles from degrees to radians
+    angle_rad = np.radians(angle)
+
+    # Generate a random azimuthal angle (phi) between 0 and 2π
+    phi = np.random.uniform(0, 2 * np.pi, size=size)
+
+    # Generate a random polar angle (theta) within the specified angle from the north pole
+    u = np.random.uniform(0, 1, size=size)
+    theta = np.arccos(1 - u * (1 - np.cos(angle_rad)))
+
+    # Generate vectors around pole (dec=90)
+    ra_rot = np.degrees(phi)
+    dec_rot = 90 - np.degrees(theta)
+    eci = cat.radec_to_eci(ra_rot, dec_rot)
+
+    # Swap x and z axes to get vectors centered around RA=0 ad Dec=0
+    eci[..., [0, 2]] = eci[..., [2, 0]]
+
+    # Now rotate the random vectors to be centered about the desired RA and Dec.
+    q = Quat([ra, dec, 0])
+    eci_rot = q.transform @ eci.T
+    ra_rand, dec_rand = cat.eci_to_radec(eci_rot.T)
+
+    return ra_rand, dec_rand
 
 
 class LRUDict(OrderedDict):
