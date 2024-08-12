@@ -231,11 +231,19 @@ def test_int_descriptor_is_required_has_default_exception(cls_descriptor):
 
 def test_set_log_level():
     logger = ska_helpers.logging.basic_logger("test_utils", level="DEBUG")
+
     assert logger.level == logging.DEBUG
-    assert len(logger.handlers) > 0
+    assert len(logger.handlers) == 1
     for hdlr in logger.handlers:
         assert hdlr.level == 0
+
     with set_log_level(logger, "INFO"):
         assert logger.level == logging.INFO
+        assert len(logger.handlers) == 1
         for hdlr in logger.handlers:
             assert hdlr.level == logging.INFO
+
+    assert logger.level == logging.DEBUG
+    assert len(logger.handlers) == 1
+    for hdlr in logger.handlers:
+        assert hdlr.level == 0
