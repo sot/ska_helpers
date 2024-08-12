@@ -13,8 +13,12 @@ from ska_helpers.utils import (
     TypedDescriptor,
     convert_to_int_float_str,
     lru_cache_timed,
+    set_log_level,
     temp_env_var,
 )
+
+import ska_helpers.logging
+import logging
 
 
 def load_func(a, b, c=None):
@@ -223,3 +227,15 @@ def test_int_descriptor_is_required_has_default_exception(cls_descriptor):
         @dataclass
         class MyClass:
             quat: int = cls_descriptor(default=30, required=True)
+
+
+def test_set_log_level():
+    logger = ska_helpers.logging.basic_logger("test_utils", level="DEBUG")
+    assert logger.level == logging.DEBUG
+    assert len(logger.handlers) > 0
+    for hdlr in logger.handlers:
+        assert hdlr.level == 0
+    with set_log_level(logger, "INFO"):
+        assert logger.level == logging.INFO
+        for hdlr in logger.handlers:
+            assert hdlr.level == logging.INFO
