@@ -6,6 +6,7 @@ import os
 from collections import OrderedDict
 
 __all__ = [
+    "get_owner",
     "LazyDict",
     "LazyVal",
     "LRUDict",
