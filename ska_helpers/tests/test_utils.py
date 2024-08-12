@@ -1,11 +1,15 @@
 import functools
+import logging
 import os
 import pickle
 import time
 from dataclasses import dataclass
 
+import agasc
+import numpy as np
 import pytest
 
+import ska_helpers.logging
 from ska_helpers.utils import (
     LazyDict,
     LazyVal,
@@ -13,12 +17,10 @@ from ska_helpers.utils import (
     TypedDescriptor,
     convert_to_int_float_str,
     lru_cache_timed,
+    random_radec_in_cone,
     set_log_level,
     temp_env_var,
 )
-
-import ska_helpers.logging
-import logging
 
 
 def load_func(a, b, c=None):
@@ -247,3 +249,23 @@ def test_set_log_level():
     assert len(logger.handlers) == 1
     for hdlr in logger.handlers:
         assert hdlr.level == 0
+
+
+def test_random_radec_in_cone_scalar():
+    np.random.seed(0)
+    ra, dec = random_radec_in_cone(10, 20, angle=5)
+    assert np.isclose(ra, 8.6733489)
+    assert np.isclose(dec, 15.964518)
+
+
+def test_random_radec_in_cone_size_values():
+    np.random.seed(0)
+    ra, dec = random_radec_in_cone(10, 20, angle=5, size=2)
+    assert np.allclose(ra, [8.77992603, 6.18623754])
+    assert np.allclose(dec, [16.29571322, 19.15880785])
+
+
+def test_random_radec_in_cone_size_angle():
+    np.random.seed(0)
+    ra, dec = random_radec_in_cone(10, 20, angle=5, size=10000)
+    assert np.all(agasc.sphere_dist(ra, dec, 10, 20) < 5)

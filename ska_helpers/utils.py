@@ -277,7 +277,7 @@ def lru_cache_timed(maxsize=128, typed=False, timeout=3600):
 
 
 def random_radec_in_cone(
-    ra: float, dec: float, angle: float, size=None
+    ra: float, dec: float, *, angle: float, size=None
 ) -> tuple[np.ndarray, np.ndarray]:
     """Get random sky coordinates within a cone.
 
