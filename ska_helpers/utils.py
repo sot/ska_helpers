@@ -13,7 +13,35 @@ __all__ = [
     "temp_env_var",
     "convert_to_int_float_str",
     "TypedDescriptor",
+    "set_log_level",
 ]
+
+
+@contextlib.contextmanager
+def set_log_level(logger, level=None):
+    """Set the log level of a logger and its handlers for context block.
+
+    Parameters
+    ----------
+    logger : logging.Logger
+        The logger object to set the level for.
+    level : str, int, None, optional
+        The log level to set.  This can be a string like "DEBUG", "INFO", "WARNING",
+        "ERROR", "CRITICAL", or an integer value from the ``logging`` module. If level
+        is None (default), the log level is not changed.
+    """
+    orig_levels = {}
+    if level is not None:
+        orig_levels[logger] = logger.level
+        logger.setLevel(level)
+        for handler in logger.handlers:
+            orig_levels[handler] = handler.level
+            handler.setLevel(level)
+    try:
+        yield
+    finally:
+        for log_obj, orig_level in orig_levels.items():
+            log_obj.setLevel(orig_level)
 
 
 def get_owner(path):
