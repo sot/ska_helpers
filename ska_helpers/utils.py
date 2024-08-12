@@ -17,6 +17,7 @@ __all__ = [
     "convert_to_int_float_str",
     "TypedDescriptor",
     "set_log_level",
+    "random_radec_in_cone",
 ]
 
 
