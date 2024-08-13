@@ -2,6 +2,7 @@
 """
 Helper functions for using git.
 """
+
 import functools
 import git
 import re
