@@ -301,7 +301,7 @@ def assert_latest_version(version, timeout):
         )
     elif version != gh_version:
         raise ValueError(
-            f"version mismatch: local repo {version} vs " f"github {gh_version}"
+            f"version mismatch: local repo {version} vs github {gh_version}"
         )
 
 
