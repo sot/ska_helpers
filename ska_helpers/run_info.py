@@ -73,11 +73,11 @@ def get_run_info_lines(opt=None, *, version=None, stack_level=2):
     info = get_run_info(opt, version=version, stack_level=stack_level)
     info_lines = [
         f"******************************************",
-        f'Running: {info["filename"]}',
-        f'Version: {info["version"]}',
-        f'Time: {info["time"]}',
-        f'User: {info["user"]}',
-        f'Machine: {info["machine"]}',
+        f"Running: {info['filename']}",
+        f"Version: {info['version']}",
+        f"Time: {info['time']}",
+        f"User: {info['user']}",
+        f"Machine: {info['machine']}",
         f"Processing args:",
     ]
     info_lines.extend(pprint.pformat(info["args"]).splitlines())

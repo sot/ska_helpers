@@ -301,7 +301,7 @@ def assert_latest_version(version, timeout):
         )
     elif version != gh_version:
         raise ValueError(
-            f"version mismatch: local repo {version} vs " f"github {gh_version}"
+            f"version mismatch: local repo {version} vs github {gh_version}"
         )
 
 
@@ -336,7 +336,7 @@ def get_repo_version(
 
 def get_github_version(
     url: str = CHANDRA_MODELS_LATEST_URL, timeout: Union[int, float] = 5
-) -> Optional[bool]:
+) -> Optional[str]:
     """Get latest chandra_models GitHub repo release tag (version).
 
     This queries GitHub for the latest release of chandra_models.

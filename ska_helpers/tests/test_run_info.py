@@ -26,7 +26,7 @@ def test_run_info():
         "args": {"test": "value"},
     }
 
-    for key in exp:
+    for key in exp:  # noqa: PLC0206
         assert info[key] == exp[key]
 
     for key in ["time", "user", "machine"]:
