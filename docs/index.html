@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Ska Package Helpers &#8212; Ska Helpers 0.16.0 documentation</title>
+    <title>Ska Package Helpers &#8212; Ska Helpers 0.18.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="_static/documentation_options.js?v=7de89ed4"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/documentation_options.js?v=ba2e7b09"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
@@ -45,7 +45,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="#">Ska Helpers 0.16.0 documentation</a>
+	<a href="#">Ska Helpers 0.18.0 documentation</a>
 	 &#187;
       </li>
       
@@ -195,7 +195,7 @@ function to read the JSON file is compact but not recommended for production cod
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_helpers.chandra_models.get_github_version">
-<span class="sig-prename descclassname"><span class="pre">ska_helpers.chandra_models.</span></span><span class="sig-name descname"><span class="pre">get_github_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'https://api.github.com/repos/sot/chandra_models/releases/latest'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ska_helpers/chandra_models.html#get_github_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.chandra_models.get_github_version" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.chandra_models.</span></span><span class="sig-name descname"><span class="pre">get_github_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'https://api.github.com/repos/sot/chandra_models/releases/latest'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ska_helpers/chandra_models.html#get_github_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.chandra_models.get_github_version" title="Link to this definition">¶</a></dt>
 <dd><p>Get latest chandra_models GitHub repo release tag (version).</p>
 <p>This queries GitHub for the latest release of chandra_models.</p>
 <dl class="field-list simple">
@@ -745,6 +745,12 @@ literal.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ska_helpers.utils.get_owner">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.utils.</span></span><span class="sig-name descname"><span class="pre">get_owner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#get_owner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.utils.get_owner" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the owner of a file or directory.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ska_helpers.utils.lru_cache_timed">
 <span class="sig-prename descclassname"><span class="pre">ska_helpers.utils.</span></span><span class="sig-name descname"><span class="pre">lru_cache_timed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">maxsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3600</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#lru_cache_timed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.utils.lru_cache_timed" title="Link to this definition">¶</a></dt>
 <dd><p>LRU cache decorator where the cache expires after <code class="docutils literal notranslate"><span class="pre">timeout</span></code> seconds.</p>
@@ -762,6 +768,55 @@ is required.</p>
 <dt><strong>typed</strong><span class="classifier">bool</span></dt><dd><p>functools.lru_cache typed parameter</p>
 </dd>
 <dt><strong>timeout</strong><span class="classifier">int, float</span></dt><dd><p>Clear cache after <code class="docutils literal notranslate"><span class="pre">timeout</span></code> seconds from last clear</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ska_helpers.utils.random_radec_in_cone">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.utils.</span></span><span class="sig-name descname"><span class="pre">random_radec_in_cone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ska_helpers/utils.html#random_radec_in_cone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.utils.random_radec_in_cone" title="Link to this definition">¶</a></dt>
+<dd><p>Get random sky coordinates within a cone.</p>
+<p>This returns a tuple of RA and Dec values within <code class="docutils literal notranslate"><span class="pre">angle</span></code> degrees of <code class="docutils literal notranslate"><span class="pre">ra</span></code> and
+<code class="docutils literal notranslate"><span class="pre">dec</span></code>. The coordinates are uniformly distributed over the sky area.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ra</strong><span class="classifier">float</span></dt><dd><p>RA in degrees of the center of the cone.</p>
+</dd>
+<dt><strong>dec</strong><span class="classifier">float</span></dt><dd><p>Dec in degrees of the center of the cone.</p>
+</dd>
+<dt><strong>angle</strong><span class="classifier">float</span></dt><dd><p>The radius of the cone in degrees.</p>
+</dd>
+<dt><strong>size</strong><span class="classifier">int, optional</span></dt><dd><p>The number of random coordinates to generate. If not specified, a single
+coordinate is generated.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>ra_rand</strong><span class="classifier">np.ndarray</span></dt><dd><p>Random RA values in degrees.</p>
+</dd>
+<dt><strong>dec_rand</strong><span class="classifier">np.ndarray</span></dt><dd><p>Random Dec values in degrees.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ska_helpers.utils.set_log_level">
+<span class="sig-prename descclassname"><span class="pre">ska_helpers.utils.</span></span><span class="sig-name descname"><span class="pre">set_log_level</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/utils.html#set_log_level"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.utils.set_log_level" title="Link to this definition">¶</a></dt>
+<dd><p>Set the log level of a logger and its handlers for context block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>logger</strong><span class="classifier">logging.Logger</span></dt><dd><p>The logger object to set the level for.</p>
+</dd>
+<dt><strong>level</strong><span class="classifier">str, int, None, optional</span></dt><dd><p>The log level to set.  This can be a string like “DEBUG”, “INFO”, “WARNING”,
+“ERROR”, “CRITICAL”, or an integer value from the <code class="docutils literal notranslate"><span class="pre">logging</span></code> module. If level
+is None (default), the log level is not changed.</p>
 </dd>
 </dl>
 </dd>
@@ -970,7 +1025,7 @@ program version, and so on.  This is aimed at executable scripts and cron jobs.<
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
 <li><a class="reference internal" href="#">Ska Package Helpers</a><ul>
@@ -1021,7 +1076,10 @@ program version, and so on.  This is aimed at executable scripts and cron jobs.<
 <li><a class="reference internal" href="#ska_helpers.utils.LazyVal"><code class="docutils literal notranslate"><span class="pre">LazyVal</span></code></a></li>
 <li><a class="reference internal" href="#ska_helpers.utils.TypedDescriptor"><code class="docutils literal notranslate"><span class="pre">TypedDescriptor</span></code></a></li>
 <li><a class="reference internal" href="#ska_helpers.utils.convert_to_int_float_str"><code class="docutils literal notranslate"><span class="pre">convert_to_int_float_str()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.utils.get_owner"><code class="docutils literal notranslate"><span class="pre">get_owner()</span></code></a></li>
 <li><a class="reference internal" href="#ska_helpers.utils.lru_cache_timed"><code class="docutils literal notranslate"><span class="pre">lru_cache_timed()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.utils.random_radec_in_cone"><code class="docutils literal notranslate"><span class="pre">random_radec_in_cone()</span></code></a></li>
+<li><a class="reference internal" href="#ska_helpers.utils.set_log_level"><code class="docutils literal notranslate"><span class="pre">set_log_level()</span></code></a></li>
 <li><a class="reference internal" href="#ska_helpers.utils.temp_env_var"><code class="docutils literal notranslate"><span class="pre">temp_env_var()</span></code></a></li>
 </ul>
 </li>
@@ -1066,7 +1124,7 @@ program version, and so on.  This is aimed at executable scripts and cron jobs.<
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2019, Javier Gonzalez.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 8.1.3. &nbsp;
   </p>
 </footer>
   </body>
