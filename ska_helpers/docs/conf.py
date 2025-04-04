@@ -8,6 +8,7 @@
 import datetime
 import importlib
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -44,9 +45,11 @@ extensions = [
 
 templates_path = [template_dir]
 
-# Version information from the package.
+# Version information from the package. Clip anything in the version beyond dev number,
+# e.g. 0.1.0.dev12+g1234567+d12312311 => 0.1.0.dev12. This is to avoid the version
+# stomping on the top menu.
 pkg = importlib.import_module(project)
-version = pkg.__version__
+version = re.sub(r"(dev\d+).+", r"\1", pkg.__version__)
 release = version
 
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
