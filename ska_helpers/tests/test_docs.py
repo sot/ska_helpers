@@ -18,6 +18,6 @@ def test_get_conf_module():
     assert conf.template_dir == str(
         Path(ska_helpers.docs.__file__).parent.absolute() / "_templates"
     )
-    version =re.sub(r"(dev\d+).+", r"\1", ska_helpers.__version__)
+    version = re.sub(r"(dev\d+).+", r"\1", ska_helpers.__version__)
     assert conf.version == version
     assert conf.release == version
