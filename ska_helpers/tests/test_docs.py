@@ -1,6 +1,7 @@
 import ska_helpers
 from ska_helpers.docs import get_conf_module
 import os
+import re
 from pathlib import Path
 
 
@@ -17,5 +18,6 @@ def test_get_conf_module():
     assert conf.template_dir == str(
         Path(ska_helpers.docs.__file__).parent.absolute() / "_templates"
     )
-    assert conf.version == ska_helpers.__version__
-    assert conf.release == ska_helpers.__version__
+    version =re.sub(r"(dev\d+).+", r"\1", ska_helpers.__version__)
+    assert conf.version == version
+    assert conf.release == version
