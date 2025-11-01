@@ -20,12 +20,12 @@ LICENSE::
     limitations under the License.
 """
 
-__all__ = ["retry", "retry_call", "RetryError", "tables_open_file"]
+__all__ = ["retry", "retry_call", "RetryError", "tables_open_file", "MockFuncFailure"]
 
 import logging
 from logging import StreamHandler
 
-from .api import RetryError, retry, retry_call, tables_open_file
+from .api import MockFuncFailure, RetryError, retry, retry_call, tables_open_file
 
 log = logging.getLogger(__name__)
 log.addHandler(StreamHandler())

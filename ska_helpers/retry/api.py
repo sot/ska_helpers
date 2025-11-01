@@ -4,6 +4,7 @@ import re
 import sys
 import time
 import traceback
+from dataclasses import dataclass, field
 
 from ska_helpers.logging import basic_logger
 
@@ -21,6 +22,36 @@ class RetryError(Exception):
 
     def __init__(self, failures):
         self.failures = failures
+
+
+@dataclass
+class MockFuncFailure:
+    """Mock a function ``func`` to fail ``n_fail`` times and then succeed.
+
+    Example::
+
+        def test_stk_ephem_timeout(monkeypatch):
+            mock_get_occ_web_page = MockFuncFailure(occweb.get_occweb_page, n_fail=1)
+            monkeypatch.setattr(occweb, "get_occweb_page", mock_get_occ_web_page)
+            fetch_cxc.Msid("orbitephem_stk_x", "2023:001", "2023:002")
+            successes = [call["success"] for call in mock_get_occ_web_page.calls]
+            assert successes == [False, True, False, True]
+    """
+
+    func: callable
+    calls: list[dict] = field(default_factory=list)
+    n_fail: int = 2
+
+    def __call__(self, *args, **kwargs):
+        call = {"args": args, "kwargs": kwargs}
+        self.calls.append(call)
+
+        count = len(self.calls)
+        if count % (self.n_fail + 1) != 0:
+            call["success"] = False
+            raise TimeoutError("mock timeout error")
+        call["success"] = True
+        return self.func(*args, **kwargs)
 
 
 def _mangle_alert_words(msg):

@@ -13,8 +13,20 @@ import time
 import pytest
 import tables
 
-from ska_helpers.retry import RetryError, retry, tables_open_file
+from ska_helpers.retry import RetryError, retry, tables_open_file, MockFuncFailure
 from ska_helpers.retry.api import _mangle_alert_words, retry_call
+
+
+def test_mock_func_failure():
+    def func(x):
+        return x
+
+    mock_func = MockFuncFailure(func, n_fail=4)
+
+    out = retry_call(mock_func, [3], tries=5)
+    successes = [call["success"] for call in mock_func.calls]
+    assert successes == [False] * 4 + [True]
+    assert out == 3
 
 
 def test_retry(monkeypatch):
