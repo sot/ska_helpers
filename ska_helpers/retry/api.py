@@ -177,8 +177,7 @@ def __retry_internal(
                 )
                 if mangle_alert_words:
                     msg = _mangle_alert_words(msg)
-                print(logger)
-                logger.warning(msg, stacklevel=3)
+                logger.warning(msg)
 
             time.sleep(_delay)
             _delay *= backoff
