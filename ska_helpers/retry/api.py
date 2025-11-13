@@ -1,4 +1,6 @@
 import functools
+import inspect
+import logging
 import random
 import re
 import sys
@@ -8,7 +10,16 @@ from dataclasses import dataclass, field
 
 from ska_helpers.logging import basic_logger
 
-logging_logger = basic_logger(__name__, format="%(message)s")
+__all__ = [
+    "retry",
+    "retry_call",
+    "retry_func",
+    "RetryError",
+    "tables_open_file",
+    "MockFuncFailure",
+]
+
+logging_logger = basic_logger(__name__)
 
 
 class RetryError(Exception):
@@ -28,19 +39,41 @@ class RetryError(Exception):
 class MockFuncFailure:
     """Mock a function ``func`` to fail ``n_fail`` times and then succeed.
 
-    Example::
+    This can be used to confirm that retry logic deep inside another package (e.g.
+    cheta or kadi) is working as expected. The key here is that this forces some
+    failures but then returns the real function result.
 
-        def test_stk_ephem_timeout(monkeypatch):
+    Examples::
+
+        from ska_helpers import retry
+        from kadi import occweb
+
+        # For pytest unit tests
+        def test_stk_ephem_timeout(monkeypatch, tmp_path, clear_lru_cache):
+            monkeypatch.setattr(
+                ephem_stk, "EPHEM_STK_CACHE_DIR_DEFAULT", str(tmp_path / "cache")
+            )
             mock_get_occ_web_page = MockFuncFailure(occweb.get_occweb_page, n_fail=1)
             monkeypatch.setattr(occweb, "get_occweb_page", mock_get_occ_web_page)
-            fetch_cxc.Msid("orbitephem_stk_x", "2023:001", "2023:002")
-            successes = [call["success"] for call in mock_get_occ_web_page.calls]
-            assert successes == [False, True, False, True]
+            result = fetch_cxc.Msid("orbitephem_stk_x", "2023:001", "2023:002")
+            assert result.MSID == "ORBITEPHEM_STK_X"
+            assert len(mock_get_occ_web_page.calls) >= 6
+
+        # For playing around in a notebook
+        from unittest.mock import patch
+        from cheta import fetch
+
+        mock_get_occ_web_page = retry.MockFuncFailure(occweb.get_occweb_page, n_fail=2)
+        with patch.object(occweb, "get_occweb_page", side_effect=mock_get_occ_web_page):
+            fetch.Msid("orbitephem_stk_x", "2023:001", "2023:002")
+        successes = [call["success"] for call in mock_get_occ_web_page.calls]
+        assert successes == [False, True, False, True]
     """
 
     func: callable
-    calls: list[dict] = field(default_factory=list)
     n_fail: int = 2
+    calls: list[dict] = field(default_factory=list)
+    exception_cls: type = TimeoutError
 
     def __call__(self, *args, **kwargs):
         call = {"args": args, "kwargs": kwargs}
@@ -49,9 +82,18 @@ class MockFuncFailure:
         count = len(self.calls)
         if count % (self.n_fail + 1) != 0:
             call["success"] = False
-            raise TimeoutError("mock timeout error")
+            raise self.exception_cls(
+                f"mock exception {self.exception_cls.__name__} #{count}"
+            )
         call["success"] = True
         return self.func(*args, **kwargs)
+
+    @property
+    def __name__(self):
+        return "mock-" + self.func.__name__
+
+    def __hash__(self) -> int:
+        return id(self)
 
 
 def _mangle_alert_words(msg):
@@ -146,7 +188,8 @@ def __retry_internal(
                 )
                 if mangle_alert_words:
                     msg = _mangle_alert_words(msg)
-                logger.warning(msg)
+                print(logger)
+                logger.warning(msg, stacklevel=3)
 
             time.sleep(_delay)
             _delay *= backoff
@@ -160,9 +203,53 @@ def __retry_internal(
                 _delay = min(_delay, max_delay)
 
 
+RETRY_DEFAULTS = {"tries": 3, "delay": 1, "backoff": 2, "mangle_alert_words": True}
+
+
+@functools.cache
+def retry_func(func, logger=..., **retry_kwargs):
+    """Wrap function with retry decorator using reasonable defaults.
+
+    The defaults are defined in RETRY_DEFAULTS::
+
+        {"tries": 3, "delay": 1, "backoff": 2, "mangle_alert_words": True}
+
+    If a logger is not provided, will attempt to get from caller's global 'logger'.
+
+    The output is cached for performance and so that multiple calls return the same
+    function.
+
+    Parameters
+    ----------
+    func : callable
+        Function to retry.
+    logger : Logger, optional
+        Logger to use. If not supplied, will attempt to get from caller's global 'logger'.
+        Set logger=None to disable this.
+    **retry_kwargs
+        Additional keyword arguments passed to the retry decorator, including overriding
+        the RETRY_DEFAULTS settings.
+
+    Returns
+    -------
+    callable
+        Wrapped function that will be retried.
+    """
+    retry_kwargs = RETRY_DEFAULTS | retry_kwargs
+    if logger is ...:
+        frame = inspect.currentframe().f_back  # Caller's frame
+        logger = frame.f_globals.get("logger")
+        del frame  # Avoid reference cycles with frames
+
+    if isinstance(logger, logging.Logger):
+        retry_kwargs = retry_kwargs | {"logger": logger}
+
+    return retry(**retry_kwargs)(func)
+
+
 def retry(
     exceptions=Exception,
-    tries=-1,
+    tries=3,
     delay=0,
     max_delay=None,
     backoff=1,
@@ -213,7 +300,7 @@ def retry_call(
     args=None,
     kwargs=None,
     exceptions=Exception,
-    tries=-1,
+    tries=3,
     delay=0,
     max_delay=None,
     backoff=1,

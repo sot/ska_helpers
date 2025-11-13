@@ -1,19 +1,17 @@
-try:
-    from unittest.mock import create_autospec
-except ImportError:
-    from mock import create_autospec  # noqa
-
-try:
-    from unittest.mock import MagicMock
-except ImportError:
-    from mock import MagicMock
-
 import time
+from unittest.mock import MagicMock
 
 import pytest
 import tables
 
-from ska_helpers.retry import RetryError, retry, tables_open_file, MockFuncFailure
+from ska_helpers.logging import basic_logger
+from ska_helpers.retry import (
+    MockFuncFailure,
+    RetryError,
+    retry,
+    retry_func,
+    tables_open_file,
+)
 from ska_helpers.retry.api import _mangle_alert_words, retry_call
 
 
@@ -22,11 +20,38 @@ def test_mock_func_failure():
         return x
 
     mock_func = MockFuncFailure(func, n_fail=4)
+    assert mock_func.__name__ == "mock-func"
 
-    out = retry_call(mock_func, [3], tries=5)
+    out = retry_func(mock_func, tries=5, delay=0.01)(3)
     successes = [call["success"] for call in mock_func.calls]
     assert successes == [False] * 4 + [True]
     assert out == 3
+
+
+def test_retry_func(caplog):
+    def func42():
+        return 42
+
+    # Need to make a logger for this test that propagates to root so that caplog works.
+    logger = basic_logger("test_retry_func", level="WARNING")
+    logger.propagate = True
+
+    mock_func42 = MockFuncFailure(func42, n_fail=2)
+    result = retry_func(mock_func42, delay=0.01, logger=logger)()
+    assert len(mock_func42.calls) == 3  # 2 failures + 1 success
+    assert result == 42
+
+    # Test that warnings were logged for each retry
+    records = list(caplog.records)
+    assert len(records) == 2  # 2 failures before success
+    for record in records:
+        assert record.levelname == "WARNING"
+        assert (
+            "WARN1NG: mock-func42() excepti0n: mock excepti0n TimeoutErr0r"
+            in record.message
+        )
+    assert "retrying in 0.01 seconds..." in records[0].message
+    assert "retrying in 0.02 seconds..." in records[1].message
 
 
 def test_retry(monkeypatch):
@@ -275,7 +300,7 @@ class MockLogger:
     statement.
     """
 
-    def warning(self, msg):
+    def warning(self, msg, stacklevel=None):
         print(msg)
 
 
