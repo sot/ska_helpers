@@ -300,7 +300,7 @@ class MockLogger:
     statement.
     """
 
-    def warning(self, msg, stacklevel=None):
+    def warning(self, msg):
         print(msg)
 
 
