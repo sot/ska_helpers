@@ -11,8 +11,9 @@ from ska_helpers.retry import (
     retry,
     retry_func,
     tables_open_file,
+    retry_call,
 )
-from ska_helpers.retry.api import _mangle_alert_words, retry_call
+from ska_helpers.retry.api import _mangle_alert_words
 
 # Need to make a logger for this test that propagates to root so that caplog works.
 logger = basic_logger(__name__, propagate=True)
