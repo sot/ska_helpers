@@ -1,20 +1,59 @@
-try:
-    from unittest.mock import create_autospec
-except ImportError:
-    from mock import create_autospec  # noqa
-
-try:
-    from unittest.mock import MagicMock
-except ImportError:
-    from mock import MagicMock
-
 import time
+from unittest.mock import MagicMock
 
 import pytest
 import tables
 
-from ska_helpers.retry import RetryError, retry, tables_open_file
-from ska_helpers.retry.api import _mangle_alert_words, retry_call
+from ska_helpers.logging import basic_logger
+from ska_helpers.retry import (
+    MockFuncFailure,
+    RetryError,
+    retry,
+    retry_func,
+    tables_open_file,
+    retry_call,
+)
+from ska_helpers.retry.api import _mangle_alert_words
+
+# Need to make a logger for this test that propagates to root so that caplog works.
+logger = basic_logger(__name__, propagate=True)
+
+
+def test_mock_func_failure():
+    def func(x):
+        return x
+
+    mock_func = MockFuncFailure(func, n_fail=4)
+    assert mock_func.__name__ == "mock-func"
+
+    out = retry_func(mock_func, tries=5, delay=0.01)(3)
+    successes = [call["success"] for call in mock_func.calls]
+    assert successes == [False] * 4 + [True]
+    assert out == 3
+
+
+@pytest.mark.parametrize("default_logger", [True, False])
+def test_retry_func(caplog, default_logger):
+    def func42():
+        return 42
+
+    mock_func42 = MockFuncFailure(func42, n_fail=2)
+    kwargs = {} if default_logger else {"logger": logger}
+    result = retry_func(mock_func42, delay=0.01, **kwargs)()
+    assert len(mock_func42.calls) == 3  # 2 failures + 1 success
+    assert result == 42
+
+    # Test that warnings were logged for each retry
+    records = list(caplog.records)
+    assert len(records) == 2  # 2 failures before success
+    for record in records:
+        assert record.levelname == "WARNING"
+        assert (
+            "WARN1NG: mock-func42() excepti0n: mock excepti0n TimeoutErr0r"
+            in record.message
+        )
+    assert "retrying in 0.01 seconds..." in records[0].message
+    assert "retrying in 0.02 seconds..." in records[1].message
 
 
 def test_retry(monkeypatch):
@@ -254,45 +293,32 @@ class MockTableOpen:
             return "SUCCESS"
 
 
-class MockLogger:
-    """Mock logger that just prints the message.
-
-    Insanely enough, pytest capsys does not capture logger warnings, not does caplog
-    capture those warnings. There are years-old GH issues open on this and it seems like
-    it won't get fixed. After wasting 1/2 hour on this I'm just going to use a print
-    statement.
-    """
-
-    def warning(self, msg):
-        print(msg)
-
-
-def test_tables_open_file_warning_with_mangle_alert_words(monkeypatch, capsys):
+def test_tables_open_file_warning_with_mangle_alert_words(monkeypatch, caplog):
     mock_table_open = MockTableOpen(2)
     monkeypatch.setattr(tables, "open_file", mock_table_open)
-    logger = MockLogger()
     h5 = tables_open_file("junk.h5", retry_delay=0.01, retry_logger=logger)
     assert h5 == "SUCCESS"
-    out = capsys.readouterr().out.lower()
-    for word in ["warning", "error", "exception", "fatal", "fail"]:
-        assert word not in out
-    for word in ["warn1ng", "err0r", "excepti0n", "fata1", "fai1"]:
-        assert word in out
+    for record in caplog.records:
+        msg = record.message.lower()
+        for word in ["warning", "error", "exception", "fatal", "fail"]:
+            assert word not in msg
+        for word in ["warn1ng", "err0r", "excepti0n", "fata1", "fai1"]:
+            assert word in msg
 
 
-def test_tables_open_file_warning_without_mangle_alert_words(monkeypatch, capfd):
+def test_tables_open_file_warning_without_mangle_alert_words(monkeypatch, caplog):
     mock_table_open = MockTableOpen(2)
     monkeypatch.setattr(tables, "open_file", mock_table_open)
-    logger = MockLogger()
     h5 = tables_open_file(
         "junk.h5", retry_delay=0.01, mangle_alert_words=False, retry_logger=logger
     )
     assert h5 == "SUCCESS"
-    out = capfd.readouterr().out.lower()
-    for word in ["warning", "error", "exception", "fatal", "fail"]:
-        assert word in out
-    for word in ["warn1ng", "err0r", "excepti0n", "fata1", "fai1"]:
-        assert word not in out
+    for record in caplog.records:
+        msg = record.message.lower()
+        for word in ["warning", "error", "exception", "fatal", "fail"]:
+            assert word in msg
+        for word in ["warn1ng", "err0r", "excepti0n", "fata1", "fai1"]:
+            assert word not in msg
 
 
 def test_tables_open_file_exception_with_mangle_alert_words(monkeypatch):
