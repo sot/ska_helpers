@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Ska Package Helpers &#8212; Ska Helpers 0.19.0 documentation</title>
+    <title>Ska Package Helpers &#8212; Ska Helpers 0.20.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="_static/documentation_options.js?v=cbfb3150"></script>
+    <script src="_static/documentation_options.js?v=b52c616d"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
@@ -45,7 +45,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="#">Ska Helpers 0.19.0 documentation</a>
+	<a href="#">Ska Helpers 0.20.0 documentation</a>
 	 &#187;
       </li>
       
@@ -392,104 +392,6 @@ when the handler is closed.</p>
 <span class="n">limitations</span> <span class="n">under</span> <span class="n">the</span> <span class="n">License</span><span class="o">.</span>
 </pre></div>
 </div>
-<dl class="py exception">
-<dt class="sig sig-object py" id="ska_helpers.retry.RetryError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ska_helpers.retry.</span></span><span class="sig-name descname"><span class="pre">RetryError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">failures</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/retry/api.html#RetryError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.retry.RetryError" title="Link to this definition">¶</a></dt>
-<dd><p>Keep track of the stack of exceptions when trying multiple times.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>failures</strong><span class="classifier">list of dict, each with keys ‘type’, ‘value’, ‘trace’.</span></dt><dd></dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ska_helpers.retry.retry">
-<span class="sig-prename descclassname"><span class="pre">ska_helpers.retry.</span></span><span class="sig-name descname"><span class="pre">retry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exceptions=&lt;class</span> <span class="pre">'Exception'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tries=-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_delay=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backoff=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jitter=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger=&lt;Logger</span> <span class="pre">ska_helpers.retry.api</span> <span class="pre">(WARNING)&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mangle_alert_words=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/retry/api.html#retry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.retry.retry" title="Link to this definition">¶</a></dt>
-<dd><p>Returns a retry decorator.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>exceptions</strong> – an exception or a tuple of exceptions to catch. default: Exception.</p></li>
-<li><p><strong>tries</strong> – the maximum number of attempts. default: -1 (infinite).</p></li>
-<li><p><strong>delay</strong> – initial delay between attempts. default: 0.</p></li>
-<li><p><strong>max_delay</strong> – the maximum value of delay. default: None (no limit).</p></li>
-<li><p><strong>backoff</strong> – multiplier applied to delay between attempts. default: 1 (no backoff).</p></li>
-<li><p><strong>jitter</strong> – extra seconds added to delay between attempts. default: 0.
-fixed if a number, random if a range tuple (min, max)</p></li>
-<li><p><strong>logger</strong> – logger.warning(fmt, error, delay) will be called on failed attempts.
-default: retry.logging_logger. if None, logging is disabled.</p></li>
-<li><p><strong>mangle_alert_words</strong> – if True, mangle alert words “warning”, “error”, “fatal”,
-“exception” when issuing a logger warning message. Default: False.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>a retry decorator.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ska_helpers.retry.retry_call">
-<span class="sig-prename descclassname"><span class="pre">ska_helpers.retry.</span></span><span class="sig-name descname"><span class="pre">retry_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exceptions=&lt;class</span> <span class="pre">'Exception'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tries=-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_delay=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backoff=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jitter=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger=&lt;Logger</span> <span class="pre">ska_helpers.retry.api</span> <span class="pre">(WARNING)&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mangle_alert_words=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/retry/api.html#retry_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.retry.retry_call" title="Link to this definition">¶</a></dt>
-<dd><p>Calls a function and re-executes it if it failed.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>f</strong> – the function to execute.</p></li>
-<li><p><strong>args</strong> – the positional arguments of the function to execute.</p></li>
-<li><p><strong>kwargs</strong> – the named arguments of the function to execute.</p></li>
-<li><p><strong>exceptions</strong> – an exception or a tuple of exceptions to catch. default: Exception.</p></li>
-<li><p><strong>tries</strong> – the maximum number of attempts. default: -1 (infinite).</p></li>
-<li><p><strong>delay</strong> – initial delay between attempts. default: 0.</p></li>
-<li><p><strong>max_delay</strong> – the maximum value of delay. default: None (no limit).</p></li>
-<li><p><strong>backoff</strong> – multiplier applied to delay between attempts. default: 1 (no backoff).</p></li>
-<li><p><strong>jitter</strong> – extra seconds added to delay between attempts. default: 0.
-fixed if a number, random if a range tuple (min, max)</p></li>
-<li><p><strong>logger</strong> – logger.warning(fmt, error, delay) will be called on failed attempts.
-default: retry.logging_logger. if None, logging is disabled.</p></li>
-<li><p><strong>mangle_alert_words</strong> – if True, mangle alert words “warning”, “error”, “fatal”,
-“exception”, “fail” when issuing a logger warning message.
-Default: False.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the result of the f function.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ska_helpers.retry.tables_open_file">
-<span class="sig-prename descclassname"><span class="pre">ska_helpers.retry.</span></span><span class="sig-name descname"><span class="pre">tables_open_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_helpers/retry/api.html#tables_open_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_helpers.retry.tables_open_file" title="Link to this definition">¶</a></dt>
-<dd><p>Call <code class="docutils literal notranslate"><span class="pre">tables.open_file(*args,</span> <span class="pre">**kwargs)</span></code> with retry up to 3 times.</p>
-<p>This only catches tables.exceptions.HDF5ExtError. After an initial failure
-it will try again after 2 seconds and once more after 4 seconds.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>*args</strong> – <p>args passed through to tables.open_file()</p>
-</p></li>
-<li><p><strong>mangle_alert_words</strong> – (keyword-only) if True, mangle alert words “warning”,
-“error”, “fatal”, “exception”, “fail” when issuing a logger warning
-message. Default: True.</p></li>
-<li><p><strong>retry_delay</strong> – (keyword-only) initial delay between attempts. default: 2.</p></li>
-<li><p><strong>retry_tries</strong> – (keyword-only) the maximum number of attempts. default: 3.</p></li>
-<li><p><strong>retry_backoff</strong> – (keyword-only) multiplier applied to delay between attempts.
-default: 2.</p></li>
-<li><p><strong>retry_logger</strong> – (keyword-only) logger.warning(msg) will be called.</p></li>
-<li><p><strong>**kwargs</strong> – <p>additional kwargs passed through to tables.open_file()</p>
-</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>tables file handle</p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 <section id="module-ska_helpers.setup_helper">
 <span id="setup-helpers"></span><h2>Setup Helpers<a class="headerlink" href="#module-ska_helpers.setup_helper" title="Link to this heading">¶</a></h2>
@@ -1049,13 +951,7 @@ program version, and so on.  This is aimed at executable scripts and cron jobs.<
 <li><a class="reference internal" href="#ska_helpers.logging.basic_logger"><code class="docutils literal notranslate"><span class="pre">basic_logger()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-ska_helpers.retry">Retry</a><ul>
-<li><a class="reference internal" href="#ska_helpers.retry.RetryError"><code class="docutils literal notranslate"><span class="pre">RetryError</span></code></a></li>
-<li><a class="reference internal" href="#ska_helpers.retry.retry"><code class="docutils literal notranslate"><span class="pre">retry()</span></code></a></li>
-<li><a class="reference internal" href="#ska_helpers.retry.retry_call"><code class="docutils literal notranslate"><span class="pre">retry_call()</span></code></a></li>
-<li><a class="reference internal" href="#ska_helpers.retry.tables_open_file"><code class="docutils literal notranslate"><span class="pre">tables_open_file()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#module-ska_helpers.retry">Retry</a></li>
 <li><a class="reference internal" href="#module-ska_helpers.setup_helper">Setup Helpers</a><ul>
 <li><a class="reference internal" href="#ska_helpers.setup_helper.duplicate_package_info"><code class="docutils literal notranslate"><span class="pre">duplicate_package_info()</span></code></a></li>
 </ul>
