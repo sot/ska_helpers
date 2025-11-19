@@ -165,9 +165,8 @@ def __retry_internal(
                     raise
 
             if logger is not None:
-                call_args = list(args)
-                for key, val in kwargs.items():
-                    call_args.append(f"{key}={val}")
+                # Do not show kwarg values since they might include a password
+                call_args = list(args) + [f"{key}=..." for key in kwargs]
                 call_args_str = ", ".join(str(arg) for arg in call_args)
                 func_name = getattr(f, "__name__", "func")
                 func_call = f"{func_name}({call_args_str})"
