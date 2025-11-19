@@ -121,7 +121,7 @@ def __retry_internal(
     backoff=1,
     jitter=0,
     logger=logging_logger,
-    mangle_alert_words=False,
+    mangle_alert_words=True,
     args=None,
     kwargs=None,
 ):
@@ -242,7 +242,7 @@ def retry(
     backoff=1,
     jitter=0,
     logger=logging_logger,
-    mangle_alert_words=False,
+    mangle_alert_words=True,
 ):
     """Returns a retry decorator.
 
@@ -256,7 +256,7 @@ def retry(
     :param logger: logger.warning(fmt, error, delay) will be called on failed attempts.
                    default: retry.logging_logger. if None, logging is disabled.
     :param mangle_alert_words: if True, mangle alert words "warning", "error", "fatal",
-                   "exception" when issuing a logger warning message. Default: False.
+                   "exception" when issuing a logger warning message. Default: True.
     :returns: a retry decorator.
     """
 
@@ -293,7 +293,7 @@ def retry_call(
     backoff=1,
     jitter=0,
     logger=logging_logger,
-    mangle_alert_words=False,
+    mangle_alert_words=True,
 ):
     """
     Calls a function and re-executes it if it failed.
@@ -312,7 +312,7 @@ def retry_call(
                    default: retry.logging_logger. if None, logging is disabled.
     :param mangle_alert_words: if True, mangle alert words "warning", "error", "fatal",
                    "exception", "fail" when issuing a logger warning message.
-                   Default: False.
+                   Default: True.
     :returns: the result of the f function.
     """
     if args is None:
