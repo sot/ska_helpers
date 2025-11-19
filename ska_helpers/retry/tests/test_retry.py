@@ -47,7 +47,7 @@ def test_retry_func(caplog, default_logger):
     records = list(caplog.records)
     assert len(records) == 2  # 2 failures before success
     for record in records:
-        assert record.levelname == "WARNING"
+        assert record.levelname == "INFO"
         assert (
             "WARN1NG: mock-func42() excepti0n: mock excepti0n TimeoutErr0r"
             in record.message
