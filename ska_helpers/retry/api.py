@@ -121,7 +121,7 @@ def __retry_internal(
     backoff=1,
     jitter=0,
     logger=logging_logger,
-    mangle_alert_words=False,
+    mangle_alert_words=True,
     args=None,
     kwargs=None,
 ):
@@ -165,9 +165,8 @@ def __retry_internal(
                     raise
 
             if logger is not None:
-                call_args = list(args)
-                for key, val in kwargs.items():
-                    call_args.append(f"{key}={val}")
+                # Do not show kwarg values since they might include a password
+                call_args = list(args) + [f"{key}=..." for key in kwargs]
                 call_args_str = ", ".join(str(arg) for arg in call_args)
                 func_name = getattr(f, "__name__", "func")
                 func_call = f"{func_name}({call_args_str})"
@@ -177,7 +176,7 @@ def __retry_internal(
                 )
                 if mangle_alert_words:
                     msg = _mangle_alert_words(msg)
-                logger.warning(msg)
+                logger.info(msg)
 
             time.sleep(_delay)
             _delay *= backoff
@@ -243,7 +242,7 @@ def retry(
     backoff=1,
     jitter=0,
     logger=logging_logger,
-    mangle_alert_words=False,
+    mangle_alert_words=True,
 ):
     """Returns a retry decorator.
 
@@ -257,7 +256,7 @@ def retry(
     :param logger: logger.warning(fmt, error, delay) will be called on failed attempts.
                    default: retry.logging_logger. if None, logging is disabled.
     :param mangle_alert_words: if True, mangle alert words "warning", "error", "fatal",
-                   "exception" when issuing a logger warning message. Default: False.
+                   "exception" when issuing a logger warning message. Default: True.
     :returns: a retry decorator.
     """
 
@@ -294,7 +293,7 @@ def retry_call(
     backoff=1,
     jitter=0,
     logger=logging_logger,
-    mangle_alert_words=False,
+    mangle_alert_words=True,
 ):
     """
     Calls a function and re-executes it if it failed.
@@ -313,7 +312,7 @@ def retry_call(
                    default: retry.logging_logger. if None, logging is disabled.
     :param mangle_alert_words: if True, mangle alert words "warning", "error", "fatal",
                    "exception", "fail" when issuing a logger warning message.
-                   Default: False.
+                   Default: True.
     :returns: the result of the f function.
     """
     if args is None:
